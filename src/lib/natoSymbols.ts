@@ -21,6 +21,21 @@ const INTERIORS: Record<NATOUnitType, (color: string) => string> = {
   hq: (color) => `
     <text x="18" y="29" text-anchor="middle" font-size="13" font-weight="bold" fill="${color}" font-family="ui-monospace,monospace">HQ</text>
   `,
+  fighter: (color) => `
+    <path d="M18,12 L30,22 L18,32 L6,22 Z" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="12" y1="16" x2="24" y2="28" stroke="${color}" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="24" y1="16" x2="12" y2="28" stroke="${color}" stroke-width="1.8" stroke-linecap="round"/>
+  `,
+  helicopter: (color) => `
+    <path d="M18,12 L30,22 L18,32 L6,22 Z" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="7" y1="22" x2="29" y2="22" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
+  `,
+  warship: (color) => `
+    <path d="M6,30 L6,20 Q18,11 30,20 L30,30 Z" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>
+  `,
+  submarine: (color) => `
+    <ellipse cx="18" cy="22" rx="11" ry="6" fill="none" stroke="${color}" stroke-width="2"/>
+  `,
 };
 
 export function natoSVG(type: NATOUnitType, color: string, bg = NATO_SYMBOL_BG): string {

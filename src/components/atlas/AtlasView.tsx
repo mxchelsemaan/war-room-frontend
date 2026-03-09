@@ -9,6 +9,7 @@ import { AtlasMap } from "./AtlasMap";
 import { MapLayerControls } from "./MapLayerControls";
 import type { LayerVisibility } from "./MapLayerControls";
 import { DrawingToolbar } from "./DrawingToolbar";
+import { SavedItemsPanel } from "./SavedItemsPanel";
 import { FloatingTriggerBtn } from "./FloatingPanel";
 import { Sparkles, SlidersHorizontal, List } from "lucide-react";
 import { CameraControls } from "./CameraControls";
@@ -95,7 +96,7 @@ function AtlasViewInner() {
   const { setSelectedAnnotationId: _setSelAnnId } = ann;
   const handleSelectAnnotation = useCallback((id: string) => {
     _setSelAnnId(id);
-    setPanelOpen('draw', true);
+    setPanelOpen('items', true);
   }, [_setSelAnnId, setPanelOpen]);
 
   function resetView() {
@@ -246,14 +247,13 @@ function AtlasViewInner() {
                 Debrief with Shifra
               </FloatingTriggerBtn>
             </div>
-            {/* Top-right: draw toolbar + unit palette */}
+            {/* Top-right: draw toolbar */}
             <div className="absolute top-[10px] right-3 z-30 flex flex-col items-end gap-1">
               <DrawingToolbar
                 mode={ann.mode}
                 color={ann.color}
                 drawWidth={ann.drawWidth}
                 drawArrowStyle={ann.drawArrowStyle}
-                annotations={ann.annotations}
                 open={isPanelOpen('draw')}
                 onToggle={() => togglePanel('draw')}
                 onStartDrawing={ann.startDrawing}
@@ -267,40 +267,30 @@ function AtlasViewInner() {
                 onSetDrawDash={ann.setDrawDash}
                 onSetDrawFloat={ann.setDrawFloat}
                 onCancel={ann.cancel}
-                onDeleteAnnotation={ann.deleteAnnotation}
-                onRenameAnnotation={ann.renameAnnotation}
-                onToggleGlow={ann.toggleGlow}
-                onToggleDash={ann.toggleDash}
-                onToggleLabel={ann.toggleLabel}
-                onToggleAnnotationFloat={ann.toggleAnnotationFloat}
-                selectedAnnotationId={ann.selectedAnnotationId}
-                onSelectAnnotation={ann.setSelectedAnnotationId}
-                onSetAnnotationColor={ann.setAnnotationColor}
-                onSetAnnotationWidth={ann.setAnnotationWidth}
-                units={up.units}
-                paths={up.paths}
                 placementMode={up.placementMode}
                 pendingColor={up.pendingColor}
                 pathDrawingUnitId={up.pathDrawingUnitId}
                 onStartPlacement={handleStartPlacement}
                 onCancelPlacement={up.cancelPlacement}
                 onSetPendingColor={up.setPendingColor}
-                onUpdateUnit={up.updateUnit}
-                onDeleteUnit={up.deleteUnit}
-                onStartPathDrawing={handleStartPathDrawing}
-                onFinishPathDrawing={up.finishPathDrawing}
-                onCancelPathDrawing={up.cancelPathDrawing}
-                onDeletePath={up.deletePath}
                 showLabels={showLabels}
               />
             </div>
-            <MapLayerControls
-              layers={layers}
-              onChange={setLayers}
-              open={isPanelOpen('layers')}
-              onToggle={() => togglePanel('layers')}
-              showLabels={showLabels}
-            />
+            {/* Top-left: layers + saved items */}
+            <div className="absolute top-[10px] left-3 z-10 flex flex-col items-start gap-1">
+              <MapLayerControls
+                layers={layers}
+                onChange={setLayers}
+                open={isPanelOpen('layers')}
+                onToggle={() => togglePanel('layers')}
+                showLabels={showLabels}
+              />
+              <SavedItemsPanel
+                open={isPanelOpen('items')}
+                onToggle={() => togglePanel('items')}
+                showLabels={showLabels}
+              />
+            </div>
             {/* Bottom-right control stack */}
             <div className="absolute bottom-6 right-3 z-10 flex flex-col items-end gap-1">
               <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={showLabels} />

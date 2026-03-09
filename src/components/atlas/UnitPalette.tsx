@@ -9,19 +9,13 @@ import type { NATOUnitType, PlacedUnit, UnitPath } from "@/types/units";
 import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
 
 const UNIT_SHORT_LABELS: Record<NATOUnitType, string> = {
-  infantry: "Inf",
-  armor: "Arm",
-  artillery: "Art",
-  mechanized: "Mec",
-  hq: "HQ",
+  infantry: "Inf", armor: "Arm", artillery: "Art", mechanized: "Mec", hq: "HQ",
+  fighter: "Ftr", helicopter: "Hel", warship: "War", submarine: "Sub",
 };
 
 const UNIT_FULL_LABELS: Record<NATOUnitType, string> = {
-  infantry: "Infantry",
-  armor: "Armor",
-  artillery: "Artillery",
-  mechanized: "Mechanized",
-  hq: "HQ",
+  infantry: "Infantry", armor: "Armor", artillery: "Artillery", mechanized: "Mechanized", hq: "HQ",
+  fighter: "Fighter", helicopter: "Helicopter", warship: "Warship", submarine: "Submarine",
 };
 
 const NATO_TYPES: NATOUnitType[] = ["infantry", "armor", "artillery", "mechanized", "hq"];

@@ -211,7 +211,7 @@ export function FloatAnnotationOverlay({ annotations, mapRef, terrainActive = fa
     map.on("render", update);
     return () => { map.off("render", update); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef.current]);
+  }, []);
 
   void tick;
   void rafRef;

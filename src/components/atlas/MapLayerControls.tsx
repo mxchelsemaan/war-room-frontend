@@ -78,7 +78,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
     .filter(g => g.items.length > 0);
 
   return (
-    <div className="absolute top-[10px] left-3 z-10 flex flex-col items-start gap-1">
+    <div className="flex flex-col items-start gap-1">
       <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close layers" : "Open layers"} showLabels={showLabels}>
         <Layers className="size-3.5" />
         Layers

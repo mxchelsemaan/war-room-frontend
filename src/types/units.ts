@@ -1,4 +1,6 @@
-export type NATOUnitType = "infantry" | "armor" | "artillery" | "mechanized" | "hq";
+export type NATOUnitType =
+  | "infantry" | "armor" | "artillery" | "mechanized" | "hq"
+  | "fighter" | "helicopter" | "warship" | "submarine";
 
 export interface PlacedUnit {
   id: string;

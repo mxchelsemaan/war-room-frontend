@@ -10,6 +10,10 @@ const UNIT_LABELS: Record<NATOUnitType, string> = {
   artillery: "Artillery",
   mechanized: "Mechanized",
   hq: "HQ",
+  fighter: "Fighter",
+  helicopter: "Helicopter",
+  warship: "Warship",
+  submarine: "Submarine",
 };
 
 export interface UseUnitPlacementResult {
