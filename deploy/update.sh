@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # deploy/update.sh
 #
-# Manual redeploy — pulls the latest image and restarts.
+# Pull latest code and rebuild/restart the container.
 # Run from your laptop:
-#   ssh root@YOUR_IP 'bash /opt/war-room/update.sh'
+#   ssh root@YOUR_IP 'bash -s' < deploy/update.sh
 set -euo pipefail
 
 APP_DIR="/opt/war-room"
 
-docker compose -f "$APP_DIR/docker-compose.yml" pull
-docker compose -f "$APP_DIR/docker-compose.yml" up -d
+cd "$APP_DIR"
+git pull origin main
+docker compose up --build -d
 
 echo "==> Updated!  http://$(hostname -I | awk '{print $1}')"
