@@ -71,6 +71,8 @@ export function useDrawing(): DrawingHookResult {
   drawFloatRef.current = drawFloat;
   // Live ref updated synchronously — not derived from React state.
   const liveCoordsRef = useRef<[number, number][]>([]);
+  // Timestamp of last click — used to detect double-clicks without relying on onDblClick.
+  const lastClickTimeRef = useRef(0);
 
   const finishDrawing = useCallback((coords: [number, number][], m: AnnotationType) => {
     if ((m === "line" || m === "arrow") && coords.length < 2) return;
@@ -110,6 +112,8 @@ export function useDrawing(): DrawingHookResult {
   const setDrawFloat = useCallback((v: boolean) => setDrawFloatState(v), []);
 
   // click always adds a point — no timers, no debounce.
+  // Double-click is detected by timing two rapid successive clicks (< 300 ms),
+  // so we never rely on the unreliable onDblClick event from react-map-gl.
   const handleClick = useCallback((lngLat: [number, number]) => {
     const m = modeRef.current;
     if (!m) return;
@@ -135,22 +139,26 @@ export function useDrawing(): DrawingHookResult {
       return;
     }
 
+    const now = Date.now();
+    const isDbl = now - lastClickTimeRef.current < 300;
+    lastClickTimeRef.current = now;
+
+    if (isDbl) {
+      // Second click of a double-click — finish without adding a duplicate point.
+      finishDrawing(liveCoordsRef.current, m);
+      return;
+    }
+
     const next: [number, number][] = [...liveCoordsRef.current, lngLat];
     liveCoordsRef.current = next;
     setTempCoords(next);
-  }, []);
-
-  // dblclick finishes drawing. MapLibre fires two click events before dblclick,
-  // so the last point in liveCoordsRef was added by the second of those clicks —
-  // remove it before saving to give the correct vertex count.
-  const handleDblClick = useCallback((_lngLat: [number, number]) => {
-    const m = modeRef.current;
-    if (!m || m === "pin") return;
-    const coords = liveCoordsRef.current;
-    const trimmed = coords.length > 0 ? coords.slice(0, -1) : coords;
-    liveCoordsRef.current = trimmed;
-    finishDrawing(trimmed, m);
   }, [finishDrawing]);
+
+  // no-op: double-click is now handled entirely in handleClick via timestamp detection.
+  // onDblClick on the Map still calls e.preventDefault() to suppress zoom — that stays.
+  const handleDblClick = useCallback((_lngLat: [number, number]) => {
+    // intentionally empty
+  }, []);
 
   const cancel = useCallback(() => {
     liveCoordsRef.current = [];
