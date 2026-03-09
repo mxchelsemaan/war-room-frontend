@@ -6,7 +6,7 @@
 #   ssh root@YOUR_IP 'bash -s' < deploy/setup-server.sh
 set -euo pipefail
 
-REPO="https://github.com/michlsemn/war-room-frontend.git"
+REPO="https://github.com/mxchelsemaan/war-room-frontend.git"
 BRANCH="main"
 APP_DIR="/opt/war-room"
 
