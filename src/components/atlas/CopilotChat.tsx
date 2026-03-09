@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Trash2, AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { CopilotSources } from "./CopilotSources";
 import type { ChatMessage } from "@/hooks/useCopilot";
 import ReactMarkdown from "react-markdown";
@@ -54,13 +55,14 @@ export function CopilotChat({
             </p>
             <div className="flex flex-col gap-2 w-full max-w-sm">
               {SUGGESTIONS.map((s) => (
-                <button
+                <Button
                   key={s}
+                  variant="outline"
                   onClick={() => sendMessage(s)}
-                  className="text-xs text-left px-3 py-2 rounded-lg border border-border hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-xs text-left justify-start h-auto px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
                   {s}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -107,9 +109,9 @@ export function CopilotChat({
         <div className="mx-5 mb-2 flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
           <AlertCircle className="size-3.5 shrink-0" />
           <span className="flex-1">{error}</span>
-          <button onClick={() => setError(null)}>
+          <Button variant="ghost" size="icon" onClick={() => setError(null)} className="size-5">
             <X className="size-3.5" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -126,14 +128,14 @@ export function CopilotChat({
             <Trash2 className="size-3.5" />
           </Button>
         )}
-        <input
+        <Input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           placeholder="Ask Shifra..."
           disabled={isLoading}
-          className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
+          className="flex-1 border-0 shadow-none bg-transparent h-auto px-0 text-sm focus-visible:ring-0"
         />
         <Button
           variant="ghost"

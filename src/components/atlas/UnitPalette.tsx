@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Crosshair, Trash2, Sparkles, Play, Pause, Route, X } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { ColorPickerButton } from "./ColorPickerPopover";
+import { Button } from "@/components/ui/button";
+import { ToggleChip } from "@/components/ui/ToggleChip";
 import { natoMiniSVG } from "@/lib/natoSymbols";
 import type { NATOUnitType, PlacedUnit, UnitPath } from "@/types/units";
 import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
@@ -23,32 +25,6 @@ const UNIT_FULL_LABELS: Record<NATOUnitType, string> = {
 };
 
 const NATO_TYPES: NATOUnitType[] = ["infantry", "armor", "artillery", "mechanized", "hq"];
-
-/* ── ToggleChip ────────────────────────────────────────────── */
-
-function ToggleChip({
-  active, onClick, activeClass, icon, label, title,
-}: {
-  active: boolean;
-  onClick: () => void;
-  activeClass: string;
-  icon: React.ReactNode;
-  label: string;
-  title: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      className={`flex flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-[10px] font-medium transition-colors ${
-        active ? activeClass : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
 
 /* ── UnitRow ───────────────────────────────────────────────── */
 
@@ -293,19 +269,20 @@ export function UnitPalette({
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Unit Type</span>
           <div className="grid grid-cols-5 gap-1.5">
             {NATO_TYPES.map((type) => (
-              <button
+              <Button
                 key={type}
+                variant="ghost"
                 onClick={() => placementMode === type ? onCancelPlacement() : onStartPlacement(type)}
                 title={UNIT_FULL_LABELS[type]}
-                className={`flex flex-col items-center justify-center gap-1 rounded-lg py-2 text-[10px] font-medium transition-colors ${
+                className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-[10px] font-medium ${
                   placementMode === type
                     ? "bg-primary/20 text-primary ring-1 ring-primary/40"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : "#000000", placementMode === type ? "#1a1a2e" : "#ffffff") }} />
                 <span>{UNIT_SHORT_LABELS[type]}</span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>

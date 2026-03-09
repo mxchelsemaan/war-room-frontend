@@ -1,3 +1,5 @@
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
 export function SegmentedToggle<T extends string>({
   options, value, onChange,
 }: {
@@ -6,20 +8,21 @@ export function SegmentedToggle<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="flex rounded-lg overflow-hidden border border-border text-[11px] font-medium">
+    <ToggleGroup
+      type="single"
+      value={value}
+      onValueChange={(v) => { if (v) onChange(v as T); }}
+      className="w-full rounded-lg border border-border text-[11px] font-medium"
+    >
       {options.map((o) => (
-        <button
+        <ToggleGroupItem
           key={o.value}
-          onClick={() => onChange(o.value)}
-          className={`flex flex-1 items-center justify-center gap-1 py-1.5 transition-colors ${
-            value === o.value
-              ? "bg-primary text-primary-foreground"
-              : "hover:bg-muted text-muted-foreground"
-          }`}
+          value={o.value}
+          className="flex flex-1 items-center justify-center gap-1 py-1.5 rounded-none text-[11px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
         >
           {o.label}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   );
 }

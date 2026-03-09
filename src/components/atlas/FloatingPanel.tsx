@@ -7,6 +7,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface CollapsePanelProps {
   open: boolean;
@@ -20,15 +21,15 @@ export function CollapsePanel({ open, direction = "down", className, children }:
   const isUp = direction === "up";
   return (
     <div
-      className={cn("grid transition-[grid-template-rows] duration-200 ease-out", className)}
-      style={{
-        gridTemplateRows: open ? "1fr" : "0fr",
-        ...(isUp ? { transform: "scaleY(-1)" } : {}),
-      }}
+      className={cn(
+        "grid transition-[grid-template-rows] duration-200 ease-out",
+        open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        isUp && "-scale-y-100",
+        className
+      )}
     >
       <div
-        className="overflow-hidden"
-        style={isUp ? { transform: "scaleY(-1)" } : undefined}
+        className={cn("overflow-hidden", isUp && "-scale-y-100")}
       >
         {children}
       </div>
@@ -46,11 +47,12 @@ interface FloatingTriggerBtnProps {
 
 export function FloatingTriggerBtn({ onClick, children, className, showLabels = true, "aria-label": ariaLabel }: FloatingTriggerBtnProps) {
   return (
-    <button
+    <Button
+      variant="ghost"
       onClick={onClick}
       aria-label={ariaLabel}
       className={cn(
-        "glass-panel flex items-center px-3 py-3 md:px-2.5 md:py-2.5 min-h-[44px] md:min-h-0 text-xs font-semibold hover:bg-muted",
+        "glass-panel flex items-center px-3 py-3 md:px-2.5 md:py-2.5 min-h-[44px] md:min-h-0 text-xs font-semibold hover:bg-muted h-auto rounded-md",
         className
       )}
       style={{
@@ -69,6 +71,6 @@ export function FloatingTriggerBtn({ onClick, children, className, showLabels = 
           </span>
         );
       })}
-    </button>
+    </Button>
   );
 }

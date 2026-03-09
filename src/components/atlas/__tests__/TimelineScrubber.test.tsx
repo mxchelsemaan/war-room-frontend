@@ -80,10 +80,10 @@ describe("TimelineScrubber", () => {
     expect(onChange).toHaveBeenCalledWith(DATES[2]);
   });
 
-  it("'Show all' button calls onChange with null", () => {
+  it("'Clear' button calls onChange with null", () => {
     const onChange = vi.fn();
     renderScrubber({ activeDay: "2024-10-02", onChange });
-    fireEvent.click(screen.getByText("Show all"));
+    fireEvent.click(screen.getByText("Clear"));
     expect(onChange).toHaveBeenCalledWith(null);
   });
 
@@ -132,7 +132,7 @@ describe("TimelineScrubber", () => {
     const onToggle = vi.fn();
     renderScrubber({ onToggle });
     expect(screen.getByRole("slider")).toBeInTheDocument();
-    fireEvent.click(screen.getByLabelText("Collapse timeline"));
+    fireEvent.click(screen.getByLabelText("Close timeline"));
     expect(onToggle).toHaveBeenCalled();
   });
 

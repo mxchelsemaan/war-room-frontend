@@ -1,5 +1,5 @@
 import maplibregl from "maplibre-gl";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { Map, Marker, Popup, AttributionControl } from "react-map-gl/maplibre";
 import { DrawingLayers } from "./DrawingLayers";

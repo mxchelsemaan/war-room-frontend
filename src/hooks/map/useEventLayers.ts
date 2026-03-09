@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
@@ -24,56 +24,72 @@ export function useEventLayers(
   setPopupEvent: (evt: MapEvent | null) => void,
   setPopupInfra: (infra: null) => void,
 ) {
-  // ── Heatmap ───────────────────────────────────────────────────────────
+  // ── Memoize GeoJSON data ──────────────────────────────────────────────
+  const heatmapGeoJson = useMemo<GeoJSON.FeatureCollection>(() => ({
+    type: "FeatureCollection",
+    features: events.map((e) => ({
+      type: "Feature" as const,
+      properties: { weight: e.event_count },
+      geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
+    })),
+  }), [events]);
+
+  const clusterGeoJson = useMemo<GeoJSON.FeatureCollection>(() => ({
+    type: "FeatureCollection",
+    features: events.map((e) => ({
+      type: "Feature" as const,
+      properties: {
+        id: e.id,
+        event_type: e.event_type,
+        event_icon: e.event_icon,
+        event_label: e.event_label,
+        event_location_name: e.event_location.name,
+        event_location_lat: e.event_location.lat,
+        event_location_lng: e.event_location.lng,
+        event_count: e.event_count,
+        date: e.date,
+      },
+      geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
+    })),
+  }), [events]);
+
+  const uniqueEmojis = useMemo(() => [...new Set(events.map((e) => e.event_icon))], [events]);
+
+  // Keep refs so visibility-only effects don't depend on data
+  const heatmapGeoJsonRef = useRef(heatmapGeoJson);
+  heatmapGeoJsonRef.current = heatmapGeoJson;
+  const clusterGeoJsonRef = useRef(clusterGeoJson);
+  clusterGeoJsonRef.current = clusterGeoJson;
+
+  // ── Heatmap: data update ──────────────────────────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
-    const geojson: GeoJSON.FeatureCollection = {
-      type: "FeatureCollection",
-      features: events.map((e) => ({
-        type: "Feature" as const,
-        properties: { weight: e.event_count },
-        geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
-      })),
-    };
     if (!map.getSource("heatmap-src")) {
-      map.addSource("heatmap-src", { type: "geojson", data: geojson });
+      map.addSource("heatmap-src", { type: "geojson", data: heatmapGeoJson });
       map.addLayer({ id: "heatmap-layer", type: "heatmap", source: "heatmap-src",
         paint: { "heatmap-weight": ["get", "weight"], "heatmap-intensity": 1, "heatmap-radius": 60, "heatmap-opacity": 1 },
         layout: { visibility: heatmapEnabled ? "visible" : "none" } });
     } else {
-      (map.getSource("heatmap-src") as maplibregl.GeoJSONSource).setData(geojson);
-      map.setLayoutProperty("heatmap-layer", "visibility", heatmapEnabled ? "visible" : "none");
+      (map.getSource("heatmap-src") as maplibregl.GeoJSONSource).setData(heatmapGeoJson);
     }
-  }, [events, heatmapEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [heatmapGeoJson, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Clustered event markers ──────────────────────────────────────────
+  // ── Heatmap: visibility toggle ────────────────────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map || !map.getLayer("heatmap-layer")) return;
+    map.setLayoutProperty("heatmap-layer", "visibility", heatmapEnabled ? "visible" : "none");
+  }, [heatmapEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Clustered event markers: data update ──────────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    const geojson: GeoJSON.FeatureCollection = {
-      type: "FeatureCollection",
-      features: events.map((e) => ({
-        type: "Feature" as const,
-        properties: {
-          id: e.id,
-          event_type: e.event_type,
-          event_icon: e.event_icon,
-          event_label: e.event_label,
-          event_location_name: e.event_location.name,
-          event_location_lat: e.event_location.lat,
-          event_location_lng: e.event_location.lng,
-          event_count: e.event_count,
-          date: e.date,
-        },
-        geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
-      })),
-    };
-
-    const uniqueEmojis = [...new Set(events.map((e) => e.event_icon))];
     registerEmojiImages(map, uniqueEmojis);
 
     const vis = markersEnabled ? "visible" : "none";
@@ -81,7 +97,7 @@ export function useEventLayers(
     if (!map.getSource("events-clustered")) {
       map.addSource("events-clustered", {
         type: "geojson",
-        data: geojson,
+        data: clusterGeoJson,
         cluster: true,
         clusterMaxZoom: 13,
         clusterRadius: 50,
@@ -162,12 +178,20 @@ export function useEventLayers(
         },
       });
     } else {
-      (map.getSource("events-clustered") as maplibregl.GeoJSONSource).setData(geojson);
-      for (const layerId of EVENT_CLUSTER_LAYERS) {
-        if (map.getLayer(layerId)) map.setLayoutProperty(layerId, "visibility", vis);
-      }
+      (map.getSource("events-clustered") as maplibregl.GeoJSONSource).setData(clusterGeoJson);
     }
-  }, [events, markersEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [clusterGeoJson, uniqueEmojis, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Clustered event markers: visibility toggle ────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const vis = markersEnabled ? "visible" : "none";
+    for (const layerId of EVENT_CLUSTER_LAYERS) {
+      if (map.getLayer(layerId)) map.setLayoutProperty(layerId, "visibility", vis);
+    }
+  }, [markersEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Cluster click handlers ────────────────────────────────────────────
   useEffect(() => {

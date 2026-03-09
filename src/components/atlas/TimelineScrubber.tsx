@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import { Pause, Play, RotateCcw, X } from "lucide-react";
 import { CollapsePanel } from "./FloatingPanel";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 const BASE_MS = 900;
@@ -73,7 +74,7 @@ export function TimelineScrubber({ dates, activeDay, onChange, open, onToggle }:
 
   return (
     <div className="absolute bottom-4 left-0 right-0 z-20 pointer-events-none flex justify-center px-3 md:px-0">
-      <div className="pointer-events-auto flex flex-col items-center gap-0 w-full" style={{ maxWidth: isMobile ? "calc(100vw - 1.5rem)" : "40rem" }}>
+      <div className={`pointer-events-auto flex flex-col items-center gap-0 w-full max-w-[calc(100vw-1.5rem)] md:max-w-[40rem]`}>
 
         {/* Expanded panel — slides up from above the pill */}
         <CollapsePanel open={open} className="w-full">
@@ -81,51 +82,58 @@ export function TimelineScrubber({ dates, activeDay, onChange, open, onToggle }:
             <div className="glass-panel mb-1.5 p-3">
               {/* Controls row */}
               <div className="flex items-center gap-2 mb-2">
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={cycleSpeed}
                   aria-label={`Speed ${speed}x`}
-                  className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors border border-border rounded px-1.5 py-0.5"
+                  className="h-6 px-1.5 text-xs font-semibold"
                 >
                   {speed}×
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant={loop ? "default" : "outline"}
+                  size="icon"
                   onClick={() => setLoop((l) => !l)}
                   aria-label={loop ? "Loop on" : "Loop off"}
-                  className={`flex items-center justify-center size-6 rounded border transition-colors ${loop ? "border-primary text-primary" : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"}`}
+                  className={`size-6 ${loop ? "border-primary text-primary-foreground" : ""}`}
                 >
                   <RotateCcw className="size-3.5" />
-                </button>
+                </Button>
                 <span className="ml-auto text-xs text-muted-foreground">
                   {format(parseISO(dates[0]), "d MMM")}
                   &thinsp;–&thinsp;
                   {format(parseISO(dates[dates.length - 1]), "d MMM yyyy")}
                 </span>
                 {activeDay && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => { setPlaying(false); onChange(null); }}
-                    className="text-xs text-destructive/70 hover:text-destructive transition-colors"
+                    className="h-auto px-1 py-0 text-xs text-destructive/70 hover:text-destructive"
                   >
                     Clear
-                  </button>
+                  </Button>
                 )}
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => { setPlaying(false); onToggle(); }}
                   aria-label="Close timeline"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="size-6"
                 >
                   <X className="size-3.5" />
-                </button>
+                </Button>
               </div>
               {/* Slider + date labels */}
               <div className="px-2">
-              <input
-                type="range"
+              <Slider
                 min={0}
                 max={dates.length - 1}
-                value={idx}
-                onChange={(e) => { setPlaying(false); onChange(dates[parseInt(e.target.value, 10)]); }}
-                className="w-full accent-primary cursor-pointer"
-                style={{ height: isMobile ? "44px" : "16px" }}
+                step={1}
+                value={[idx]}
+                onValueChange={([v]) => { setPlaying(false); onChange(dates[v]); }}
+                className={`w-full ${isMobile ? "h-11" : ""}`}
               />
               {/* Date labels */}
               <div className="relative mt-2 h-5">

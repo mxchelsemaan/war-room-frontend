@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { ChatSource } from "@/hooks/useCopilot";
 
 function TelegramIcon({ className }: { className?: string }) {
@@ -42,15 +43,17 @@ export function CopilotSources({ sources }: CopilotSourcesProps) {
 
   return (
     <div className="mt-1.5">
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => setExpanded((v) => !v)}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className="h-auto px-1 py-0 text-xs text-muted-foreground hover:text-foreground gap-1"
       >
         <span>Sources: {preview}</span>
         <ChevronDown
           className={`size-3 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
         />
-      </button>
+      </Button>
 
       {expanded && (
         <ul className="mt-1.5 flex flex-col gap-1 border-l-2 border-primary/30 pl-3">

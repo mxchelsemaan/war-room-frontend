@@ -6,6 +6,7 @@ import { STATIC_MARKER_META } from "@/data/staticMarkers";
 import type { StaticMarkerType } from "@/data/staticMarkers";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 
@@ -107,8 +108,7 @@ export function FilterSidebar({
       collapsedContent={
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4">
           <span
-            className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground select-none"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+            className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground select-none [writing-mode:vertical-rl] rotate-180"
           >
             Filters
           </span>
@@ -123,19 +123,9 @@ export function FilterSidebar({
             Event Type
           </span>
           <div className="flex gap-2">
-            <button
-              onClick={selectAll}
-              className="text-2xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              All
-            </button>
+            <Button variant="ghost" size="sm" className="h-auto px-1 py-0 text-2xs text-muted-foreground hover:text-foreground" onClick={selectAll}>All</Button>
             <span className="text-2xs text-muted-foreground">/</span>
-            <button
-              onClick={selectNone}
-              className="text-2xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              None
-            </button>
+            <Button variant="ghost" size="sm" className="h-auto px-1 py-0 text-2xs text-muted-foreground hover:text-foreground" onClick={selectNone}>None</Button>
           </div>
         </div>
 
@@ -145,11 +135,10 @@ export function FilterSidebar({
               key={et.key}
               className="flex items-center gap-2 cursor-pointer group"
             >
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={filters.selectedTypes.has(et.key)}
-                onChange={() => toggleType(et.key)}
-                className="w-3.5 h-3.5 accent-foreground cursor-pointer"
+                onCheckedChange={() => toggleType(et.key)}
+                className="size-3.5"
               />
               <span className="text-xs leading-none">
                 {et.icon} {et.label}
@@ -166,19 +155,18 @@ export function FilterSidebar({
             Infrastructure
           </span>
           <div className="flex gap-2">
-            <button onClick={selectAllInfra} className="text-2xs text-muted-foreground hover:text-foreground transition-colors">All</button>
+            <Button variant="ghost" size="sm" className="h-auto px-1 py-0 text-2xs text-muted-foreground hover:text-foreground" onClick={selectAllInfra}>All</Button>
             <span className="text-2xs text-muted-foreground">/</span>
-            <button onClick={selectNoneInfra} className="text-2xs text-muted-foreground hover:text-foreground transition-colors">None</button>
+            <Button variant="ghost" size="sm" className="h-auto px-1 py-0 text-2xs text-muted-foreground hover:text-foreground" onClick={selectNoneInfra}>None</Button>
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
           {(Object.entries(STATIC_MARKER_META) as [StaticMarkerType, { label: string; icon: string }][]).map(([key, meta]) => (
             <label key={key} className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={filters.selectedInfraTypes.has(key)}
-                onChange={() => toggleInfraType(key)}
-                className="w-3.5 h-3.5 accent-foreground cursor-pointer"
+                onCheckedChange={() => toggleInfraType(key)}
+                className="size-3.5"
               />
               <span className="text-xs leading-none">{meta.icon} {meta.label}</span>
             </label>

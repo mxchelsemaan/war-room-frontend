@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import type { MapEvent } from "@/data/index";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { YOUTUBE_CHANNELS } from "@/data/youtubeChannels";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
@@ -50,7 +51,7 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
   const groups = useMemo(() => groupByDate(events), [events]);
   const isMobile = useIsMobile();
 
-  const [tab, setTab] = useState<"events" | "youtube">("events");
+  const [tab, setTab] = useState("events");
   const ytChannels = YOUTUBE_CHANNELS;
   const ytLoading = false;
   const ytError: string | null = null;
@@ -121,42 +122,21 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
       collapsedContent={
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4">
           <span
-            className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground select-none"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+            className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground select-none [writing-mode:vertical-rl] rotate-180"
           >
             Live Feeds
           </span>
         </div>
       }
     >
-      <>
-        {/* Tabs */}
-        <div className="flex shrink-0 border-b border-border">
-          <button
-            onClick={() => setTab("events")}
-            className={`flex-1 py-2 text-xs font-medium transition-colors ${
-              tab === "events"
-                ? "border-b-2 border-primary text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Events
-          </button>
-          <button
-            onClick={() => setTab("youtube")}
-            className={`flex-1 py-2 text-xs font-medium transition-colors ${
-              tab === "youtube"
-                ? "border-b-2 border-primary text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            YouTube
-          </button>
-        </div>
+      <Tabs value={tab} onValueChange={setTab} className="flex flex-col flex-1 min-h-0 gap-0">
+        <TabsList variant="line" className="shrink-0 w-full border-b border-border h-auto p-0">
+          <TabsTrigger value="events" className="flex-1 py-2 text-xs rounded-none">Events</TabsTrigger>
+          <TabsTrigger value="youtube" className="flex-1 py-2 text-xs rounded-none">YouTube</TabsTrigger>
+        </TabsList>
 
-        {/* Events tab */}
-        {tab === "events" && (
-          <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
+        <TabsContent value="events" className="flex-1 min-h-0">
+          <div ref={scrollRef} className="h-full overflow-y-auto overscroll-contain">
             {groups.length === 0 && (
               <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
                 No events match the current filters
@@ -186,11 +166,10 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
               );
             })}
           </div>
-        )}
+        </TabsContent>
 
-        {/* YouTube tab */}
-        {tab === "youtube" && (
-          <div className="flex flex-1 flex-col gap-3 p-3 overflow-y-auto">
+        <TabsContent value="youtube" className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex flex-col gap-3 p-3">
             {ytLoading && (
               <div className="flex items-center justify-center h-16 text-xs text-muted-foreground">
                 Loading channels…
@@ -236,37 +215,32 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
                   </Select>
                 </div>
 
-                {/* Prompt when nothing selected */}
                 {selectedGroup === -1 && (
                   <p className="text-center text-xs text-muted-foreground py-4">
                     Select a channel above to watch
                   </p>
                 )}
 
-                {/* Language pills — only if channel has multiple streams */}
                 {group && group.streams.length > 1 && (
                   <div className="flex gap-1.5 flex-wrap">
                     {group.streams.map((s, i) => (
-                      <button
+                      <Button
                         key={s.handle}
+                        variant={selectedStream === i ? "default" : "outline"}
+                        size="sm"
                         onClick={() => setSelectedStream(i)}
-                        className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-                          selectedStream === i
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground hover:text-foreground"
-                        }`}
+                        className="text-xs"
                       >
                         {LANGUAGE_LABEL[s.language] ?? s.language}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
 
-                {/* Embed */}
                 {embedSrc && stream && selectedGroup !== -1 && (
                   <>
                     <div className="w-full overflow-hidden rounded-md border border-border bg-black">
-                      <div style={{ aspectRatio: "16/9" }}>
+                      <div className="aspect-video">
                         <iframe
                           key={embedSrc}
                           src={embedSrc}
@@ -285,8 +259,8 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
               </>
             )}
           </div>
-        )}
-      </>
+        </TabsContent>
+      </Tabs>
     </SidePanel>
   );
 }

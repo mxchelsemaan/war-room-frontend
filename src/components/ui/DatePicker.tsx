@@ -4,6 +4,11 @@ import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-f
 import type { DateRange } from "react-day-picker";
 import { Calendar } from "@/components/ui/calendar";
 import { DATE_PRESETS } from "@/lib/datePresets";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 type DateMode = "single" | "range" | "dynamic";
 type CustomUnit = "hours" | "days" | "weeks" | "months";
@@ -90,19 +95,6 @@ export function DatePicker({
     onChange("", "");
   }
 
-  const modeBtn = (m: DateMode, label: string) => (
-    <button
-      onClick={() => setMode(m)}
-      className={`text-xs px-2.5 py-0.5 rounded transition-colors ${
-        mode === m
-          ? "bg-card text-foreground"
-          : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      {label}
-    </button>
-  );
-
   useEffect(() => {
     // keep singleDate in sync when dateFrom changes externally
     if (mode === "single") {
@@ -115,18 +107,20 @@ export function DatePicker({
     <div className="flex flex-col gap-2">
       {/* Mode toggle + clear */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-1 bg-muted rounded-md p-0.5">
-          {modeBtn("single", "Single")}
-          {modeBtn("range", "Range")}
-          {modeBtn("dynamic", "Quick")}
-        </div>
+        <ToggleGroup
+          type="single"
+          value={mode}
+          onValueChange={(v) => { if (v) setMode(v as DateMode); }}
+          className="bg-muted rounded-md p-0.5"
+        >
+          <ToggleGroupItem value="single" className="text-xs px-2.5 py-0.5 h-auto rounded data-[state=on]:bg-card data-[state=on]:text-foreground">Single</ToggleGroupItem>
+          <ToggleGroupItem value="range" className="text-xs px-2.5 py-0.5 h-auto rounded data-[state=on]:bg-card data-[state=on]:text-foreground">Range</ToggleGroupItem>
+          <ToggleGroupItem value="dynamic" className="text-xs px-2.5 py-0.5 h-auto rounded data-[state=on]:bg-card data-[state=on]:text-foreground">Quick</ToggleGroupItem>
+        </ToggleGroup>
         {(dateFrom || dateTo) && (
-          <button
-            onClick={clearDates}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
+          <Button variant="ghost" size="sm" className="h-auto px-1 py-0 text-xs text-muted-foreground hover:text-foreground" onClick={clearDates}>
             Clear dates
-          </button>
+          </Button>
         )}
       </div>
 
@@ -209,7 +203,7 @@ export function DatePicker({
               : "border-border bg-background"
           }`}>
             <span className="text-xs font-medium text-foreground">Last</span>
-            <input
+            <Input
               type="number"
               min={1}
               max={9999}
@@ -219,55 +213,60 @@ export function DatePicker({
                 setCustomN(n);
                 applyCustomRange(n, customUnit, customComplete);
               }}
-              className="w-14 rounded-md border border-border bg-background px-2 py-1 text-xs tabular-nums text-foreground outline-none focus:ring-2 focus:ring-ring transition-colors"
+              className="w-14 h-7 px-2 py-1 text-xs tabular-nums"
             />
             <label className="flex cursor-pointer items-center gap-1.5">
               <span className="text-xs text-muted-foreground">complete</span>
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={customComplete}
-                onChange={(e) => {
-                  const c = e.target.checked;
-                  setCustomComplete(c);
-                  applyCustomRange(customN, customUnit, c);
+                onCheckedChange={(c) => {
+                  const checked = !!c;
+                  setCustomComplete(checked);
+                  applyCustomRange(customN, customUnit, checked);
                 }}
-                className="h-3.5 w-3.5 accent-primary"
+                className="size-3.5"
               />
             </label>
-            <select
+            <Select
               value={customUnit}
-              onChange={(e) => {
-                const unit = e.target.value as CustomUnit;
+              onValueChange={(v) => {
+                const unit = v as CustomUnit;
                 setCustomUnit(unit);
                 applyCustomRange(customN, unit, customComplete);
               }}
-              className="rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground outline-none focus:ring-2 focus:ring-ring transition-colors"
             >
-              <option value="hours">hours</option>
-              <option value="days">days</option>
-              <option value="weeks">weeks</option>
-              <option value="months">months</option>
-            </select>
+              <SelectTrigger className="h-7 w-auto px-2 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hours">hours</SelectItem>
+                <SelectItem value="days">days</SelectItem>
+                <SelectItem value="weeks">weeks</SelectItem>
+                <SelectItem value="months">months</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Quick presets */}
           <div className={`grid gap-1.5`} style={{ gridTemplateColumns: `repeat(${presetColumns}, minmax(0, 1fr))` }}>
             {DATE_PRESETS.map((preset) => (
-              <button
+              <Button
                 key={preset.key}
+                variant={dynamicPreset === preset.key ? "default" : "outline"}
+                size="sm"
                 onClick={() => {
                   const range = preset.getRange();
                   setDynamicPreset(preset.key);
                   onChange(range.from, range.to);
                 }}
-                className={`rounded-md border px-2 py-1.5 text-xs text-left transition-colors ${
+                className={`justify-start text-xs ${
                   dynamicPreset === preset.key
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border bg-background text-foreground hover:bg-muted"
+                    ? "bg-foreground text-background hover:bg-foreground/90"
+                    : ""
                 }`}
               >
                 {preset.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

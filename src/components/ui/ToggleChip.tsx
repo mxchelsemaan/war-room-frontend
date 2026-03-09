@@ -1,3 +1,6 @@
+import { Toggle } from "@/components/ui/toggle";
+import { cn } from "@/lib/utils";
+
 export function ToggleChip({
   active, onClick, activeClass, icon, label, title,
 }: {
@@ -9,15 +12,17 @@ export function ToggleChip({
   title: string;
 }) {
   return (
-    <button
-      onClick={onClick}
+    <Toggle
+      pressed={active}
+      onPressedChange={onClick}
       title={title}
-      className={`flex flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-[10px] font-medium transition-colors ${
-        active ? activeClass : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40"
-      }`}
+      className={cn(
+        "flex flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-[10px] font-medium rounded-none h-auto min-w-0 min-h-0",
+        active ? activeClass : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40 data-[state=on]:bg-transparent"
+      )}
     >
       {icon}
       <span>{label}</span>
-    </button>
+    </Toggle>
   );
 }

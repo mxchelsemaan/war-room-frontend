@@ -3,6 +3,7 @@ import { Pencil, MapPin, Spline, Pentagon, MoveRight, Sparkles, Trash2, Minus, M
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { ColorPickerButton } from "./ColorPickerPopover";
+import { Button } from "@/components/ui/button";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
 import { Slider } from "@/components/ui/slider";
@@ -412,19 +413,20 @@ export function DrawingToolbar({
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Shapes</span>
           <div className="grid grid-cols-4 gap-1.5">
             {drawTypes.map((m) => (
-              <button
+              <Button
                 key={m}
+                variant="ghost"
                 onClick={() => handleModeBtn(m)}
                 title={MODE_LABEL[m]}
-                className={`flex flex-col items-center justify-center gap-1.5 rounded-lg py-3 text-[11px] font-medium transition-colors ${
+                className={`flex flex-col items-center justify-center gap-1.5 h-auto py-3 text-[11px] font-medium ${
                   mode === m
                     ? "bg-primary/20 text-primary ring-1 ring-primary/40"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 {TYPE_ICON[m]}
                 <span>{MODE_LABEL[m]}</span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -434,19 +436,20 @@ export function DrawingToolbar({
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Units</span>
           <div className="grid grid-cols-5 gap-1.5">
             {NATO_TYPES.map((type) => (
-              <button
+              <Button
                 key={type}
+                variant="ghost"
                 onClick={() => placementMode === type ? onCancelPlacement() : onStartPlacement(type)}
                 title={UNIT_FULL_LABELS[type]}
-                className={`flex flex-col items-center justify-center gap-1 rounded-lg py-2 text-[10px] font-medium transition-colors ${
+                className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-[10px] font-medium ${
                   placementMode === type
                     ? "bg-primary/20 text-primary ring-1 ring-primary/40"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : "#000000", placementMode === type ? "#1a1a2e" : "#ffffff") }} />
                 <span>{UNIT_SHORT_LABELS[type]}</span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -550,13 +553,15 @@ export function DrawingToolbar({
               <span className="text-primary font-medium">Editing: </span>
               <span className="text-muted-foreground">{selectedAnn.label || "unnamed"}</span>
             </p>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => onSelectAnnotation(null)}
-              className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+              className="shrink-0 size-5 text-muted-foreground/40 hover:text-muted-foreground"
               title="Deselect"
             >
               <X className="size-3" />
-            </button>
+            </Button>
           </div>
         )}
 

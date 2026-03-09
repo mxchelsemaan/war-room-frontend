@@ -25,11 +25,21 @@ export function ensureLayers(
   }
 }
 
+/** Track emojis already registered across all calls */
+const _registeredEmojis = new Set<string>();
+
 /** Render each unique emoji to a canvas and register as a MapLibre image */
 export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
+  // Fast path: skip entirely if all emojis are already registered
+  if (emojis.every((e) => _registeredEmojis.has(e))) return;
+
   for (const emoji of emojis) {
+    if (_registeredEmojis.has(emoji)) continue;
     const key = `emoji-${emoji}`;
-    if (map.hasImage(key)) continue;
+    if (map.hasImage(key)) {
+      _registeredEmojis.add(emoji);
+      continue;
+    }
     const size = 40;
     const canvas = document.createElement("canvas");
     canvas.width = size;
@@ -40,5 +50,6 @@ export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
     ctx.textBaseline = "middle";
     ctx.fillText(emoji, size / 2, size / 2);
     map.addImage(key, { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
+    _registeredEmojis.add(emoji);
   }
 }

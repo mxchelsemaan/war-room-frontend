@@ -65,11 +65,13 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
                   left={<Emoji>{meta.icon}</Emoji>}
                   label={meta.label}
                   right={
-                    <span style={{
-                      display: "inline-block", width: 7, height: 7, borderRadius: "50%",
-                      background: STATIC_MARKER_COLORS[type],
-                      boxShadow: `0 0 4px ${STATIC_MARKER_COLORS[type]}88`,
-                    }} />
+                    <span
+                      className="inline-block w-[7px] h-[7px] rounded-full"
+                      style={{
+                        background: STATIC_MARKER_COLORS[type],
+                        boxShadow: `0 0 4px ${STATIC_MARKER_COLORS[type]}88`,
+                      }}
+                    />
                   }
                 />
               ))}
@@ -86,11 +88,13 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
                   <Row
                     key={unit.id}
                     left={
-                      <span style={{
-                        display: "inline-block", width: 10, height: 10,
-                        borderRadius: 2, background: unit.color,
-                        boxShadow: `0 0 4px ${unit.color}88`,
-                      }} />
+                      <span
+                        className="inline-block w-2.5 h-2.5 rounded-sm"
+                        style={{
+                          background: unit.color,
+                          boxShadow: `0 0 4px ${unit.color}88`,
+                        }}
+                      />
                     }
                     label={unit.label}
                   />
@@ -122,18 +126,10 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
                 <Row
                   key={type}
                   left={
-                    <span style={{
-                      display: "inline-block",
-                      fontSize: 7,
-                      fontWeight: 700,
-                      fontFamily: "ui-monospace, monospace",
-                      padding: "1px 3px",
-                      borderRadius: 2,
-                      background: s.bg,
-                      color: s.color,
-                      lineHeight: 1.4,
-                      whiteSpace: "nowrap",
-                    }}>
+                    <span
+                      className="inline-block text-[7px] font-bold font-mono px-[3px] py-px rounded-sm leading-[1.4] whitespace-nowrap"
+                      style={{ background: s.bg, color: s.color }}
+                    >
                       {s.label.toUpperCase()}
                     </span>
                   }
@@ -167,12 +163,13 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
                 <Row
                   key={f.key}
                   left={
-                    <span style={{
-                      display: "inline-block", width: 14, height: 10,
-                      borderRadius: 2,
-                      background: f.color + "33",
-                      border: `1px solid ${f.color}88`,
-                    }} />
+                    <span
+                      className="inline-block w-3.5 h-2.5 rounded-sm border"
+                      style={{
+                        background: f.color + "33",
+                        borderColor: f.color + "88",
+                      }}
+                    />
                   }
                   label={f.label}
                 />

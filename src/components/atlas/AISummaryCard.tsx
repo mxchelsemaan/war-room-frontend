@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Bot, Globe, Shield, Landmark, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CopilotChat } from "./CopilotChat";
 import { useCopilot } from "@/hooks/useCopilot";
 
@@ -62,9 +63,10 @@ interface AISummaryCardProps {
 }
 
 export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: AISummaryCardProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("Copilot");
+  const [activeTab, setActiveTab] = useState<string>("Copilot");
   const copilot = useCopilot();
-  const briefing = activeTab !== "Copilot" ? CONTENT[activeTab as BriefingTab] : null;
+
+  const tabTriggerClass = "flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-t rounded-b-none border -mb-px transition-colors border-transparent text-muted-foreground hover:text-foreground data-[state=active]:border-border data-[state=active]:border-b-card data-[state=active]:bg-card/90 data-[state=active]:text-foreground";
 
   return (
     <>
@@ -82,76 +84,67 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
           open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
         }`}
       >
-        {/* Tabs as folders */}
-        <div className="flex items-end border-b border-border px-4 pt-3 gap-1 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab("Copilot")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-t border -mb-px transition-colors ${
-              activeTab === "Copilot"
-                ? "border-border border-b-card bg-card/90 text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Bot className="size-3" />
-            Copilot
-          </button>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0 gap-0">
+          {/* Tabs as folders */}
+          <div className="flex items-end border-b border-border px-4 pt-3 gap-1 overflow-x-auto">
+            <TabsList variant="line" className="h-auto p-0 bg-transparent gap-1">
+              <TabsTrigger value="Copilot" className={tabTriggerClass}>
+                <Bot className="size-3" />
+                Copilot
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Reports group — pushed to the right */}
-          <div className="ml-auto flex items-end gap-1">
-            <span className="hidden md:flex items-center pb-2 pr-2 text-2xs font-medium uppercase tracking-widest text-muted-foreground/40 select-none">
-              Reports
-            </span>
-            {TABS.filter((t) => t !== "Copilot").map((tab) => {
-              const Icon = { Overall: Globe, Military: Shield, Political: Landmark, Economic: TrendingUp }[tab];
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-t border -mb-px transition-colors ${
-                    activeTab === tab
-                      ? "border-border border-b-card bg-card/90 text-foreground"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Icon className="size-3" />
-                  {tab}
-                </button>
-              );
-            })}
-          </div>
-
-          <Button variant="ghost" size="icon-sm" onClick={onToggle} className="ml-2 mb-1" aria-label="Close daily briefing">
-            <X className="size-4" />
-          </Button>
-        </div>
-
-        {/* Content */}
-        {activeTab === "Copilot" ? (
-          <div className="flex-1 overflow-hidden">
-            <CopilotChat {...copilot} />
-          </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto px-5 py-5">
-            <div className="mx-auto max-w-2xl flex flex-col gap-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">{briefing!.summary}</p>
-              <ul className="flex flex-col gap-2.5">
-                {briefing!.bullets.map((b, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-foreground leading-relaxed">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
+            {/* Reports group — pushed to the right */}
+            <div className="ml-auto flex items-end gap-1">
+              <span className="hidden md:flex items-center pb-2 pr-2 text-2xs font-medium uppercase tracking-widest text-muted-foreground/40 select-none">
+                Reports
+              </span>
+              <TabsList variant="line" className="h-auto p-0 bg-transparent gap-1">
+                {TABS.filter((t) => t !== "Copilot").map((tab) => {
+                  const Icon = { Overall: Globe, Military: Shield, Political: Landmark, Economic: TrendingUp }[tab];
+                  return (
+                    <TabsTrigger key={tab} value={tab} className={tabTriggerClass}>
+                      <Icon className="size-3" />
+                      {tab}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
             </div>
-          </div>
-        )}
 
-        {/* Disclaimer */}
-        <div className="shrink-0 border-t border-border px-5 py-2.5">
-          <p className="text-2xs leading-relaxed text-destructive/80 max-w-2xl mx-auto">
-            ⚠ AI-generated. May contain inaccuracies — verify against primary sources before operational use.
-          </p>
-        </div>
+            <Button variant="ghost" size="icon-sm" onClick={onToggle} className="ml-2 mb-1" aria-label="Close daily briefing">
+              <X className="size-4" />
+            </Button>
+          </div>
+
+          {/* Content */}
+          <TabsContent value="Copilot" className="flex-1 overflow-hidden mt-0">
+            <CopilotChat {...copilot} />
+          </TabsContent>
+
+          {(["Overall", "Military", "Political", "Economic"] as BriefingTab[]).map((tab) => (
+            <TabsContent key={tab} value={tab} className="flex-1 overflow-y-auto px-5 py-5 mt-0">
+              <div className="mx-auto max-w-2xl flex flex-col gap-4">
+                <p className="text-sm text-muted-foreground leading-relaxed">{CONTENT[tab].summary}</p>
+                <ul className="flex flex-col gap-2.5">
+                  {CONTENT[tab].bullets.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-foreground leading-relaxed">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </TabsContent>
+          ))}
+
+          {/* Disclaimer */}
+          <div className="shrink-0 border-t border-border px-5 py-2.5">
+            <p className="text-2xs leading-relaxed text-destructive/80 max-w-2xl mx-auto">
+              ⚠ AI-generated. May contain inaccuracies — verify against primary sources before operational use.
+            </p>
+          </div>
+        </Tabs>
       </div>
     </>
   );

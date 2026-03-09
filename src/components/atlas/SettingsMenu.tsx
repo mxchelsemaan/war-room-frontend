@@ -1,5 +1,7 @@
 import { Settings, Sun, Moon, Tag } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 interface SettingsMenuProps {
   dark: boolean;
@@ -12,12 +14,14 @@ export function SettingsMenu({ dark, onToggleTheme, showLabels, onToggleLabels }
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button
-          className="glass-panel size-9 flex items-center justify-center shrink-0"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="glass-panel size-9 shrink-0"
           aria-label="Settings"
         >
           <Settings className="size-4" />
-        </button>
+        </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="z-[80] w-52 p-2">
         <button
@@ -28,9 +32,7 @@ export function SettingsMenu({ dark, onToggleTheme, showLabels, onToggleLabels }
           <span className={dark ? "text-foreground" : "text-muted-foreground"}>
             {dark ? "Light mode" : "Dark mode"}
           </span>
-          <span className={`ml-auto h-4 w-7 rounded-full transition-colors ${dark ? "bg-primary" : "bg-muted"}`}>
-            <span className={`block h-4 w-4 rounded-full border border-border bg-card transition-transform ${dark ? "translate-x-3" : "translate-x-0"}`} />
-          </span>
+          <Switch checked={dark} className="ml-auto" size="sm" tabIndex={-1} />
         </button>
         <button
           onClick={onToggleLabels}
@@ -40,9 +42,7 @@ export function SettingsMenu({ dark, onToggleTheme, showLabels, onToggleLabels }
           <span className={showLabels ? "text-foreground" : "text-muted-foreground"}>
             UI Labels
           </span>
-          <span className={`ml-auto h-4 w-7 rounded-full transition-colors ${showLabels ? "bg-primary" : "bg-muted"}`}>
-            <span className={`block h-4 w-4 rounded-full border border-border bg-card transition-transform ${showLabels ? "translate-x-3" : "translate-x-0"}`} />
-          </span>
+          <Switch checked={showLabels} className="ml-auto" size="sm" tabIndex={-1} />
         </button>
       </PopoverContent>
     </Popover>

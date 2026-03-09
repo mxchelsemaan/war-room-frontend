@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Compass, ZoomIn, ZoomOut, LocateFixed, Video } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
+import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface CameraControlsProps {
@@ -34,15 +35,17 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
     map.easeTo({ zoom: map.getZoom() + delta, duration: 200 });
   }
 
+  const btnSize = isMobile ? "size-11" : showLabels ? "size-9 pb-0.5" : "size-7";
+
   return (
     <div className="flex flex-col items-end gap-1">
       <CollapsePanel open={open}>
         <div className="glass-panel p-1.5 rounded-xl mb-1 flex items-center gap-1">
           {/* Left: zoom + home */}
           <div className="flex flex-col items-center gap-px">
-            <Btn onClick={() => zoom(1)} title="Zoom in" label="In" showLabels={showLabels} large={isMobile}><ZoomIn className="size-3.5" /></Btn>
-            <Btn onClick={() => zoom(-1)} title="Zoom out" label="Out" showLabels={showLabels} large={isMobile}><ZoomOut className="size-3.5" /></Btn>
-            <Btn onClick={onResetView} title="Home — Beirut" label="Center" showLabels={showLabels} large={isMobile} className="text-amber-400 hover:text-amber-300">
+            <Btn size={btnSize} onClick={() => zoom(1)} title="Zoom in" label="In" showLabels={showLabels}><ZoomIn className="size-3.5" /></Btn>
+            <Btn size={btnSize} onClick={() => zoom(-1)} title="Zoom out" label="Out" showLabels={showLabels}><ZoomOut className="size-3.5" /></Btn>
+            <Btn size={btnSize} onClick={onResetView} title="Home — Beirut" label="Center" showLabels={showLabels} className="text-amber-400 hover:text-amber-300">
               <LocateFixed className="size-3.5" />
             </Btn>
           </div>
@@ -52,17 +55,17 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
             <>
               <div className="w-px self-stretch bg-white/10 mx-0.5" />
               <div className="flex flex-col items-center gap-px">
-                <Btn onClick={() => adjust(undefined, -10)} title="Tilt up" label="Up" showLabels={showLabels}>
+                <Btn size={btnSize} onClick={() => adjust(undefined, -10)} title="Tilt up" label="Up" showLabels={showLabels}>
                   <ArrowUp className="size-3.5" />
                 </Btn>
                 <div className="flex items-center gap-px">
-                  <Btn onClick={() => adjust(15)} title="Rotate left" label="L" showLabels={showLabels}><ArrowLeft className="size-3.5" /></Btn>
-                  <Btn onClick={resetNorth} title="Reset north" label="N" showLabels={showLabels} className="text-sky-400 hover:text-sky-300">
+                  <Btn size={btnSize} onClick={() => adjust(15)} title="Rotate left" label="L" showLabels={showLabels}><ArrowLeft className="size-3.5" /></Btn>
+                  <Btn size={btnSize} onClick={resetNorth} title="Reset north" label="N" showLabels={showLabels} className="text-sky-400 hover:text-sky-300">
                     <Compass className="size-3.5" />
                   </Btn>
-                  <Btn onClick={() => adjust(-15)} title="Rotate right" label="R" showLabels={showLabels}><ArrowRight className="size-3.5" /></Btn>
+                  <Btn size={btnSize} onClick={() => adjust(-15)} title="Rotate right" label="R" showLabels={showLabels}><ArrowRight className="size-3.5" /></Btn>
                 </div>
-                <Btn onClick={() => adjust(undefined, 10)} title="Tilt down" label="Down" showLabels={showLabels}>
+                <Btn size={btnSize} onClick={() => adjust(undefined, 10)} title="Tilt down" label="Down" showLabels={showLabels}>
                   <ArrowDown className="size-3.5" />
                 </Btn>
               </div>
@@ -80,27 +83,27 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
   );
 }
 
-function Btn({ onClick, title, label, showLabels, large, children, className = "" }: {
+function Btn({ onClick, title, label, showLabels, size, children, className = "" }: {
   onClick: () => void;
   title: string;
   label?: string;
   showLabels?: boolean;
-  large?: boolean;
+  size: string;
   children: React.ReactNode;
   className?: string;
 }) {
-  const sizeClass = large ? "size-11" : showLabels ? "size-9 pb-0.5" : "size-7";
   return (
-    <button
+    <Button
+      variant="ghost"
       onClick={onClick}
       title={title}
       aria-label={title}
-      className={`flex flex-col items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors gap-px ${sizeClass} ${className}`}
+      className={`flex flex-col items-center justify-center rounded-lg gap-px p-0 ${size} ${className}`}
     >
       {children}
       {showLabels && label && (
         <span className="text-[8px] leading-none font-medium tracking-wide opacity-60">{label}</span>
       )}
-    </button>
+    </Button>
   );
 }
