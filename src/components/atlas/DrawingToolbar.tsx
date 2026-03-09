@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Pencil, MapPin, Spline, Pentagon, MoveRight, Sparkles, Trash2, Eye, EyeOff, Map as MapIcon, Layers, Minus, Palette, Crosshair, Route, Play, Pause, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { ColorPickerButton } from "./ColorPickerPopover";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
@@ -466,6 +467,8 @@ export function DrawingToolbar({
 }: DrawingToolbarProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
+  const isMobile = useIsMobile();
+  const drawTypes = (isMobile ? ["pin"] : ["pin", "line", "arrow", "area"]) as AnnotationType[];
 
   const pathMap = Object.fromEntries(paths.map(p => [p.id, p])) as Record<string, UnitPath>;
 
@@ -518,7 +521,7 @@ export function DrawingToolbar({
         <div>
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Draw</span>
           <div className="grid grid-cols-4 gap-1.5">
-            {(["pin", "line", "arrow", "area"] as AnnotationType[]).map((m) => (
+            {drawTypes.map((m) => (
               <button
                 key={m}
                 onClick={() => handleModeBtn(m)}
