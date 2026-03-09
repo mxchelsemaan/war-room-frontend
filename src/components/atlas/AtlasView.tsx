@@ -11,7 +11,7 @@ import type { LayerVisibility } from "./MapLayerControls";
 import { DrawingToolbar } from "./DrawingToolbar";
 import { FloatingTriggerBtn } from "./FloatingPanel";
 import { YouTubeFloatingPanel } from "./YouTubeFloatingPanel";
-import { Sparkles, SlidersHorizontal, List, Tv } from "lucide-react";
+import { Sparkles, SlidersHorizontal, List } from "lucide-react";
 import { CameraControls } from "./CameraControls";
 import { DEFAULT_VIEW } from "@/config/map";
 import { MapLegend } from "./UnitLegend";
@@ -33,12 +33,19 @@ import type { MapEvent } from "@/data/index";
 import type { EnrichedEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
+/** Attacker key for events with no attacker (political, humanitarian, etc.) */
+const UNATTRIBUTED_KEY = "__unattributed__";
+
+/** Attackers excluded from the default selection (not the editorial focus) */
+const EXCLUDED_ATTACKERS = new Set(["hezbollah", "hamas", "islamic jihad", "pij", "pflp", "resistance"]);
+
+function buildDefaultFilters(typeKeys?: string[], attackerKeys?: string[]): AtlasFilters {
   return {
     selectedTypes: new Set(typeKeys ?? []),
     selectedInfraTypes: new Set(Object.keys(STATIC_MARKER_META) as StaticMarkerType[]),
     selectedSeverities: new Set<string>(),
     selectedRegions: new Set<string>(),
+    selectedAttackers: new Set(attackerKeys ?? []),
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
     dateFrom: "",
@@ -114,7 +121,21 @@ function AtlasViewInner() {
     loadMore,
   } = useEvents(filters.dateFrom || undefined, filters.dateTo || undefined);
 
-  // Initialize selected types when live data arrives
+  // Extract dynamic filter options from all loaded events
+  const regionOptions = useMemo(() => extractOptions(allEvents, (e) => e.location.region), [allEvents]);
+  const attackerOptions = useMemo(() => {
+    const opts = extractOptions(allEvents, (e) => e.attacker);
+    // Add "Unattributed" for events with no attacker (political, humanitarian, etc.)
+    const hasUnattributed = allEvents.some((e) => !e.attacker);
+    if (hasUnattributed) {
+      opts.unshift({ key: UNATTRIBUTED_KEY, label: "Unattributed (political, etc.)", icon: "🏛️" });
+    }
+    return opts;
+  }, [allEvents]);
+  const weaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
+  const sourceTypeOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceType), [allEvents]);
+
+  // Initialize selected types + attacker defaults when live data arrives
   const typesInitialized = useRef(false);
   useEffect(() => {
     if (liveEventTypes.length > 0 && !typesInitialized.current) {
@@ -126,19 +147,34 @@ function AtlasViewInner() {
     }
   }, [liveEventTypes]);
 
-  // Extract dynamic filter options from all loaded events
-  const regionOptions = useMemo(() => extractOptions(allEvents, (e) => e.location.region), [allEvents]);
-  const weaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
-  const sourceTypeOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceType), [allEvents]);
+  // Initialize attacker filter defaults once we have events
+  const attackersInitialized = useRef(false);
+  useEffect(() => {
+    if (attackerOptions.length > 0 && !attackersInitialized.current) {
+      attackersInitialized.current = true;
+      const defaultAttackers = new Set(
+        attackerOptions
+          .filter((o) => !EXCLUDED_ATTACKERS.has(o.key.toLowerCase()))
+          .map((o) => o.key),
+      );
+      setFilters((prev) => ({ ...prev, selectedAttackers: defaultAttackers }));
+    }
+  }, [attackerOptions]);
 
-  // Count events per event type
+  // Count events per event type — applies all filters EXCEPT event type so
+  // each type shows how many events would appear if toggled on
   const eventTypeCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const e of allEvents) {
+      if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(e.severity)) continue;
+      if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(e.location.region ?? "")) continue;
+      if (filters.selectedAttackers.size > 0 && !filters.selectedAttackers.has(e.attacker ?? UNATTRIBUTED_KEY)) continue;
+      if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(e.weaponSystem ?? "")) continue;
+      if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(e.sourceType)) continue;
       counts.set(e.eventType, (counts.get(e.eventType) ?? 0) + 1);
     }
     return counts;
-  }, [allEvents]);
+  }, [allEvents, filters.selectedSeverities, filters.selectedRegions, filters.selectedAttackers, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
 
   // Client-side filter by all selected filters
   const filteredEvents = useMemo(() => {
@@ -146,11 +182,12 @@ function AtlasViewInner() {
       if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(event.eventType)) return false;
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(event.severity)) return false;
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(event.location.region ?? "")) return false;
+      if (filters.selectedAttackers.size > 0 && !filters.selectedAttackers.has(event.attacker ?? UNATTRIBUTED_KEY)) return false;
       if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(event.weaponSystem ?? "")) return false;
       if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(event.sourceType)) return false;
       return true;
     });
-  }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
+  }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedAttackers, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
 
   const timelineDates = useMemo(() => {
     const seen = new Set<string>();
@@ -189,8 +226,13 @@ function AtlasViewInner() {
   const mapRef = useRef<MapRef | null>(null);
 
   const handleClearFilters = useCallback(
-    () => setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key))),
-    [liveEventTypes],
+    () => {
+      const defaultAttackerKeys = attackerOptions
+        .filter((o) => !EXCLUDED_ATTACKERS.has(o.key.toLowerCase()))
+        .map((o) => o.key);
+      setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key), defaultAttackerKeys));
+    },
+    [liveEventTypes, attackerOptions],
   );
 
   const { setSelectedAnnotationId: _setSelAnnId } = ann;
@@ -296,7 +338,7 @@ function AtlasViewInner() {
               className="uppercase tracking-widest text-muted-foreground leading-none"
               style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontWeight: 500, fontSize: '0.65rem', letterSpacing: '0.25em' }}
             >
-              2026 Israeli Campaign in Lebanon — Live Monitor
+              Israeli Operations in Lebanon — Live Monitor
             </p>
           </div>
           <div
@@ -323,6 +365,7 @@ function AtlasViewInner() {
           onOpenChange={(v) => setPanelOpen('filter', v)}
           isLoading={isLoading}
           regionOptions={regionOptions}
+          attackerOptions={attackerOptions}
           weaponSystemOptions={weaponSystemOptions}
           sourceTypeOptions={sourceTypeOptions}
           eventTypeCounts={eventTypeCounts}
@@ -412,18 +455,6 @@ function AtlasViewInner() {
               />
               <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={showLabels} open={isPanelOpen('camera')} onToggle={() => togglePanel('camera')} />
             </div>
-            {/* Bottom-left: TV trigger */}
-            {!isMobile && (
-              <div className="absolute bottom-6 left-4 z-20">
-                <FloatingTriggerBtn
-                  onClick={() => togglePanel('youtube')}
-                  aria-label={isPanelOpen('youtube') ? "Close TV" : "Open TV"}
-                >
-                  <Tv className="size-4" />
-                  TV
-                </FloatingTriggerBtn>
-              </div>
-            )}
             <MapLegend
               open={isPanelOpen('legend')}
               onToggle={() => togglePanel('legend')}

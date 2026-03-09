@@ -21,6 +21,10 @@ export interface DatePickerProps {
   presetColumns?: number;
   /** Number of months to show in range mode. Default 1. */
   numberOfMonths?: number;
+  /** Optional label rendered at the start of the mode-toggle row. */
+  label?: React.ReactNode;
+  /** Optional formatted date label shown on its own row below the mode toggle. */
+  dateLabel?: string | null;
 }
 
 function toDate(iso: string): Date | undefined {
@@ -40,6 +44,8 @@ export function DatePicker({
   onChange,
   presetColumns = 3,
   numberOfMonths = 1,
+  label,
+  dateLabel,
 }: DatePickerProps) {
   const [mode, setMode] = useState<DateMode>("range");
   const [singleDate, setSingleDate] = useState<Date | undefined>(undefined);
@@ -106,7 +112,8 @@ export function DatePicker({
   return (
     <div className="flex flex-col gap-2">
       {/* Mode toggle + clear */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
+        {label && <div className="shrink-0">{label}</div>}
         <ToggleGroup
           type="single"
           value={mode}
@@ -123,6 +130,20 @@ export function DatePicker({
           </Button>
         )}
       </div>
+
+      {/* Selected date display */}
+      {dateLabel && (
+        <div className="flex items-center gap-2 text-xs">
+          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-primary font-medium">
+            {dateLabel}
+          </span>
+          <button
+            onClick={clearDates}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Clear dates"
+          >×</button>
+        </div>
+      )}
 
       {/* Single — exact date match */}
       {mode === "single" && (
@@ -144,40 +165,6 @@ export function DatePicker({
       {/* Range — open-ended supported, hover preview built-in */}
       {mode === "range" && (
         <>
-          {/* From / To chips */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground">From</span>
-            {dateFrom ? (
-              <span className="flex items-center gap-1 rounded-md bg-primary px-2 py-0.5 text-primary-foreground">
-                {format(parseISO(dateFrom), "d MMM yyyy")}
-                <button
-                  onClick={() => { onChange("", dateTo); setPendingSlot("from"); }}
-                  className="ml-0.5 opacity-60 hover:opacity-100 transition-opacity"
-                  aria-label="Clear start date"
-                >×</button>
-              </span>
-            ) : (
-              <span className={`italic px-2 py-0.5 rounded-md border transition-colors ${
-                pendingSlot === "from" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
-              }`}>pick date…</span>
-            )}
-            <span className="text-muted-foreground">→</span>
-            <span className="text-muted-foreground">To</span>
-            {dateTo ? (
-              <span className="flex items-center gap-1 rounded-md bg-primary px-2 py-0.5 text-primary-foreground">
-                {format(parseISO(dateTo), "d MMM yyyy")}
-                <button
-                  onClick={() => { onChange(dateFrom, ""); setPendingSlot("to"); }}
-                  className="ml-0.5 opacity-60 hover:opacity-100 transition-opacity"
-                  aria-label="Clear end date"
-                >×</button>
-              </span>
-            ) : (
-              <span className={`italic px-2 py-0.5 rounded-md border transition-colors ${
-                pendingSlot === "to" ? "border-primary text-primary" : "border-transparent text-muted-foreground"
-              }`}>pick date…</span>
-            )}
-          </div>
           <Calendar
             mode="range"
             selected={rangeSelected}
@@ -197,7 +184,7 @@ export function DatePicker({
       {mode === "dynamic" && (
         <div className="flex flex-col gap-3">
           {/* Custom relative row: Last [N] complete [☐] [unit ▼] */}
-          <div className={`flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors ${
+          <div className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-2 transition-colors ${
             dynamicPreset === "custom"
               ? "border-primary bg-primary/5"
               : "border-border bg-background"
@@ -213,7 +200,7 @@ export function DatePicker({
                 setCustomN(n);
                 applyCustomRange(n, customUnit, customComplete);
               }}
-              className="w-14 h-7 px-2 py-1 text-xs tabular-nums"
+              className="w-12 h-7 px-1.5 py-1 text-xs tabular-nums"
             />
             <label className="flex cursor-pointer items-center gap-1.5">
               <span className="text-xs text-muted-foreground">complete</span>
@@ -252,7 +239,7 @@ export function DatePicker({
             {DATE_PRESETS.map((preset) => (
               <Button
                 key={preset.key}
-                variant={dynamicPreset === preset.key ? "default" : "outline"}
+                variant={dynamicPreset === preset.key ? "default" : "ghost"}
                 size="sm"
                 onClick={() => {
                   const range = preset.getRange();
@@ -262,7 +249,7 @@ export function DatePicker({
                 className={`justify-start text-xs ${
                   dynamicPreset === preset.key
                     ? "bg-foreground text-background hover:bg-foreground/90"
-                    : ""
+                    : "bg-muted/50 hover:bg-muted"
                 }`}
               >
                 {preset.label}
