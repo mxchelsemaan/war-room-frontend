@@ -82,6 +82,7 @@ function AtlasViewInner() {
     territory: false,
     infrastructure: true,
     governorates: true,
+    annotations: true,
     units: true,
     flights: true,
     ships: true,

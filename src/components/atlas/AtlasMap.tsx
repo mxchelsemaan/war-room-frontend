@@ -272,7 +272,7 @@ export const AtlasMap = React.memo(function AtlasMap({
         <AttributionControl compact={true} position="bottom-right" />
 
         {/* ── Drawing layers ── */}
-        {mapLoaded && (
+        {mapLoaded && layers.annotations !== false && (
           <DrawingLayers
             annotations={annotations}
             previewMode={drawingMode}
@@ -379,7 +379,7 @@ export const AtlasMap = React.memo(function AtlasMap({
       />
 
       {/* ── Float annotation overlay ── */}
-      {mapLoaded && (
+      {mapLoaded && layers.annotations !== false && (
         <FloatAnnotationOverlay annotations={annotations} mapRef={mapRef} terrainActive={layers.terrain} />
       )}
     </div>
