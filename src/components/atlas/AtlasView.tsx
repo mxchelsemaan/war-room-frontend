@@ -237,12 +237,13 @@ function AtlasViewInner() {
               onToggle={() => togglePanel('briefing')}
             />
             {/* Top-center: briefing trigger */}
-            <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-20">
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
               <FloatingTriggerBtn
                 onClick={() => togglePanel('briefing')}
                 aria-label={isPanelOpen('briefing') ? "Close briefing" : "Open briefing"}
+                className="px-4 py-2 text-sm"
               >
-                <Sparkles className="size-3.5 text-primary" />
+                <Sparkles className="size-4 text-primary" />
                 Debrief with Shifra
               </FloatingTriggerBtn>
             </div>
