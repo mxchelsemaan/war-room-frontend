@@ -217,7 +217,7 @@ export function AtlasMap({
     } else {
       map.setTerrain(null);
       map.easeTo({ pitch: 0, duration: 600 });
-      map.setSky({});
+      map.setSky(null as unknown as maplibregl.SkySpecification);
     }
   }, [layers.terrain, mapLoaded]);
 

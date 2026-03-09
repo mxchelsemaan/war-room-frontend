@@ -62,7 +62,7 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
     return Array.from(map.entries()).map(([name, streams]) => ({ name, streams }));
   }, [ytChannels]);
 
-  const [selectedGroup, setSelectedGroup] = useState(0);
+  const [selectedGroup, setSelectedGroup] = useState(-1);
   const [selectedStream, setSelectedStream] = useState(0);
 
   // Reset stream index when group changes
@@ -220,23 +220,38 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
 
               {!ytLoading && channelGroups.length > 0 && (
                 <>
-                  {/* Channel dropdown */}
+                  {/* Channel list */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Channel
-                    </label>
-                    <select
-                      value={selectedGroup}
-                      onChange={(e) => handleGroupChange(Number(e.target.value))}
-                      className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    >
-                      {channelGroups.map((g, i) => (
-                        <option key={g.name} value={i}>
-                          {g.name}
-                        </option>
-                      ))}
-                    </select>
+                    </span>
+                    {channelGroups.map((g, i) => {
+                      const anyLive = g.streams.some((s) => s.is_live === true);
+                      const anyUnknown = g.streams.some((s) => s.is_live === null);
+                      const isSelected = selectedGroup === i;
+                      return (
+                        <button
+                          key={g.name}
+                          onClick={() => handleGroupChange(i)}
+                          className={`flex items-center justify-between rounded-md px-3 py-2 text-xs font-medium transition-colors text-left ${
+                            isSelected
+                              ? "bg-primary/15 text-foreground ring-1 ring-primary/40"
+                              : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          <span>{g.name}</span>
+                          <LiveDot live={anyLive ? true : anyUnknown ? null : false} />
+                        </button>
+                      );
+                    })}
                   </div>
+
+                  {/* Prompt when nothing selected */}
+                  {selectedGroup === -1 && (
+                    <p className="text-center text-xs text-muted-foreground py-4">
+                      Select a channel above to watch
+                    </p>
+                  )}
 
                   {/* Language pills — only if channel has multiple streams */}
                   {group && group.streams.length > 1 && (
@@ -258,7 +273,7 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
                   )}
 
                   {/* Embed */}
-                  {embedSrc && stream && (
+                  {embedSrc && stream && selectedGroup !== -1 && (
                     <>
                       <div className="w-full overflow-hidden rounded-md border border-border bg-black">
                         <div style={{ aspectRatio: "16/9" }}>
@@ -286,6 +301,22 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
     </aside>
     </>
   );
+}
+
+function LiveDot({ live }: { live: boolean | null }) {
+  if (live === true) {
+    return (
+      <span className="relative flex h-2.5 w-2.5 shrink-0">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+      </span>
+    );
+  }
+  if (live === false) {
+    return <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />;
+  }
+  // null = unknown (no API key)
+  return <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-muted-foreground/30" />;
 }
 
 function EventRow({

@@ -6,6 +6,8 @@ export interface YoutubeChannel {
   display_name: string;
   language: "english" | "arabic" | "french";
   video_id: string;
+  /** true = confirmed live via API, false = confirmed not live, null = unknown (no API key) */
+  is_live: boolean | null;
 }
 
 interface ChannelConfig {
@@ -23,13 +25,17 @@ const CHANNELS: ChannelConfig[] = [
   { display_name: "MTV Lebanon",        handle: "MTVLebanonNews",   language: "arabic",  channel_id: "UC9_XmAwE5szLHF76FjMylaw",  fallback_video_id: "vuJ3toOYBRM" },
 ];
 
-function toChannels(configs: ChannelConfig[], liveIds: Record<string, string>): YoutubeChannel[] {
+function toChannels(
+  configs: ChannelConfig[],
+  liveIds: Record<string, string> | null, // null = no API key, unknown live status
+): YoutubeChannel[] {
   return configs.map((c) => ({
     handle: c.handle,
     active: true,
     display_name: c.display_name,
     language: c.language,
-    video_id: liveIds[c.channel_id] ?? c.fallback_video_id,
+    video_id: liveIds?.[c.channel_id] ?? c.fallback_video_id,
+    is_live: liveIds === null ? null : c.channel_id in liveIds,
   }));
 }
 
@@ -51,14 +57,18 @@ interface UseYoutubeChannelsResult {
 
 export function useYoutubeChannels(): UseYoutubeChannelsResult {
   const [channels, setChannels] = useState<YoutubeChannel[]>(() =>
-    toChannels(CHANNELS, {})
+    toChannels(CHANNELS, null)
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY as string | undefined;
-    if (!apiKey) return; // no key → use fallback IDs already in state
+    if (!apiKey) {
+      // No key — mark all as unknown live status but keep fallback video IDs
+      setChannels(toChannels(CHANNELS, null));
+      return;
+    }
 
     setLoading(true);
     let cancelled = false;
@@ -74,7 +84,7 @@ export function useYoutubeChannels(): UseYoutubeChannelsResult {
       for (const [id, vid] of entries) {
         if (vid) liveIds[id] = vid;
       }
-      setChannels(toChannels(CHANNELS, liveIds));
+      setChannels(toChannels(CHANNELS, liveIds)); // is_live derived from presence in liveIds
       setLoading(false);
     }).catch((err) => {
       if (cancelled) return;
