@@ -56,7 +56,6 @@ interface DrawingToolbarProps {
   onFinishPathDrawing: () => void;
   onCancelPathDrawing: () => void;
   onDeletePath: (unitId: string) => void;
-  direction?: "up" | "down";
   showLabels?: boolean;
 }
 
@@ -338,7 +337,7 @@ export function DrawingToolbar({
   onStartPlacement, onCancelPlacement, onSetPendingColor,
   onUpdateUnit, onDeleteUnit, onStartPathDrawing, onFinishPathDrawing,
   onCancelPathDrawing, onDeletePath,
-  direction = "up", showLabels,
+  showLabels,
 }: DrawingToolbarProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
