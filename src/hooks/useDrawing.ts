@@ -55,10 +55,13 @@ export function useDrawing(): DrawingHookResult {
   drawWidthRef.current = drawWidth;
   const drawArrowStyleRef = useRef(drawArrowStyle);
   drawArrowStyleRef.current = drawArrowStyle;
-  const tempCoordsRef = useRef(tempCoords);
-  tempCoordsRef.current = tempCoords;
+  // Live ref updated synchronously on every click — NOT derived from state.
+  // This ensures handleDblClick reads the correct coords even when React
+  // batches the preceding click state updates and hasn't re-rendered yet.
+  const liveCoordsRef = useRef<[number, number][]>([]);
 
   const startDrawing = useCallback((m: AnnotationType) => {
+    liveCoordsRef.current = [];
     setMode(m);
     setTempCoords([]);
   }, []);
@@ -86,10 +89,13 @@ export function useDrawing(): DrawingHookResult {
         width: drawWidthRef.current,
         arrowStyle: drawArrowStyleRef.current,
       });
+      liveCoordsRef.current = [];
       setMode(null);
       setTempCoords([]);
     } else {
-      setTempCoords(prev => [...prev, lngLat]);
+      const next: [number, number][] = [...liveCoordsRef.current, lngLat];
+      liveCoordsRef.current = next;
+      setTempCoords(next);
     }
   }, []);
 
@@ -97,8 +103,9 @@ export function useDrawing(): DrawingHookResult {
     const m = modeRef.current;
     if (!m || m === "pin") return;
 
-    // Remove the extra vertex added by the second click of the double-click
-    const coords = tempCoordsRef.current.slice(0, -1);
+    // Remove the extra vertex added by the second click of the double-click.
+    // liveCoordsRef is updated synchronously so it's always current.
+    const coords = liveCoordsRef.current.slice(0, -1);
 
     if ((m === "line" || m === "arrow") && coords.length < 2) return;
     if (m === "area" && coords.length < 3) return;
@@ -121,11 +128,13 @@ export function useDrawing(): DrawingHookResult {
       width: drawWidthRef.current,
       arrowStyle: drawArrowStyleRef.current,
     });
+    liveCoordsRef.current = [];
     setMode(null);
     setTempCoords([]);
   }, []);
 
   const cancel = useCallback(() => {
+    liveCoordsRef.current = [];
     setMode(null);
     setTempCoords([]);
   }, []);
