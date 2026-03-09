@@ -33,6 +33,71 @@ try {
 export const DEFAULT_VIEW = _DEFAULT_VIEW;
 const MAX_BOUNDS = _MAX_BOUNDS;
 
+// ── Governorate label style (static, module-level) ──────────────────────────
+const GOV_LABEL_STYLE: React.CSSProperties = {
+  pointerEvents: "none",
+  textTransform: "uppercase",
+  letterSpacing: "0.18em",
+  fontSize: 13,
+  fontWeight: 700,
+  fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
+  color: "#e2e8f0",
+  opacity: 1,
+  textShadow: "0 0 8px rgba(0,0,0,1), 0 0 16px rgba(0,0,0,0.9), 0 1px 4px rgba(0,0,0,0.9)",
+  whiteSpace: "nowrap",
+  userSelect: "none",
+};
+
+const GovernorateLabels = React.memo(function GovernorateLabels({ visible }: { visible: boolean }) {
+  if (!visible) return null;
+  return (
+    <>
+      {GOVERNORATES.map((gov) => (
+        <Marker key={gov.id} longitude={gov.lng} latitude={gov.lat} anchor="center"
+          pitchAlignment="viewport" rotationAlignment="viewport">
+          <div style={GOV_LABEL_STYLE}>{gov.nameEn}</div>
+        </Marker>
+      ))}
+    </>
+  );
+});
+
+const InfrastructureMarkers = React.memo(function InfrastructureMarkers({
+  visible, selectedTypes, terrain, onMarkerClick,
+}: {
+  visible: boolean;
+  selectedTypes: Set<StaticMarkerType>;
+  terrain: boolean;
+  onMarkerClick: (marker: StaticMarker) => void;
+}) {
+  const filtered = useMemo(
+    () => visible ? staticMarkers.filter(m => selectedTypes.has(m.type)) : [],
+    [visible, selectedTypes],
+  );
+  if (!visible) return null;
+  return (
+    <>
+      {filtered.map((marker) => (
+        <Marker key={marker.id} longitude={marker.lng} latitude={marker.lat}
+          anchor={terrain ? "bottom" : "center"}
+          pitchAlignment="viewport" rotationAlignment="viewport"
+          onClick={(e) => { e.originalEvent.stopPropagation(); onMarkerClick(marker); }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
+            <div style={{ width: 28, height: 28, background: "#0f172a", border: `2px solid ${STATIC_MARKER_COLORS[marker.type]}`,
+              borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
+              boxShadow: `0 0 8px ${STATIC_MARKER_COLORS[marker.type]}66` }}>
+              {marker.icon}
+            </div>
+            {terrain && (
+              <div style={{ width: 3, height: 70, background: `linear-gradient(to bottom, ${STATIC_MARKER_COLORS[marker.type]}cc, transparent)` }} />
+            )}
+          </div>
+        </Marker>
+      ))}
+    </>
+  );
+});
+
 interface AtlasMapProps {
   events: MapEvent[];
   layers: LayerVisibility;
@@ -58,7 +123,7 @@ interface AtlasMapProps {
   onSelectAnnotation?: (id: string) => void;
 }
 
-export function AtlasMap({
+export const AtlasMap = React.memo(function AtlasMap({
   events, layers, selectedInfraTypes,
   annotations, drawingMode, drawingColor, tempDrawingCoords,
   onMapClick, onMapDblClick, onDeleteAnnotation, onSelectAnnotation,
@@ -101,6 +166,17 @@ export function AtlasMap({
   const onFinishPathRef = useRef(onFinishPath);
   onFinishPathRef.current = onFinishPath;
 
+  // ── Memoized style for <Map> ─────────────────────────────────────────
+  const mapStyle = useMemo<React.CSSProperties>(
+    () => ({ width: "100%", height: "100%", cursor: (drawingMode || placementMode || pathDrawingUnitId) ? "crosshair" : undefined }),
+    [drawingMode, placementMode, pathDrawingUnitId],
+  );
+
+  const handleInfraClick = useMemo(() => (marker: StaticMarker) => {
+    setPopupEvent(null);
+    setPopupInfra(marker);
+  }, []);
+
   // ── Extracted hooks ──────────────────────────────────────────────────
   useMapAnimation(mapRef, layersRef, mapLoaded);
   useTerrainLayer(mapRef, layers.terrain, layers.hillshade, mapLoaded);
@@ -134,7 +210,7 @@ export function AtlasMap({
         maxZoom={14}
         maxBounds={MAX_BOUNDS}
         maxPitch={85}
-        style={{ width: "100%", height: "100%", cursor: (drawingMode || placementMode || pathDrawingUnitId) ? "crosshair" : undefined }}
+        style={mapStyle}
         mapStyle={dark ? "https://tiles.openfreemap.org/styles/dark" : "https://tiles.openfreemap.org/styles/bright"}
         dragRotate={true}
         touchZoomRotate={true}
@@ -228,45 +304,15 @@ export function AtlasMap({
         {mapLoaded && layers.ships && <ShipLayer terrain={layers.terrain} />}
 
         {/* ── Governorate labels ── */}
-        {layers.governorates && GOVERNORATES.map((gov) => (
-          <Marker key={gov.id} longitude={gov.lng} latitude={gov.lat} anchor="center"
-            pitchAlignment="viewport" rotationAlignment="viewport">
-            <div style={{
-              pointerEvents: "none",
-              textTransform: "uppercase",
-              letterSpacing: "0.18em",
-              fontSize: 13,
-              fontWeight: 700,
-              fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-              color: "#e2e8f0",
-              opacity: 1,
-              textShadow: "0 0 8px rgba(0,0,0,1), 0 0 16px rgba(0,0,0,0.9), 0 1px 4px rgba(0,0,0,0.9)",
-              whiteSpace: "nowrap",
-              userSelect: "none",
-            }}>
-              {gov.nameEn}
-            </div>
-          </Marker>
-        ))}
+        <GovernorateLabels visible={layers.governorates} />
 
         {/* ── Infrastructure markers ── */}
-        {layers.infrastructure && staticMarkers.filter(m => selectedInfraTypes.has(m.type)).map((marker) => (
-          <Marker key={marker.id} longitude={marker.lng} latitude={marker.lat}
-            anchor={layers.terrain ? "bottom" : "center"}
-            pitchAlignment="viewport" rotationAlignment="viewport"
-            onClick={(e) => { e.originalEvent.stopPropagation(); setPopupEvent(null); setPopupInfra(marker); }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
-              <div style={{ width: 28, height: 28, background: "#0f172a", border: `2px solid ${STATIC_MARKER_COLORS[marker.type]}`,
-                borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
-                boxShadow: `0 0 8px ${STATIC_MARKER_COLORS[marker.type]}66` }}>
-                {marker.icon}
-              </div>
-              {layers.terrain && (
-                <div style={{ width: 3, height: 70, background: `linear-gradient(to bottom, ${STATIC_MARKER_COLORS[marker.type]}cc, transparent)` }} />
-              )}
-            </div>
-          </Marker>
-        ))}
+        <InfrastructureMarkers
+          visible={layers.infrastructure}
+          selectedTypes={selectedInfraTypes}
+          terrain={layers.terrain}
+          onMarkerClick={handleInfraClick}
+        />
 
         {/* ── Event popup ── */}
         {popupEvent && (
@@ -338,4 +384,4 @@ export function AtlasMap({
       )}
     </div>
   );
-}
+});

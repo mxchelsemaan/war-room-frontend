@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { FilterSidebar } from "./FilterSidebar";
 import type { AtlasFilters } from "./FilterSidebar";
@@ -89,6 +89,14 @@ function AtlasViewInner() {
   });
 
   const mapRef = useRef<MapRef | null>(null);
+
+  const handleClearFilters = useCallback(() => setFilters(buildDefaultFilters()), []);
+
+  const { setSelectedAnnotationId: _setSelAnnId } = ann;
+  const handleSelectAnnotation = useCallback((id: string) => {
+    _setSelAnnId(id);
+    setPanelOpen('draw', true);
+  }, [_setSelAnnId, setPanelOpen]);
 
   function resetView() {
     mapRef.current?.getMap().flyTo({
@@ -192,7 +200,7 @@ function AtlasViewInner() {
           filters={filters}
           filteredCount={filteredEvents.length}
           onFiltersChange={setFilters}
-          onClear={() => setFilters(buildDefaultFilters())}
+          onClear={handleClearFilters}
           open={isPanelOpen('filter')}
           onOpenChange={(v) => setPanelOpen('filter', v)}
         />
@@ -211,10 +219,7 @@ function AtlasViewInner() {
               onMapClick={ann.handleClick}
               onMapDblClick={ann.handleDblClick}
               onDeleteAnnotation={ann.deleteAnnotation}
-              onSelectAnnotation={(id) => {
-                ann.setSelectedAnnotationId(id);
-                setPanelOpen('draw', true);
-              }}
+              onSelectAnnotation={handleSelectAnnotation}
               externalMapRef={mapRef}
               previewWidth={ann.drawWidth}
               previewArrowStyle={ann.drawArrowStyle}

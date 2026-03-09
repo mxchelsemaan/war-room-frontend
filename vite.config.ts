@@ -8,6 +8,16 @@ export default defineConfig({
   envPrefix: ["VITE_", "SUPABASE_"],
   // MapLibre GL v5 uses class static fields — ES2022 target prevents
   // esbuild from emitting __publicField helpers that break in workers
-  build: { target: "es2022" },
+  build: {
+    target: "es2022",
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("maplibre-gl") || id.includes("react-map-gl")) return "maplibre";
+          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/date-fns/") || id.includes("node_modules/lucide-react/")) return "vendor";
+        },
+      },
+    },
+  },
   optimizeDeps: { esbuildOptions: { target: "es2022" } },
 });
