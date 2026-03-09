@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 # deploy/setup-server.sh
 #
-# One-shot script to provision a fresh DigitalOcean droplet (Ubuntu/Debian).
+# One-shot provisioning of a fresh DigitalOcean droplet (Ubuntu/Debian).
 # Run from your laptop:
-#   ssh root@YOUR_IP 'bash -s' < deploy/setup-server.sh
+#   scp deploy/setup-server.sh root@YOUR_IP:/tmp/ && ssh root@YOUR_IP 'bash /tmp/setup-server.sh'
+#
+# After this runs, deployments happen automatically via GitHub Actions on push to main.
+# Manual redeploy: ssh root@YOUR_IP 'bash /opt/war-room/update.sh'
 set -euo pipefail
 
-REPO="https://github.com/mxchelsemaan/war-room-frontend.git"
-BRANCH="main"
 APP_DIR="/opt/war-room"
+IMAGE="ghcr.io/mxchelsemaan/war-room-frontend:latest"
 
 echo "==> Installing Docker (if needed) …"
 if ! command -v docker &>/dev/null; then
@@ -21,18 +23,34 @@ if ! docker compose version &>/dev/null; then
     apt-get update && apt-get install -y docker-compose-plugin
 fi
 
-echo "==> Cloning / updating repo …"
-if [ -d "$APP_DIR" ]; then
-    cd "$APP_DIR" && git pull origin "$BRANCH"
-else
-    git clone --branch "$BRANCH" "$REPO" "$APP_DIR"
-    cd "$APP_DIR"
-fi
+echo "==> Writing app directory …"
+mkdir -p "$APP_DIR"
 
-echo "==> Building & starting …"
-cd "$APP_DIR"
-docker compose up -d --build
+cat > "$APP_DIR/docker-compose.yml" <<EOF
+services:
+  war-room:
+    image: ${IMAGE}
+    container_name: war-room
+    restart: unless-stopped
+    ports:
+      - "80:80"
+EOF
+
+cat > "$APP_DIR/update.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+APP_DIR="/opt/war-room"
+docker compose -f "$APP_DIR/docker-compose.yml" pull
+docker compose -f "$APP_DIR/docker-compose.yml" up -d
+echo "==> Updated!  http://$(hostname -I | awk '{print $1}')"
+EOF
+chmod +x "$APP_DIR/update.sh"
+
+echo "==> Pulling image and starting …"
+docker compose -f "$APP_DIR/docker-compose.yml" pull
+docker compose -f "$APP_DIR/docker-compose.yml" up -d
 
 echo ""
 echo "==> Done!  War Room: http://$(hostname -I | awk '{print $1}')"
 echo "    Logs:  docker compose -f $APP_DIR/docker-compose.yml logs -f"
+echo "    Redeploy: bash $APP_DIR/update.sh"
