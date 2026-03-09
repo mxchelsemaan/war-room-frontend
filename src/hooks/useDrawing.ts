@@ -135,33 +135,7 @@ export function useDrawing(): DrawingHookResult {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== "Escape") return;
-      const m = modeRef.current;
-      const coords = tempCoordsRef.current;
-      const minPts = m === "area" ? 3 : 2;
-
-      if (m && m !== "pin" && coords.length >= minPts) {
-        // Finish with existing points — the preview segment to cursor is NOT included
-        const finalCoords = m === "area" ? [...coords, coords[0]] : coords;
-        counters.current[m] += 1;
-        const typeLabel = m.charAt(0).toUpperCase() + m.slice(1);
-        setCompleted({
-          id: crypto.randomUUID(),
-          type: m,
-          label: `${typeLabel} ${counters.current[m]}`,
-          showLabel: true,
-          color: colorRef.current,
-          glow: false,
-          dash: false,
-          float: false,
-          coordinates: finalCoords,
-          width: drawWidthRef.current,
-          arrowStyle: drawArrowStyleRef.current,
-        });
-        setMode(null);
-        setTempCoords([]);
-      } else {
-        cancel();
-      }
+      if (modeRef.current) cancel();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);

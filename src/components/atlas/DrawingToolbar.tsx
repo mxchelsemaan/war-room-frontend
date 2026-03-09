@@ -51,9 +51,9 @@ interface DrawingToolbarProps {
 
 const MODE_STATUS: Record<AnnotationType, string> = {
   pin:   "Click map to place pin",
-  line:  "Click to add points · Esc to finish",
-  arrow: "Click to add points · Esc to finish",
-  area:  "Click to add points · Esc to close",
+  line:  "Click to add points · double-click to finish",
+  arrow: "Click to add points · double-click to finish",
+  area:  "Click to add points · double-click to close",
 };
 
 const MODE_LABEL: Record<AnnotationType, string> = {
@@ -388,8 +388,14 @@ export function DrawingToolbar({
   const pathMap = Object.fromEntries(paths.map(p => [p.id, p])) as Record<string, UnitPath>;
 
   const selectedAnn = annotations.find(a => a.id === selectedAnnotationId) ?? null;
-  const activeColor = selectedAnn?.color ?? color;
+  const activeColor = selectedAnn?.color ?? (placementMode ? pendingColor : color);
   const activeWidth = selectedAnn?.width ?? drawWidth;
+
+  function setActiveColor(c: string) {
+    if (selectedAnn) onSetAnnotationColor(selectedAnn.id, c);
+    else if (placementMode) onSetPendingColor(c);
+    else onSetColor(c);
+  }
 
   function startEdit(ann: Annotation) {
     setEditingId(ann.id);
@@ -468,7 +474,7 @@ export function DrawingToolbar({
             {DRAW_COLOR_PRESETS.map((c) => (
               <button
                 key={c}
-                onClick={() => selectedAnn ? onSetAnnotationColor(selectedAnn.id, c) : onSetColor(c)}
+                onClick={() => setActiveColor(c)}
                 style={{
                   background: c,
                   outline: activeColor === c ? `2px solid ${c}` : undefined,
@@ -479,7 +485,7 @@ export function DrawingToolbar({
                 title={c}
               />
             ))}
-            <ColorPickerButton color={activeColor} onChange={(c) => selectedAnn ? onSetAnnotationColor(selectedAnn.id, c) : onSetColor(c)} />
+            <ColorPickerButton color={activeColor} onChange={setActiveColor} />
           </div>
         </div>
 
@@ -576,7 +582,6 @@ export function DrawingToolbar({
             <span className="size-1.5 rounded-full bg-amber-400 animate-pulse mt-1 shrink-0" />
             <p className="text-[11px] leading-snug">
               <span className="text-amber-400/90">{MODE_STATUS[mode]}</span>
-              {mode !== "pin" && <span className="text-muted-foreground"> · double-click also works</span>}
             </p>
           </div>
         )}
@@ -603,28 +608,6 @@ export function DrawingToolbar({
                 <span>{UNIT_SHORT_LABELS[type]}</span>
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* ── Unit color row ── */}
-        <div className="flex items-center gap-2.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Unit color</span>
-          <div className="flex items-center gap-2 flex-wrap">
-            {DRAW_COLOR_PRESETS.map((c) => (
-              <button
-                key={c}
-                onClick={() => onSetPendingColor(c)}
-                style={{
-                  background: c,
-                  outline: pendingColor === c ? `2px solid ${c}` : undefined,
-                  outlineOffset: pendingColor === c ? "2px" : undefined,
-                  opacity: pendingColor === c ? 1 : 0.55,
-                }}
-                className="size-5 rounded-full transition-all hover:opacity-100 hover:scale-110"
-                title={c}
-              />
-            ))}
-            <ColorPickerButton color={pendingColor} onChange={onSetPendingColor} />
           </div>
         </div>
 
