@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 export interface YoutubeChannel {
   handle: string;
@@ -9,6 +8,41 @@ export interface YoutubeChannel {
   video_id: string;
 }
 
+interface ChannelConfig {
+  display_name: string;
+  handle: string;
+  language: YoutubeChannel["language"];
+  channel_id: string;       // stable UC… ID — used to query the API
+  fallback_video_id: string; // used when API key absent or request fails
+}
+
+const CHANNELS: ChannelConfig[] = [
+  { display_name: "Al Jazeera Arabic",  handle: "aljazeera",       language: "arabic",  channel_id: "UCfiwzLy-8yKzIbsmZTzxDgw", fallback_video_id: "bNyUyrR0PHo" },
+  { display_name: "Al Jazeera English", handle: "AlJazeeraEnglish", language: "english", channel_id: "UCNye-wNBqNL5ZzHSJj3l8Bg", fallback_video_id: "gCNeDWCI0vo" },
+  { display_name: "Al Jadeed",          handle: "aljadeed",         language: "arabic",  channel_id: "UCoAOpXaFG4v3J8b8TSLmXvg", fallback_video_id: "V7byUF8j-W0" },
+  { display_name: "MTV Lebanon",        handle: "MTVLebanonNews",   language: "arabic",  channel_id: "UC9_XmAwE5szLHF76FjMylaw",  fallback_video_id: "vuJ3toOYBRM" },
+];
+
+function toChannels(configs: ChannelConfig[], liveIds: Record<string, string>): YoutubeChannel[] {
+  return configs.map((c) => ({
+    handle: c.handle,
+    active: true,
+    display_name: c.display_name,
+    language: c.language,
+    video_id: liveIds[c.channel_id] ?? c.fallback_video_id,
+  }));
+}
+
+async function fetchLiveVideoId(channelId: string, apiKey: string): Promise<string | null> {
+  const url =
+    `https://www.googleapis.com/youtube/v3/search` +
+    `?part=id&channelId=${channelId}&eventType=live&type=video&maxResults=1&key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return (data.items?.[0]?.id?.videoId as string) ?? null;
+}
+
 interface UseYoutubeChannelsResult {
   channels: YoutubeChannel[];
   loading: boolean;
@@ -16,29 +50,37 @@ interface UseYoutubeChannelsResult {
 }
 
 export function useYoutubeChannels(): UseYoutubeChannelsResult {
-  const [channels, setChannels] = useState<YoutubeChannel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [channels, setChannels] = useState<YoutubeChannel[]>(() =>
+    toChannels(CHANNELS, {})
+  );
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!supabase) { setLoading(false); return; }
+    const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY as string | undefined;
+    if (!apiKey) return; // no key → use fallback IDs already in state
+
+    setLoading(true);
     let cancelled = false;
 
-    supabase
-      .from("youtube_channels")
-      .select("*")
-      .eq("active", true)
-      .order("display_name", { ascending: true })
-      .order("language", { ascending: true })
-      .then(({ data, error: err }) => {
-        if (cancelled) return;
-        if (err) {
-          setError(err.message);
-        } else {
-          setChannels((data as YoutubeChannel[]) ?? []);
-        }
-        setLoading(false);
-      });
+    Promise.all(
+      CHANNELS.map(async (c) => {
+        const videoId = await fetchLiveVideoId(c.channel_id, apiKey).catch(() => null);
+        return [c.channel_id, videoId] as [string, string | null];
+      })
+    ).then((entries) => {
+      if (cancelled) return;
+      const liveIds: Record<string, string> = {};
+      for (const [id, vid] of entries) {
+        if (vid) liveIds[id] = vid;
+      }
+      setChannels(toChannels(CHANNELS, liveIds));
+      setLoading(false);
+    }).catch((err) => {
+      if (cancelled) return;
+      setError(err instanceof Error ? err.message : "Failed to load live streams");
+      setLoading(false);
+    });
 
     return () => { cancelled = true; };
   }, []);
