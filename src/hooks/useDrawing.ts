@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DRAW_COLOR_PRESETS } from "@/config/colors";
 
+// crypto.randomUUID() requires a secure context (HTTPS/localhost).
+// Fall back to a Math.random UUID for plain-HTTP deployments.
+const uuid = () =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+      });
+
 export { DRAW_COLOR_PRESETS };
 
 export type AnnotationType = "pin" | "line" | "arrow" | "area";
@@ -81,7 +91,7 @@ export function useDrawing(): DrawingHookResult {
     counters.current[m] += 1;
     const typeLabel = m.charAt(0).toUpperCase() + m.slice(1);
     setCompleted({
-      id: crypto.randomUUID(),
+      id: uuid(),
       type: m,
       label: `${typeLabel} ${counters.current[m]}`,
       showLabel: true,
@@ -121,7 +131,7 @@ export function useDrawing(): DrawingHookResult {
     if (m === "pin") {
       counters.current.pin += 1;
       setCompleted({
-        id: crypto.randomUUID(),
+        id: uuid(),
         type: "pin",
         label: `Pin ${counters.current.pin}`,
         showLabel: true,
