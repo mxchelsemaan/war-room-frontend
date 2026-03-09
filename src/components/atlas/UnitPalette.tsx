@@ -286,7 +286,7 @@ export function UnitPalette({
 
   const panel = (
     <CollapsePanel open={open} direction="down">
-      <div className="glass-panel p-3 w-72 flex flex-col gap-3 mb-1">
+      <div className="glass-panel p-3 w-[calc(100vw-1.5rem)] md:w-72 flex flex-col gap-3 mb-1">
 
         {/* ── NATO type grid ── */}
         <div>

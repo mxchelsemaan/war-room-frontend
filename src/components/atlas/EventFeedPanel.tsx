@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import type { MapEvent } from "@/data/index";
 import { Button } from "@/components/ui/button";
 import { useYoutubeChannels } from "@/hooks/useYoutubeChannels";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const TYPE_COLORS: Record<string, string> = {
   security_incident: "bg-amber-500",
@@ -45,6 +46,7 @@ function groupByDate(events: MapEvent[]): { date: string; items: MapEvent[] }[] 
 export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventFeedPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const groups = groupByDate(events);
+  const isMobile = useIsMobile();
 
   const [tab, setTab] = useState<"events" | "youtube">("events");
   const { channels: ytChannels, loading: ytLoading, error: ytError } = useYoutubeChannels();
@@ -82,26 +84,36 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
   }, [activeDay]);
 
   return (
-    <aside
-      className={`relative z-30 flex h-full shrink-0 flex-col border-l border-border bg-card transition-all duration-200 ${
-        open ? "w-80" : "w-14 cursor-pointer"
-      }`}
-      onClick={!open ? () => onOpenChange(true) : undefined}
-    >
+    <>
+      {/* Mobile backdrop */}
+      {isMobile && (
+        <div
+          className={`fixed inset-0 z-[79] bg-black/60 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          onClick={() => onOpenChange(false)}
+        />
+      )}
+      <aside
+        className={
+          isMobile
+            ? `fixed right-0 inset-y-0 z-[80] flex flex-col border-l border-border bg-card w-80 transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`
+            : `relative z-30 flex h-full shrink-0 flex-col border-l border-border bg-card transition-all duration-200 ${open ? "w-80" : "w-14 cursor-pointer"}`
+        }
+        onClick={!open && !isMobile ? () => onOpenChange(true) : undefined}
+      >
       {/* Header with toggle */}
       <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => onOpenChange(!open)}
-          className={open ? "" : "mx-auto"}
+          className={open || isMobile ? "" : "mx-auto"}
           aria-label={open ? "Close live feeds" : "Open live feeds"}
         >
           <ChevronRight
-            className={`size-4 transition-transform duration-200 ${open ? "" : "rotate-180"}`}
+            className={`size-4 transition-transform duration-200 ${open || isMobile ? "" : "rotate-180"}`}
           />
         </Button>
-        {open && (
+        {(open || isMobile) && (
           <>
             <span className="text-sm font-semibold">Live Feeds</span>
             {tab === "events" && (
@@ -113,8 +125,8 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
         )}
       </div>
 
-      {/* Collapsed: vertical label */}
-      {!open && (
+      {/* Collapsed: vertical label — desktop only */}
+      {!open && !isMobile && (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4">
           <span
             className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground select-none"
@@ -125,7 +137,7 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
         </div>
       )}
 
-      {open && (
+      {(open || isMobile) && (
         <>
           {/* Tabs */}
           <div className="flex shrink-0 border-b border-border">
@@ -272,6 +284,7 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
         </>
       )}
     </aside>
+    </>
   );
 }
 

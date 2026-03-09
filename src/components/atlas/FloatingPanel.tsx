@@ -50,7 +50,7 @@ export function FloatingTriggerBtn({ onClick, children, className, showLabels = 
       onClick={onClick}
       aria-label={ariaLabel}
       className={cn(
-        "glass-panel flex items-center gap-1.5 px-2.5 py-2.5 text-xs font-semibold transition-colors hover:bg-muted",
+        "glass-panel flex items-center gap-1.5 px-3 py-3 md:px-2.5 md:py-2.5 min-h-[44px] md:min-h-0 text-xs font-semibold transition-colors hover:bg-muted",
         className
       )}
     >

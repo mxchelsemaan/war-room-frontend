@@ -1,5 +1,6 @@
 import { Layers, Mountain, MapPin, Flame, Waves, Landmark, Map, Navigation, Plane, Ship } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export interface LayerVisibility {
   terrain: boolean;
@@ -60,9 +61,15 @@ const LAYER_GROUPS: { heading: string; items: LayerDef[] }[] = [
 ];
 
 export function MapLayerControls({ layers, onChange, open, onToggle, showLabels }: MapLayerControlsProps) {
+  const isMobile = useIsMobile();
+
   function toggle(key: keyof LayerVisibility) {
     onChange({ ...layers, [key]: !layers[key] });
   }
+
+  const visibleGroups = LAYER_GROUPS
+    .map(g => ({ ...g, items: isMobile ? g.items.filter(i => i.key !== "terrain") : g.items }))
+    .filter(g => g.items.length > 0);
 
   return (
     <div className="absolute top-[10px] left-3 z-10 flex flex-col items-start gap-1">
@@ -73,7 +80,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
 
       <CollapsePanel open={open}>
         <div className="glass-panel p-2 w-48 max-h-[calc(50vh-3rem)] overflow-y-auto">
-          {LAYER_GROUPS.map(({ heading, items }) => (
+          {visibleGroups.map(({ heading, items }) => (
             <div key={heading}>
               <p className="px-2 pt-2 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 first:pt-1">
                 {heading}
@@ -82,7 +89,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
                 <button
                   key={key}
                   onClick={() => toggle(key)}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-muted"
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 min-h-[44px] md:min-h-0 text-xs transition-colors hover:bg-muted"
                 >
                   <Icon className={`size-3.5 ${layers[key] ? "text-primary" : "text-muted-foreground"}`} />
                   <span className={layers[key] ? "text-foreground" : "text-muted-foreground"}>

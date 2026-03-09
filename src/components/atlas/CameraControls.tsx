@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Compass, ZoomIn, ZoomOut, LocateFixed, Video } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface CameraControlsProps {
   mapRef: React.RefObject<MapRef | null>;
@@ -12,6 +13,7 @@ interface CameraControlsProps {
 
 export function CameraControls({ mapRef, terrainActive, onResetView, showLabels = false }: CameraControlsProps) {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   function adjust(bearing?: number, pitch?: number) {
     const map = mapRef.current?.getMap();
@@ -38,31 +40,34 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
         <div className="glass-panel p-1.5 rounded-xl shadow-xl mb-1 flex items-center gap-1">
           {/* Left: zoom + home */}
           <div className="flex flex-col items-center gap-px">
-            <Btn onClick={() => zoom(1)} title="Zoom in" label="In" showLabels={showLabels}><ZoomIn className="size-3.5" /></Btn>
-            <Btn onClick={() => zoom(-1)} title="Zoom out" label="Out" showLabels={showLabels}><ZoomOut className="size-3.5" /></Btn>
-            <Btn onClick={onResetView} title="Home — Beirut" label="Center" showLabels={showLabels} className="text-amber-400 hover:text-amber-300">
+            <Btn onClick={() => zoom(1)} title="Zoom in" label="In" showLabels={showLabels} large={isMobile}><ZoomIn className="size-3.5" /></Btn>
+            <Btn onClick={() => zoom(-1)} title="Zoom out" label="Out" showLabels={showLabels} large={isMobile}><ZoomOut className="size-3.5" /></Btn>
+            <Btn onClick={onResetView} title="Home — Beirut" label="Center" showLabels={showLabels} large={isMobile} className="text-amber-400 hover:text-amber-300">
               <LocateFixed className="size-3.5" />
             </Btn>
           </div>
 
-          <div className="w-px self-stretch bg-white/10 mx-0.5" />
-
-          {/* Right: compass rose */}
-          <div className="flex flex-col items-center gap-px">
-            <Btn onClick={() => adjust(undefined, -10)} title="Tilt up" label="Up" showLabels={showLabels}>
-              <ArrowUp className="size-3.5" />
-            </Btn>
-            <div className="flex items-center gap-px">
-              <Btn onClick={() => adjust(15)} title="Rotate left" label="L" showLabels={showLabels}><ArrowLeft className="size-3.5" /></Btn>
-              <Btn onClick={resetNorth} title="Reset north" label="N" showLabels={showLabels} className="text-sky-400 hover:text-sky-300">
-                <Compass className="size-3.5" />
-              </Btn>
-              <Btn onClick={() => adjust(-15)} title="Rotate right" label="R" showLabels={showLabels}><ArrowRight className="size-3.5" /></Btn>
-            </div>
-            <Btn onClick={() => adjust(undefined, 10)} title="Tilt down" label="Down" showLabels={showLabels}>
-              <ArrowDown className="size-3.5" />
-            </Btn>
-          </div>
+          {/* Right: compass rose — desktop only (terrain disabled on mobile) */}
+          {!isMobile && (
+            <>
+              <div className="w-px self-stretch bg-white/10 mx-0.5" />
+              <div className="flex flex-col items-center gap-px">
+                <Btn onClick={() => adjust(undefined, -10)} title="Tilt up" label="Up" showLabels={showLabels}>
+                  <ArrowUp className="size-3.5" />
+                </Btn>
+                <div className="flex items-center gap-px">
+                  <Btn onClick={() => adjust(15)} title="Rotate left" label="L" showLabels={showLabels}><ArrowLeft className="size-3.5" /></Btn>
+                  <Btn onClick={resetNorth} title="Reset north" label="N" showLabels={showLabels} className="text-sky-400 hover:text-sky-300">
+                    <Compass className="size-3.5" />
+                  </Btn>
+                  <Btn onClick={() => adjust(-15)} title="Rotate right" label="R" showLabels={showLabels}><ArrowRight className="size-3.5" /></Btn>
+                </div>
+                <Btn onClick={() => adjust(undefined, 10)} title="Tilt down" label="Down" showLabels={showLabels}>
+                  <ArrowDown className="size-3.5" />
+                </Btn>
+              </div>
+            </>
+          )}
         </div>
       </CollapsePanel>
 
@@ -75,20 +80,22 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
   );
 }
 
-function Btn({ onClick, title, label, showLabels, children, className = "" }: {
+function Btn({ onClick, title, label, showLabels, large, children, className = "" }: {
   onClick: () => void;
   title: string;
   label?: string;
   showLabels?: boolean;
+  large?: boolean;
   children: React.ReactNode;
   className?: string;
 }) {
+  const sizeClass = large ? "size-11" : showLabels ? "size-9 pb-0.5" : "size-7";
   return (
     <button
       onClick={onClick}
       title={title}
       aria-label={title}
-      className={`flex flex-col items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors gap-px ${showLabels ? "size-9 pb-0.5" : "size-7"} ${className}`}
+      className={`flex flex-col items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors gap-px ${sizeClass} ${className}`}
     >
       {children}
       {showLabels && label && (

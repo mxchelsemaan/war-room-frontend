@@ -79,12 +79,12 @@ export function AISummaryCard({ open, onToggle, date = "6 March 2026" }: AISumma
 
       {/* Panel */}
       <div
-        className={`absolute top-14 bottom-4 left-[136px] right-[136px] z-[60] flex flex-col glass-panel overflow-hidden transition-all duration-300 ease-out ${
+        className={`absolute inset-2 md:top-14 md:bottom-4 md:left-[136px] md:right-[136px] z-[60] flex flex-col glass-panel overflow-hidden transition-all duration-300 ease-out ${
           open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
         }`}
       >
         {/* Tabs as folders */}
-        <div className="flex items-end border-b border-border px-4 pt-3 gap-1">
+        <div className="flex items-end border-b border-border px-4 pt-3 gap-1 overflow-x-auto">
           <button
             onClick={() => setActiveTab("Copilot")}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-t border -mb-px transition-colors ${
@@ -99,7 +99,7 @@ export function AISummaryCard({ open, onToggle, date = "6 March 2026" }: AISumma
 
           {/* Reports group — pushed to the right */}
           <div className="ml-auto flex items-end gap-1">
-            <span className="flex items-center pb-2 pr-2 text-2xs font-medium uppercase tracking-widest text-muted-foreground/40 select-none">
+            <span className="hidden md:flex items-center pb-2 pr-2 text-2xs font-medium uppercase tracking-widest text-muted-foreground/40 select-none">
               Reports
             </span>
             {TABS.filter((t) => t !== "Copilot").map((tab) => {

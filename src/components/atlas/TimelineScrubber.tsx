@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import { Pause, Play, RotateCcw, X } from "lucide-react";
 import { CollapsePanel } from "./FloatingPanel";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const BASE_MS = 900;
 const SPEEDS = [1, 2, 4] as const;
@@ -22,6 +23,7 @@ export function TimelineScrubber({ dates, activeDay, onChange, open, onToggle }:
   const [speed, setSpeed] = useState<Speed>(1);
   const [loop, setLoop] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!playing) {
@@ -66,12 +68,12 @@ export function TimelineScrubber({ dates, activeDay, onChange, open, onToggle }:
     setSpeed(next);
   }
 
-  const maxLabels = 9;
+  const maxLabels = isMobile ? 5 : 9;
   const step = Math.max(1, Math.ceil(dates.length / maxLabels));
 
   return (
-    <div className="absolute bottom-4 left-0 right-0 z-20 pointer-events-none flex justify-center">
-      <div className="pointer-events-auto flex flex-col items-center gap-0 w-full" style={{ maxWidth: "40rem" }}>
+    <div className="absolute bottom-4 left-0 right-0 z-20 pointer-events-none flex justify-center px-3 md:px-0">
+      <div className="pointer-events-auto flex flex-col items-center gap-0 w-full" style={{ maxWidth: isMobile ? "calc(100vw - 1.5rem)" : "40rem" }}>
 
         {/* Expanded panel — slides up from above the pill */}
         <CollapsePanel open={open} className="w-full">
@@ -123,7 +125,7 @@ export function TimelineScrubber({ dates, activeDay, onChange, open, onToggle }:
                 value={idx}
                 onChange={(e) => { setPlaying(false); onChange(dates[parseInt(e.target.value, 10)]); }}
                 className="w-full accent-primary cursor-pointer"
-                style={{ height: "16px" }}
+                style={{ height: isMobile ? "44px" : "16px" }}
               />
               {/* Date labels */}
               <div className="relative mt-2 h-5">
