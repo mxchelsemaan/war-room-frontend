@@ -55,13 +55,40 @@ export function useDrawing(): DrawingHookResult {
   drawWidthRef.current = drawWidth;
   const drawArrowStyleRef = useRef(drawArrowStyle);
   drawArrowStyleRef.current = drawArrowStyle;
-  // Live ref updated synchronously on every click — NOT derived from state.
-  // This ensures handleDblClick reads the correct coords even when React
-  // batches the preceding click state updates and hasn't re-rendered yet.
+  // Live ref updated synchronously — not derived from React state.
   const liveCoordsRef = useRef<[number, number][]>([]);
+  // Track last click time to detect double-clicks in handleClick itself.
+  const lastClickMsRef = useRef<number>(0);
+
+  const finishDrawing = useCallback((m: AnnotationType) => {
+    const coords = liveCoordsRef.current;
+    if ((m === "line" || m === "arrow") && coords.length < 2) return;
+    if (m === "area" && coords.length < 3) return;
+    const finalCoords = m === "area" ? [...coords, coords[0]] : coords;
+    counters.current[m] += 1;
+    const typeLabel = m.charAt(0).toUpperCase() + m.slice(1);
+    setCompleted({
+      id: crypto.randomUUID(),
+      type: m,
+      label: `${typeLabel} ${counters.current[m]}`,
+      showLabel: true,
+      color: colorRef.current,
+      glow: false,
+      dash: false,
+      float: false,
+      coordinates: finalCoords,
+      width: drawWidthRef.current,
+      arrowStyle: drawArrowStyleRef.current,
+    });
+    liveCoordsRef.current = [];
+    lastClickMsRef.current = 0;
+    setMode(null);
+    setTempCoords([]);
+  }, []);
 
   const startDrawing = useCallback((m: AnnotationType) => {
     liveCoordsRef.current = [];
+    lastClickMsRef.current = 0;
     setMode(m);
     setTempCoords([]);
   }, []);
@@ -90,51 +117,37 @@ export function useDrawing(): DrawingHookResult {
         arrowStyle: drawArrowStyleRef.current,
       });
       liveCoordsRef.current = [];
+      lastClickMsRef.current = 0;
       setMode(null);
       setTempCoords([]);
+      return;
+    }
+
+    const now = Date.now();
+    const isDbl = (now - lastClickMsRef.current) < 400;
+
+    if (isDbl) {
+      // Double-click detected via timing — finish without adding this point.
+      finishDrawing(m);
     } else {
+      lastClickMsRef.current = now;
       const next: [number, number][] = [...liveCoordsRef.current, lngLat];
       liveCoordsRef.current = next;
       setTempCoords(next);
     }
-  }, []);
+  }, [finishDrawing]);
 
+  // Fallback: fires when MapLibre emits dblclick without a preceding second click.
+  // If handleClick already finished drawing, mode is null and this is a no-op.
   const handleDblClick = useCallback((_lngLat: [number, number]) => {
     const m = modeRef.current;
     if (!m || m === "pin") return;
-
-    // Remove the extra vertex added by the second click of the double-click.
-    // liveCoordsRef is updated synchronously so it's always current.
-    const coords = liveCoordsRef.current.slice(0, -1);
-
-    if ((m === "line" || m === "arrow") && coords.length < 2) return;
-    if (m === "area" && coords.length < 3) return;
-
-    const finalCoords = m === "area" ? [...coords, coords[0]] : coords;
-
-    counters.current[m] += 1;
-    const typeLabel = m.charAt(0).toUpperCase() + m.slice(1);
-
-    setCompleted({
-      id: crypto.randomUUID(),
-      type: m,
-      label: `${typeLabel} ${counters.current[m]}`,
-      showLabel: true,
-      color: colorRef.current,
-      glow: false,
-      dash: false,
-      float: false,
-      coordinates: finalCoords,
-      width: drawWidthRef.current,
-      arrowStyle: drawArrowStyleRef.current,
-    });
-    liveCoordsRef.current = [];
-    setMode(null);
-    setTempCoords([]);
-  }, []);
+    finishDrawing(m);
+  }, [finishDrawing]);
 
   const cancel = useCallback(() => {
     liveCoordsRef.current = [];
+    lastClickMsRef.current = 0;
     setMode(null);
     setTempCoords([]);
   }, []);
