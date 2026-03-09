@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, MapPin, Spline, Pentagon, MoveRight, Sparkles, Trash2, Eye, EyeOff, Map as MapIcon, Layers, Minus, Palette, Crosshair, Route, Play, Pause, X } from "lucide-react";
+import { Pencil, MapPin, Spline, Pentagon, MoveRight, Sparkles, Trash2, Eye, EyeOff, Minus, Crosshair, Route, Play, Pause, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { ColorPickerButton } from "./ColorPickerPopover";
@@ -26,9 +26,10 @@ interface DrawingToolbarProps {
   onToggleGlow: (id: string) => void;
   onToggleDash: (id: string) => void;
   onToggleLabel: (id: string) => void;
-  onToggleAnnotationFloat: (id: string) => void;
   onSetAnnotationColor: (id: string, color: string) => void;
   onSetAnnotationWidth: (id: string, width: number) => void;
+  selectedAnnotationId: string | null;
+  onSelectAnnotation: (id: string | null) => void;
   // Unit placement
   units: PlacedUnit[];
   paths: UnitPath[];
@@ -132,6 +133,7 @@ function ToggleChip({
 
 interface AnnRowProps {
   ann: Annotation;
+  isSelected: boolean;
   editingId: string | null;
   editLabel: string;
   onStartEdit: (ann: Annotation) => void;
@@ -139,149 +141,61 @@ interface AnnRowProps {
   onCommitEdit: () => void;
   onCancelEdit: () => void;
   onDelete: () => void;
-  onToggleGlow: () => void;
-  onToggleDash: () => void;
-  onToggleLabel: () => void;
-  onToggleFloat: () => void;
-  onSetColor: (color: string) => void;
-  onSetWidth: (width: number) => void;
+  onSelect: () => void;
 }
 
 function AnnotationRow({
-  ann, editingId, editLabel,
+  ann, isSelected, editingId, editLabel,
   onStartEdit, onEditChange, onCommitEdit, onCancelEdit,
-  onDelete, onToggleGlow, onToggleDash, onToggleLabel, onToggleFloat, onSetColor, onSetWidth,
+  onDelete, onSelect,
 }: AnnRowProps) {
   const isEditing = editingId === ann.id;
-  const [styleOpen, setStyleOpen] = useState(false);
 
   return (
-    <div className={`flex flex-col rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border overflow-hidden ${styleOpen ? "border-primary/60" : "border-border/40"}`}>
-      <div className="flex items-center gap-2 px-2.5 pt-2 pb-1">
-        <button
-          className={`size-3.5 rounded-full shrink-0 ring-1 hover:scale-125 transition-transform ${styleOpen ? "ring-primary" : "ring-white/20"}`}
-          style={{ background: ann.color }}
-          onClick={() => setStyleOpen((prev) => !prev)}
-          title="Edit color &amp; width"
+    <div
+      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors border cursor-pointer ${
+        isSelected
+          ? "border-primary/60 bg-primary/10"
+          : "border-border/40 bg-muted/30 hover:bg-muted/50"
+      }`}
+      onClick={onSelect}
+    >
+      <span
+        className={`size-3.5 rounded-full shrink-0 ring-1 ${isSelected ? "ring-primary" : "ring-white/20"}`}
+        style={{ background: ann.color }}
+      />
+      <span className="shrink-0 text-muted-foreground/60">{TYPE_ICON[ann.type]}</span>
+      {isEditing ? (
+        <input
+          autoFocus
+          value={editLabel}
+          placeholder="Name (optional)"
+          onChange={(e) => onEditChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onCommitEdit();
+            if (e.key === "Escape") onCancelEdit();
+          }}
+          onBlur={onCommitEdit}
+          onClick={(e) => e.stopPropagation()}
+          className="w-0 flex-1 rounded border border-border bg-background px-1.5 py-0.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
         />
-        <span className="shrink-0 text-muted-foreground/60">{TYPE_ICON[ann.type]}</span>
-        {isEditing ? (
-          <input
-            autoFocus
-            value={editLabel}
-            placeholder="Name (optional)"
-            onChange={(e) => onEditChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") onCommitEdit();
-              if (e.key === "Escape") onCancelEdit();
-            }}
-            onBlur={onCommitEdit}
-            className="w-0 flex-1 rounded border border-border bg-background px-1.5 py-0.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        ) : (
-          <button
-            className="text-xs truncate flex-1 text-left hover:text-primary transition-colors"
-            style={{ color: ann.label ? undefined : "var(--color-muted-foreground)", fontStyle: ann.label ? undefined : "italic" }}
-            onClick={() => onStartEdit(ann)}
-            title="Click to rename"
-          >
-            {ann.label || "unnamed"}
-          </button>
-        )}
+      ) : (
         <button
-          onClick={onDelete}
-          className="shrink-0 text-muted-foreground/40 hover:text-red-400 transition-colors p-0.5 rounded"
-          title="Delete annotation"
+          className="text-xs truncate flex-1 text-left hover:text-primary transition-colors"
+          style={{ color: ann.label ? undefined : "var(--color-muted-foreground)", fontStyle: ann.label ? undefined : "italic" }}
+          onClick={(e) => { e.stopPropagation(); onStartEdit(ann); }}
+          title="Click to rename"
         >
-          <Trash2 className="size-3.5" />
+          {ann.label || "unnamed"}
         </button>
-      </div>
-
-      {styleOpen && (
-        <div className="flex flex-col gap-2 px-2.5 py-2 border-t border-border/30 bg-muted/20">
-          <div className="flex items-center gap-2 flex-wrap">
-            {DRAW_COLOR_PRESETS.map((c) => (
-              <button
-                key={c}
-                onClick={() => onSetColor(c)}
-                style={{
-                  background: c,
-                  outline: ann.color === c ? `2px solid ${c}` : undefined,
-                  outlineOffset: ann.color === c ? "2px" : undefined,
-                  opacity: ann.color === c ? 1 : 0.55,
-                }}
-                className="size-4.5 rounded-full transition-all hover:opacity-100 hover:scale-110"
-                title={c}
-              />
-            ))}
-            <ColorPickerButton color={ann.color} onChange={onSetColor} />
-          </div>
-          {ann.type !== "pin" && (
-            <div className="flex rounded-lg border border-border overflow-hidden">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((w) => (
-                <button
-                  key={w}
-                  onClick={() => onSetWidth(w)}
-                  className={`flex-1 py-1 text-[10px] font-medium transition-colors ${
-                    ann.width === w
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {w}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
       )}
-
-      <div className="flex items-stretch border-t border-border/30">
-        <ToggleChip
-          active={ann.glow}
-          onClick={onToggleGlow}
-          activeClass="text-yellow-300 bg-yellow-400/10"
-          icon={<Sparkles className="size-3" />}
-          label="Glow"
-          title={ann.glow ? "Remove glow effect" : "Add pulsing glow"}
-        />
-        {ann.type !== "pin" && (
-          <ToggleChip
-            active={ann.dash}
-            onClick={onToggleDash}
-            activeClass="text-sky-300 bg-sky-400/10"
-            icon={<Minus className="size-3" />}
-            label="Dash"
-            title={ann.dash ? "Make solid" : "Make dashed"}
-          />
-        )}
-        <ToggleChip
-          active={ann.showLabel}
-          onClick={onToggleLabel}
-          activeClass="text-foreground bg-foreground/10"
-          icon={ann.showLabel ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
-          label="Label"
-          title={ann.showLabel ? "Hide label" : "Show label"}
-        />
-        <ToggleChip
-          active={styleOpen}
-          onClick={() => setStyleOpen((prev) => !prev)}
-          activeClass="text-orange-300 bg-orange-400/10"
-          icon={<Palette className="size-3" />}
-          label="Style"
-          title={styleOpen ? "Close style editor" : "Edit color & width"}
-        />
-        {ann.type !== "pin" && (
-          <ToggleChip
-            active={ann.float}
-            onClick={onToggleFloat}
-            activeClass="text-violet-300 bg-violet-400/10"
-            icon={ann.float ? <Layers className="size-3" /> : <MapIcon className="size-3" />}
-            label={ann.float ? "Float" : "Map"}
-            title={ann.float ? "Switch to on-map (drapes terrain)" : "Switch to float (SVG overlay)"}
-          />
-        )}
-      </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        className="shrink-0 text-muted-foreground/40 hover:text-red-400 transition-colors p-0.5 rounded"
+        title="Delete annotation"
+      >
+        <Trash2 className="size-3.5" />
+      </button>
     </div>
   );
 }
@@ -458,7 +372,8 @@ export function DrawingToolbar({
   mode, color, drawWidth, drawArrowStyle, annotations, open, onToggle,
   onStartDrawing, onSetColor, onSetWidth, onSetArrowStyle, onCancel,
   onDeleteAnnotation, onRenameAnnotation, onToggleGlow, onToggleDash, onToggleLabel,
-  onToggleAnnotationFloat, onSetAnnotationColor, onSetAnnotationWidth,
+  onSetAnnotationColor, onSetAnnotationWidth,
+  selectedAnnotationId, onSelectAnnotation,
   units, paths, placementMode, pendingColor, pathDrawingUnitId,
   onStartPlacement, onCancelPlacement, onSetPendingColor,
   onUpdateUnit, onDeleteUnit, onStartPathDrawing, onFinishPathDrawing,
@@ -471,6 +386,10 @@ export function DrawingToolbar({
   const drawTypes = (isMobile ? ["pin"] : ["pin", "line", "arrow", "area"]) as AnnotationType[];
 
   const pathMap = Object.fromEntries(paths.map(p => [p.id, p])) as Record<string, UnitPath>;
+
+  const selectedAnn = annotations.find(a => a.id === selectedAnnotationId) ?? null;
+  const activeColor = selectedAnn?.color ?? color;
+  const activeWidth = selectedAnn?.width ?? drawWidth;
 
   function startEdit(ann: Annotation) {
     setEditingId(ann.id);
@@ -486,7 +405,10 @@ export function DrawingToolbar({
 
   function handleModeBtn(m: AnnotationType) {
     if (mode === m) onCancel();
-    else onStartDrawing(m);
+    else {
+      onSelectAnnotation(null);
+      onStartDrawing(m);
+    }
   }
 
   const isActive = mode !== null || placementMode !== null || pathDrawingUnitId !== null;
@@ -539,50 +461,52 @@ export function DrawingToolbar({
           </div>
         </div>
 
-        {/* ── Color row ── */}
+        {/* ── Color row (unified) ── */}
         <div className="flex items-center gap-2.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Color</span>
           <div className="flex items-center gap-2 flex-wrap">
             {DRAW_COLOR_PRESETS.map((c) => (
               <button
                 key={c}
-                onClick={() => onSetColor(c)}
+                onClick={() => selectedAnn ? onSetAnnotationColor(selectedAnn.id, c) : onSetColor(c)}
                 style={{
                   background: c,
-                  outline: color === c ? `2px solid ${c}` : undefined,
-                  outlineOffset: color === c ? "2px" : undefined,
-                  opacity: color === c ? 1 : 0.55,
+                  outline: activeColor === c ? `2px solid ${c}` : undefined,
+                  outlineOffset: activeColor === c ? "2px" : undefined,
+                  opacity: activeColor === c ? 1 : 0.55,
                 }}
                 className="size-5 rounded-full transition-all hover:opacity-100 hover:scale-110"
                 title={c}
               />
             ))}
-            <ColorPickerButton color={color} onChange={onSetColor} />
+            <ColorPickerButton color={activeColor} onChange={(c) => selectedAnn ? onSetAnnotationColor(selectedAnn.id, c) : onSetColor(c)} />
           </div>
         </div>
 
-        {/* ── Width ── */}
-        <div className="flex items-center gap-2.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Width</span>
-          <div className="flex flex-1 rounded-lg border border-border overflow-hidden">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((w) => (
-              <button
-                key={w}
-                onClick={() => onSetWidth(w)}
-                className={`flex-1 py-1.5 text-[11px] font-medium transition-colors ${
-                  drawWidth === w
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted text-muted-foreground"
-                }`}
-              >
-                {w}
-              </button>
-            ))}
+        {/* ── Width (unified, hidden for selected pins) ── */}
+        {!(selectedAnn?.type === "pin") && (
+          <div className="flex items-center gap-2.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Width</span>
+            <div className="flex flex-1 rounded-lg border border-border overflow-hidden">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((w) => (
+                <button
+                  key={w}
+                  onClick={() => selectedAnn ? onSetAnnotationWidth(selectedAnn.id, w) : onSetWidth(w)}
+                  className={`flex-1 py-1.5 text-[11px] font-medium transition-colors ${
+                    activeWidth === w
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {w}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── Arrow style toggle ── */}
-        {mode === "arrow" && (
+        {(mode === "arrow" || selectedAnn?.type === "arrow") && (
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Arrow style</span>
             <SegmentedToggle
@@ -593,6 +517,56 @@ export function DrawingToolbar({
                 { value: "jagged" as const, label: "Jagged ⟹" },
               ]}
             />
+          </div>
+        )}
+
+        {/* ── Toggle chips: shown when annotation selected ── */}
+        {selectedAnn && (
+          <div className="flex items-stretch rounded-lg border border-border overflow-hidden">
+            <ToggleChip
+              active={selectedAnn.glow}
+              onClick={() => onToggleGlow(selectedAnn.id)}
+              activeClass="text-yellow-300 bg-yellow-400/10"
+              icon={<Sparkles className="size-3" />}
+              label="Glow"
+              title={selectedAnn.glow ? "Remove glow effect" : "Add pulsing glow"}
+            />
+            {selectedAnn.type !== "pin" && (
+              <ToggleChip
+                active={selectedAnn.dash}
+                onClick={() => onToggleDash(selectedAnn.id)}
+                activeClass="text-sky-300 bg-sky-400/10"
+                icon={<Minus className="size-3" />}
+                label="Dash"
+                title={selectedAnn.dash ? "Make solid" : "Make dashed"}
+              />
+            )}
+            <ToggleChip
+              active={selectedAnn.showLabel}
+              onClick={() => onToggleLabel(selectedAnn.id)}
+              activeClass="text-foreground bg-foreground/10"
+              icon={selectedAnn.showLabel ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+              label="Label"
+              title={selectedAnn.showLabel ? "Hide label" : "Show label"}
+            />
+          </div>
+        )}
+
+        {/* ── Selection indicator ── */}
+        {selectedAnn && (
+          <div className="rounded-lg bg-primary/10 border border-primary/30 px-3 py-2 flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-primary shrink-0" />
+            <p className="text-[11px] leading-snug flex-1">
+              <span className="text-primary font-medium">Editing: </span>
+              <span className="text-muted-foreground">{selectedAnn.label || "unnamed"}</span>
+            </p>
+            <button
+              onClick={() => onSelectAnnotation(null)}
+              className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+              title="Deselect"
+            >
+              <X className="size-3" />
+            </button>
           </div>
         )}
 
@@ -719,6 +693,7 @@ export function DrawingToolbar({
                   <AnnotationRow
                     key={ann.id}
                     ann={ann}
+                    isSelected={selectedAnnotationId === ann.id}
                     editingId={editingId}
                     editLabel={editLabel}
                     onStartEdit={startEdit}
@@ -726,12 +701,7 @@ export function DrawingToolbar({
                     onCommitEdit={commitEdit}
                     onCancelEdit={() => setEditingId(null)}
                     onDelete={() => onDeleteAnnotation(ann.id)}
-                    onToggleGlow={() => onToggleGlow(ann.id)}
-                    onToggleDash={() => onToggleDash(ann.id)}
-                    onToggleLabel={() => onToggleLabel(ann.id)}
-                    onToggleFloat={() => onToggleAnnotationFloat(ann.id)}
-                    onSetColor={(c) => onSetAnnotationColor(ann.id, c)}
-                    onSetWidth={(w) => onSetAnnotationWidth(ann.id, w)}
+                    onSelect={() => onSelectAnnotation(selectedAnnotationId === ann.id ? null : ann.id)}
                   />
                 ))}
               </div>

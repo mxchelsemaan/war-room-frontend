@@ -94,6 +94,7 @@ export function AtlasView() {
 
   const drawing = useDrawing();
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null);
   const unitPlacement = useUnitPlacement();
 
   function handleStartPlacement(type: NATOUnitType) {
@@ -212,7 +213,14 @@ export function AtlasView() {
               tempDrawingCoords={drawing.tempCoords}
               onMapClick={drawing.handleClick}
               onMapDblClick={drawing.handleDblClick}
-              onDeleteAnnotation={(id) => setAnnotations(prev => prev.filter(a => a.id !== id))}
+              onDeleteAnnotation={(id) => {
+                setAnnotations(prev => prev.filter(a => a.id !== id));
+                setSelectedAnnotationId(prev => prev === id ? null : prev);
+              }}
+              onSelectAnnotation={(id) => {
+                setSelectedAnnotationId(id);
+                setDrawOpen(true);
+              }}
               externalMapRef={mapRef}
               previewWidth={drawing.drawWidth}
               previewArrowStyle={drawing.drawArrowStyle}
@@ -253,7 +261,10 @@ export function AtlasView() {
                 onSetWidth={drawing.setDrawWidth}
                 onSetArrowStyle={drawing.setDrawArrowStyle}
                 onCancel={drawing.cancel}
-                onDeleteAnnotation={(id) => setAnnotations(prev => prev.filter(a => a.id !== id))}
+                onDeleteAnnotation={(id) => {
+                  setAnnotations(prev => prev.filter(a => a.id !== id));
+                  setSelectedAnnotationId(prev => prev === id ? null : prev);
+                }}
                 onRenameAnnotation={(id, label) =>
                   setAnnotations(prev => prev.map(a => a.id === id ? { ...a, label } : a))
                 }
@@ -266,9 +277,8 @@ export function AtlasView() {
                 onToggleLabel={(id) =>
                   setAnnotations(prev => prev.map(a => a.id === id ? { ...a, showLabel: !a.showLabel } : a))
                 }
-                onToggleAnnotationFloat={(id) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, float: !a.float } : a))
-                }
+                selectedAnnotationId={selectedAnnotationId}
+                onSelectAnnotation={(id) => setSelectedAnnotationId(id)}
                 onSetAnnotationColor={(id, color) =>
                   setAnnotations(prev => prev.map(a => a.id === id ? { ...a, color } : a))
                 }

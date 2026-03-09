@@ -25,7 +25,31 @@ try {
 } catch { /* already set (HMR) */ }
 
 export const DEFAULT_VIEW = { longitude: 35.5018, latitude: 33.8938, zoom: 9, pitch: 0, bearing: 0 } as const;
-const MAX_BOUNDS: [[number, number], [number, number]] = [[33.5, 31.5], [38.5, 36.5]];
+// No maxBounds — let the map show surrounding countries
+
+// ── Event cluster layer IDs ──────────────────────────────────────────────────
+const EVENT_CLUSTER_LAYERS = [
+  "event-cluster-shadow", "event-clusters", "event-cluster-count",
+  "event-unclustered-bg", "event-unclustered", "event-unclustered-badge",
+] as const;
+
+/** Render each unique emoji to a canvas and register as a MapLibre image */
+function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
+  for (const emoji of emojis) {
+    const key = `emoji-${emoji}`;
+    if (map.hasImage(key)) continue;
+    const size = 40;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    ctx.font = `${size * 0.65}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(emoji, size / 2, size / 2);
+    map.addImage(key, { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
+  }
+}
 
 // River shimmer — animated dasharray sequence
 const DASH_SEQ = [
@@ -61,6 +85,7 @@ interface AtlasMapProps {
   onPlaceUnit?: (lngLat: [number, number]) => void;
   onAddPathWaypoint?: (lngLat: [number, number]) => void;
   onFinishPath?: () => void;
+  onSelectAnnotation?: (id: string) => void;
 }
 
 /** Helper: add source + layers if not present, otherwise toggle visibility */
@@ -91,7 +116,7 @@ function ensureLayers(
 export function AtlasMap({
   events, layers, selectedInfraTypes,
   annotations, drawingMode, drawingColor, tempDrawingCoords,
-  onMapClick, onMapDblClick, onDeleteAnnotation,
+  onMapClick, onMapDblClick, onDeleteAnnotation, onSelectAnnotation,
   externalMapRef,
   previewWidth = 2, previewArrowStyle = "simple",
   dark = true,
@@ -409,6 +434,207 @@ export function AtlasMap({
     }
   }, [events, layers.heatmap, mapLoaded]);
 
+  // ── Clustered event markers ────────────────────────────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const geojson: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: events.map((e) => ({
+        type: "Feature" as const,
+        properties: {
+          id: e.id,
+          event_type: e.event_type,
+          event_icon: e.event_icon,
+          event_label: e.event_label,
+          event_location_name: e.event_location.name,
+          event_location_lat: e.event_location.lat,
+          event_location_lng: e.event_location.lng,
+          event_count: e.event_count,
+          date: e.date,
+        },
+        geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
+      })),
+    };
+
+    // Register emoji images for all unique icons
+    const uniqueEmojis = [...new Set(events.map((e) => e.event_icon))];
+    registerEmojiImages(map, uniqueEmojis);
+
+    const vis = layers.markers ? "visible" : "none";
+
+    if (!map.getSource("events-clustered")) {
+      map.addSource("events-clustered", {
+        type: "geojson",
+        data: geojson,
+        cluster: true,
+        clusterMaxZoom: 13,
+        clusterRadius: 50,
+        clusterProperties: { totalCount: ["+", ["get", "event_count"]] },
+      });
+
+      // Cluster shadow
+      map.addLayer({
+        id: "event-cluster-shadow", type: "circle", source: "events-clustered",
+        filter: ["has", "point_count"],
+        layout: { visibility: vis },
+        paint: {
+          "circle-color": "#000000",
+          "circle-radius": ["step", ["get", "point_count"], 24, 10, 30, 50, 36],
+          "circle-blur": 0.7,
+          "circle-opacity": 0.4,
+          "circle-translate": [2, 2],
+        },
+      });
+
+      // Main cluster circle
+      map.addLayer({
+        id: "event-clusters", type: "circle", source: "events-clustered",
+        filter: ["has", "point_count"],
+        layout: { visibility: vis },
+        paint: {
+          "circle-color": ["step", ["get", "point_count"], "#334155", 10, "#475569", 50, "#ef4444"],
+          "circle-radius": ["step", ["get", "point_count"], 20, 10, 26, 50, 32],
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#1e1e2e",
+        },
+      });
+
+      // Cluster count label
+      map.addLayer({
+        id: "event-cluster-count", type: "symbol", source: "events-clustered",
+        filter: ["has", "point_count"],
+        layout: {
+          visibility: vis,
+          "text-field": ["get", "point_count_abbreviated"],
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 13,
+          "text-allow-overlap": true,
+        },
+        paint: { "text-color": "#e2e8f0" },
+      });
+
+      // Unclustered: dark circle background
+      map.addLayer({
+        id: "event-unclustered-bg", type: "circle", source: "events-clustered",
+        filter: ["!", ["has", "point_count"]],
+        layout: { visibility: vis },
+        paint: {
+          "circle-color": "#1e1e2e",
+          "circle-radius": 18,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#334155",
+        },
+      });
+
+      // Unclustered: emoji icon
+      map.addLayer({
+        id: "event-unclustered", type: "symbol", source: "events-clustered",
+        filter: ["!", ["has", "point_count"]],
+        layout: {
+          visibility: vis,
+          "icon-image": ["concat", "emoji-", ["get", "event_icon"]],
+          "icon-size": 0.55,
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+      });
+
+      // Unclustered: red count badge
+      map.addLayer({
+        id: "event-unclustered-badge", type: "symbol", source: "events-clustered",
+        filter: ["!", ["has", "point_count"]],
+        layout: {
+          visibility: vis,
+          "text-field": ["get", "event_count"],
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 9,
+          "text-offset": [1.2, -1.2],
+          "text-allow-overlap": true,
+          "text-ignore-placement": true,
+        },
+        paint: {
+          "text-color": "#ffffff",
+          "text-halo-color": "#ef4444",
+          "text-halo-width": 5,
+        },
+      });
+    } else {
+      // Update data — MapLibre re-clusters automatically
+      (map.getSource("events-clustered") as maplibregl.GeoJSONSource).setData(geojson);
+      // Toggle visibility
+      for (const layerId of EVENT_CLUSTER_LAYERS) {
+        if (map.getLayer(layerId)) map.setLayoutProperty(layerId, "visibility", vis);
+      }
+    }
+  }, [events, layers.markers, mapLoaded]);
+
+  // ── Cluster click handlers ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    function onClusterClick(e: maplibregl.MapMouseEvent) {
+      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-clusters"] });
+      if (!features.length) return;
+      const clusterId = features[0].properties?.cluster_id;
+      if (clusterId == null) return;
+      const src = map!.getSource("events-clustered") as maplibregl.GeoJSONSource;
+      src.getClusterExpansionZoom(clusterId).then((zoom) => {
+        const geom = features[0].geometry as GeoJSON.Point;
+        map!.flyTo({ center: geom.coordinates as [number, number], zoom, duration: 500 });
+      });
+    }
+
+    function onUnclusteredClick(e: maplibregl.MapMouseEvent) {
+      if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
+      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-unclustered-bg"] });
+      if (!features.length) return;
+      const p = features[0].properties!;
+      const evt: MapEvent = {
+        id: p.id,
+        event_type: p.event_type,
+        event_icon: p.event_icon,
+        event_label: p.event_label,
+        event_location: { name: p.event_location_name, lat: p.event_location_lat, lng: p.event_location_lng },
+        event_count: p.event_count,
+        date: p.date,
+      };
+      setPopupInfra(null);
+      setPopupEvent(evt);
+    }
+
+    function onMouseEnter() {
+      if (!drawingModeRef.current && !placementModeRef.current && !pathDrawingUnitIdRef.current) {
+        map!.getCanvas().style.cursor = "pointer";
+      }
+    }
+    function onMouseLeave() {
+      if (!drawingModeRef.current && !placementModeRef.current && !pathDrawingUnitIdRef.current) {
+        map!.getCanvas().style.cursor = "";
+      }
+    }
+
+    map.on("click", "event-clusters", onClusterClick);
+    map.on("click", "event-unclustered-bg", onUnclusteredClick);
+    map.on("mouseenter", "event-clusters", onMouseEnter);
+    map.on("mouseleave", "event-clusters", onMouseLeave);
+    map.on("mouseenter", "event-unclustered-bg", onMouseEnter);
+    map.on("mouseleave", "event-unclustered-bg", onMouseLeave);
+
+    return () => {
+      map.off("click", "event-clusters", onClusterClick);
+      map.off("click", "event-unclustered-bg", onUnclusteredClick);
+      map.off("mouseenter", "event-clusters", onMouseEnter);
+      map.off("mouseleave", "event-clusters", onMouseLeave);
+      map.off("mouseenter", "event-unclustered-bg", onMouseEnter);
+      map.off("mouseleave", "event-unclustered-bg", onMouseLeave);
+    };
+  }, [mapLoaded]);
+
   // ── Geographic labels (mountains, forests, lakes, etc.) ────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
@@ -512,10 +738,9 @@ export function AtlasMap({
       <Map
         ref={mapRef}
         initialViewState={DEFAULT_VIEW}
-        minZoom={8}
+        minZoom={5}
         maxZoom={14}
         maxPitch={85}
-        maxBounds={MAX_BOUNDS}
         style={{ width: "100%", height: "100%", cursor: (drawingMode || placementMode || pathDrawingUnitId) ? "crosshair" : undefined }}
         mapStyle={dark ? "https://tiles.openfreemap.org/styles/dark" : "https://tiles.openfreemap.org/styles/bright"}
         dragRotate={true}
@@ -538,16 +763,28 @@ export function AtlasMap({
           // Check for click on annotation feature
           const m = mapRef.current?.getMap();
           if (m) {
-            const features = m.queryRenderedFeatures(e.point, {
-              layers: ["draw-line-main", "draw-arrow-main", "draw-arrow-head-fill", "draw-arrow-jagged-fill", "draw-area-fill"],
-            });
-            if (features.length > 0) {
-              const id = features[0].properties?.id as string | undefined;
-              const ann = annotationsRef.current.find(a => a.id === id);
-              if (ann) {
-                setPopupAnnotation({ annotation: ann, lngLat: [e.lngLat.lng, e.lngLat.lat] });
-                setPopupEvent(null);
-                setPopupInfra(null);
+            const allAnnotationLayers = [
+              "draw-line-main", "draw-line-dashed",
+              "draw-arrow-main", "draw-arrow-dashed",
+              "draw-arrow-head-fill", "draw-arrow-jagged-fill",
+              "draw-area-fill", "draw-area-edge", "draw-area-edge-dashed",
+            ].filter(id => m.getLayer(id));
+            if (allAnnotationLayers.length > 0) {
+              const features = m.queryRenderedFeatures(e.point, {
+                layers: allAnnotationLayers,
+              });
+              if (features.length > 0) {
+                const id = features[0].properties?.id as string | undefined;
+                const ann = annotationsRef.current.find(a => a.id === id);
+                if (ann) {
+                  if (onSelectAnnotation) {
+                    onSelectAnnotation(ann.id);
+                  } else {
+                    setPopupAnnotation({ annotation: ann, lngLat: [e.lngLat.lng, e.lngLat.lat] });
+                    setPopupEvent(null);
+                    setPopupInfra(null);
+                  }
+                }
               }
             }
           }
@@ -598,28 +835,7 @@ export function AtlasMap({
         {/* ── Animated ships ── */}
         {mapLoaded && layers.ships && <ShipLayer terrain={layers.terrain} />}
 
-        {/* ── Event markers ── */}
-        {layers.markers && events.map((event) => (
-          <Marker key={event.id} longitude={event.event_location.lng} latitude={event.event_location.lat}
-            anchor={layers.terrain ? "bottom" : "center"}
-            pitchAlignment="viewport" rotationAlignment="viewport"
-            onClick={(e) => { e.originalEvent.stopPropagation(); setPopupInfra(null); setPopupEvent(event); }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
-              <div style={{ position: "relative", width: 36, height: 36, background: "#1e1e2e", border: "2px solid #334155",
-                borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-                <span>{event.event_icon}</span>
-                <div style={{ position: "absolute", top: -6, right: -6, background: "#ef4444", color: "#fff", fontSize: 9,
-                  fontWeight: 700, fontFamily: "sans-serif", lineHeight: 1, padding: "2px 4px", borderRadius: 10, minWidth: 16, textAlign: "center" }}>
-                  {event.event_count}
-                </div>
-              </div>
-              {layers.terrain && (
-                <div style={{ width: 3, height: 80, background: "linear-gradient(to bottom, rgba(148,163,184,0.8), rgba(148,163,184,0.05))" }} />
-              )}
-            </div>
-          </Marker>
-        ))}
+        {/* ── Event markers rendered via native clustered layers (see useEffect above) ── */}
 
         {/* ── Governorate labels ── */}
         {layers.governorates && GOVERNORATES.map((gov) => (
