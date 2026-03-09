@@ -5,8 +5,9 @@ import { ChevronRight } from "lucide-react";
 import type { MapEvent } from "@/data/index";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useYoutubeChannels } from "@/hooks/useYoutubeChannels";
+import { YOUTUBE_CHANNELS } from "@/data/youtubeChannels";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { SidePanel } from "./SidePanel";
 
 const TYPE_COLORS: Record<string, string> = {
   security_incident: "bg-amber-500",
@@ -50,7 +51,9 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
   const isMobile = useIsMobile();
 
   const [tab, setTab] = useState<"events" | "youtube">("events");
-  const { channels: ytChannels, loading: ytLoading, error: ytError } = useYoutubeChannels();
+  const ytChannels = YOUTUBE_CHANNELS;
+  const ytLoading = false;
+  const ytError: string | null = null;
 
   // Group flat channel rows into { displayName → rows[] }
   const channelGroups = useMemo(() => {
@@ -85,49 +88,37 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
   }, [activeDay]);
 
   return (
-    <>
-      {/* Mobile backdrop */}
-      {isMobile && (
-        <div
-          className={`fixed inset-0 z-[79] bg-black/60 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => onOpenChange(false)}
-        />
-      )}
-      <aside
-        className={
-          isMobile
-            ? `fixed right-0 inset-y-0 z-[80] flex flex-col border-l border-border bg-card w-80 transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`
-            : `relative z-30 flex h-full shrink-0 flex-col border-l border-border bg-card transition-all duration-200 ${open ? "w-80" : "w-14 cursor-pointer"}`
-        }
-        onClick={!open && !isMobile ? () => onOpenChange(true) : undefined}
-      >
-      {/* Header with toggle */}
-      <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onOpenChange(!open)}
-          className={open || isMobile ? "" : "mx-auto"}
-          aria-label={open ? "Close live feeds" : "Open live feeds"}
-        >
-          <ChevronRight
-            className={`size-4 transition-transform duration-200 ${open || isMobile ? "" : "rotate-180"}`}
-          />
-        </Button>
-        {(open || isMobile) && (
-          <>
-            <span className="text-sm font-semibold">Live Feeds</span>
-            {tab === "events" && (
-              <span className="ml-auto text-xs text-muted-foreground">
-                {events.length} event{events.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Collapsed: vertical label — desktop only */}
-      {!open && !isMobile && (
+    <SidePanel
+      open={open}
+      onOpenChange={onOpenChange}
+      side="right"
+      width="w-80"
+      header={
+        <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => onOpenChange(!open)}
+            className={open || isMobile ? "" : "mx-auto"}
+            aria-label={open ? "Close live feeds" : "Open live feeds"}
+          >
+            <ChevronRight
+              className={`size-4 transition-transform duration-200 ${open || isMobile ? "" : "rotate-180"}`}
+            />
+          </Button>
+          {(open || isMobile) && (
+            <>
+              <span className="text-sm font-semibold">Live Feeds</span>
+              {tab === "events" && (
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {events.length} event{events.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+      }
+      collapsedContent={
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4">
           <span
             className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground select-none"
@@ -136,170 +127,167 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
             Live Feeds
           </span>
         </div>
-      )}
+      }
+    >
+      <>
+        {/* Tabs */}
+        <div className="flex shrink-0 border-b border-border">
+          <button
+            onClick={() => setTab("events")}
+            className={`flex-1 py-2 text-xs font-medium transition-colors ${
+              tab === "events"
+                ? "border-b-2 border-primary text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Events
+          </button>
+          <button
+            onClick={() => setTab("youtube")}
+            className={`flex-1 py-2 text-xs font-medium transition-colors ${
+              tab === "youtube"
+                ? "border-b-2 border-primary text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            YouTube
+          </button>
+        </div>
 
-      {(open || isMobile) && (
-        <>
-          {/* Tabs */}
-          <div className="flex shrink-0 border-b border-border">
-            <button
-              onClick={() => setTab("events")}
-              className={`flex-1 py-2 text-xs font-medium transition-colors ${
-                tab === "events"
-                  ? "border-b-2 border-primary text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Events
-            </button>
-            <button
-              onClick={() => setTab("youtube")}
-              className={`flex-1 py-2 text-xs font-medium transition-colors ${
-                tab === "youtube"
-                  ? "border-b-2 border-primary text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              YouTube
-            </button>
-          </div>
-
-          {/* Events tab */}
-          {tab === "events" && (
-            <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
-              {groups.length === 0 && (
-                <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
-                  No events match the current filters
+        {/* Events tab */}
+        {tab === "events" && (
+          <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
+            {groups.length === 0 && (
+              <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
+                No events match the current filters
+              </div>
+            )}
+            {groups.map(({ date, items }) => {
+              const parsedDate = parseISO(date);
+              const today = isToday(parsedDate);
+              return (
+                <div key={date}>
+                  <div
+                    data-date-header={date}
+                    className={`sticky top-0 z-10 flex items-center gap-2 px-3 py-1.5 border-b border-border bg-muted/80 text-2xs font-semibold uppercase tracking-wider text-muted-foreground ${activeDay === date ? "ring-1 ring-inset ring-primary" : ""}`}
+                  >
+                    {today ? "Today — " : ""}
+                    {format(parsedDate, "d MMM yyyy")}
+                  </div>
+                  {items.map((event) => (
+                    <EventRow
+                      key={event.id}
+                      event={event}
+                      isToday={today}
+                      isHighlighted={activeDay === date}
+                    />
+                  ))}
                 </div>
-              )}
-              {groups.map(({ date, items }) => {
-                const parsedDate = parseISO(date);
-                const today = isToday(parsedDate);
-                return (
-                  <div key={date}>
-                    <div
-                      data-date-header={date}
-                      className={`sticky top-0 z-10 flex items-center gap-2 px-3 py-1.5 border-b border-border bg-muted/80 text-2xs font-semibold uppercase tracking-wider text-muted-foreground ${activeDay === date ? "ring-1 ring-inset ring-primary" : ""}`}
-                    >
-                      {today ? "Today — " : ""}
-                      {format(parsedDate, "d MMM yyyy")}
-                    </div>
-                    {items.map((event) => (
-                      <EventRow
-                        key={event.id}
-                        event={event}
-                        isToday={today}
-                        isHighlighted={activeDay === date}
-                      />
+              );
+            })}
+          </div>
+        )}
+
+        {/* YouTube tab */}
+        {tab === "youtube" && (
+          <div className="flex flex-1 flex-col gap-3 p-3 overflow-y-auto">
+            {ytLoading && (
+              <div className="flex items-center justify-center h-16 text-xs text-muted-foreground">
+                Loading channels…
+              </div>
+            )}
+
+            {ytError && (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                Failed to load channels: {ytError}
+              </div>
+            )}
+
+            {!ytLoading && !ytError && channelGroups.length === 0 && (
+              <div className="flex items-center justify-center h-16 text-xs text-muted-foreground">
+                No active channels configured
+              </div>
+            )}
+
+            {!ytLoading && channelGroups.length > 0 && (
+              <>
+                {/* Channel dropdown */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Channel
+                  </label>
+                  <Select
+                    value={selectedGroup === -1 ? "" : String(selectedGroup)}
+                    onValueChange={(v) => handleGroupChange(Number(v))}
+                  >
+                    <SelectTrigger className="w-full text-xs h-8">
+                      <SelectValue placeholder="Select a channel…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {channelGroups.map((g, i) => (
+                        <SelectItem key={g.name} value={String(i)}>
+                          <span className="flex items-center gap-2">
+                            <LiveDot />
+                            {g.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Prompt when nothing selected */}
+                {selectedGroup === -1 && (
+                  <p className="text-center text-xs text-muted-foreground py-4">
+                    Select a channel above to watch
+                  </p>
+                )}
+
+                {/* Language pills — only if channel has multiple streams */}
+                {group && group.streams.length > 1 && (
+                  <div className="flex gap-1.5 flex-wrap">
+                    {group.streams.map((s, i) => (
+                      <button
+                        key={s.handle}
+                        onClick={() => setSelectedStream(i)}
+                        className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                          selectedStream === i
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {LANGUAGE_LABEL[s.language] ?? s.language}
+                      </button>
                     ))}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                )}
 
-          {/* YouTube tab */}
-          {tab === "youtube" && (
-            <div className="flex flex-1 flex-col gap-3 p-3 overflow-y-auto">
-              {ytLoading && (
-                <div className="flex items-center justify-center h-16 text-xs text-muted-foreground">
-                  Loading channels…
-                </div>
-              )}
-
-              {ytError && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                  Failed to load channels: {ytError}
-                </div>
-              )}
-
-              {!ytLoading && !ytError && channelGroups.length === 0 && (
-                <div className="flex items-center justify-center h-16 text-xs text-muted-foreground">
-                  No active channels configured
-                </div>
-              )}
-
-              {!ytLoading && channelGroups.length > 0 && (
-                <>
-                  {/* Channel dropdown */}
-                  <div className="flex flex-col gap-1">
-                    <label className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Channel
-                    </label>
-                    <Select
-                      value={selectedGroup === -1 ? "" : String(selectedGroup)}
-                      onValueChange={(v) => handleGroupChange(Number(v))}
-                    >
-                      <SelectTrigger className="w-full text-xs h-8">
-                        <SelectValue placeholder="Select a channel…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {channelGroups.map((g, i) => (
-                          <SelectItem key={g.name} value={String(i)}>
-                            <span className="flex items-center gap-2">
-                              <LiveDot />
-                              {g.name}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Prompt when nothing selected */}
-                  {selectedGroup === -1 && (
-                    <p className="text-center text-xs text-muted-foreground py-4">
-                      Select a channel above to watch
-                    </p>
-                  )}
-
-                  {/* Language pills — only if channel has multiple streams */}
-                  {group && group.streams.length > 1 && (
-                    <div className="flex gap-1.5 flex-wrap">
-                      {group.streams.map((s, i) => (
-                        <button
-                          key={s.handle}
-                          onClick={() => setSelectedStream(i)}
-                          className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-                            selectedStream === i
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {LANGUAGE_LABEL[s.language] ?? s.language}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Embed */}
-                  {embedSrc && stream && selectedGroup !== -1 && (
-                    <>
-                      <div className="w-full overflow-hidden rounded-md border border-border bg-black">
-                        <div style={{ aspectRatio: "16/9" }}>
-                          <iframe
-                            key={embedSrc}
-                            src={embedSrc}
-                            title={`${group.name} ${stream.language} live`}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="h-full w-full"
-                          />
-                        </div>
+                {/* Embed */}
+                {embedSrc && stream && selectedGroup !== -1 && (
+                  <>
+                    <div className="w-full overflow-hidden rounded-md border border-border bg-black">
+                      <div style={{ aspectRatio: "16/9" }}>
+                        <iframe
+                          key={embedSrc}
+                          src={embedSrc}
+                          title={`${group.name} ${stream.language} live`}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="h-full w-full"
+                        />
                       </div>
-                      <p className="text-2xs text-muted-foreground text-center">
-                        {group.name} · {LANGUAGE_LABEL[stream.language] ?? stream.language}
-                      </p>
-                    </>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </>
-      )}
-    </aside>
-    </>
+                    </div>
+                    <p className="text-2xs text-muted-foreground text-center">
+                      {group.name} · {LANGUAGE_LABEL[stream.language] ?? stream.language}
+                    </p>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </>
+    </SidePanel>
   );
 }
 

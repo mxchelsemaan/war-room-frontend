@@ -1,6 +1,7 @@
 import { Layers, Mountain, MapPin, Flame, Waves, Landmark, Map, Navigation, Plane, Ship } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { Switch } from "@/components/ui/switch";
 
 export interface LayerVisibility {
   terrain: boolean;
@@ -86,19 +87,20 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
                 {heading}
               </p>
               {items.map(({ key, label, Icon }) => (
-                <button
+                <div
                   key={key}
                   onClick={() => toggle(key)}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 min-h-[44px] md:min-h-0 text-xs transition-colors hover:bg-muted"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" || e.key === " " ? toggle(key) : undefined}
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 min-h-[44px] md:min-h-0 text-xs transition-colors hover:bg-muted cursor-pointer"
                 >
                   <Icon className={`size-3.5 ${layers[key] ? "text-primary" : "text-muted-foreground"}`} />
                   <span className={layers[key] ? "text-foreground" : "text-muted-foreground"}>
                     {label}
                   </span>
-                  <span className={`ml-auto h-4 w-7 rounded-full border border-border transition-colors ${layers[key] ? "bg-primary" : "bg-muted"}`}>
-                    <span className={`block h-4 w-4 rounded-full border border-border bg-card transition-transform ${layers[key] ? "translate-x-3" : "translate-x-0"}`} />
-                  </span>
-                </button>
+                  <Switch checked={layers[key]} className="ml-auto pointer-events-none scale-75" />
+                </div>
               ))}
             </div>
           ))}

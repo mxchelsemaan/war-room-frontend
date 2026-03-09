@@ -1,14 +1,7 @@
-import { useEffect, useState } from "react";
+import { useLocalStorage } from "./useLocalStorage";
 
 export function useSettings() {
-  const [showLabels, setShowLabels] = useState(() => {
-    const stored = localStorage.getItem("settings:showLabels");
-    return stored ? stored === "true" : true;
-  });
-
-  useEffect(() => {
-    localStorage.setItem("settings:showLabels", String(showLabels));
-  }, [showLabels]);
+  const [showLabels, setShowLabels] = useLocalStorage("settings:showLabels", true);
 
   return { showLabels, toggleLabels: () => setShowLabels((v) => !v) };
 }

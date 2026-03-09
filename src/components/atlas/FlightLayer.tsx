@@ -3,37 +3,30 @@ import { useMap } from "react-map-gl/maplibre";
 import maplibregl from "maplibre-gl";
 import { FLIGHT_SPECS } from "@/data/flights";
 import { buildSpline, buildArc, getState } from "@/lib/spline";
+import { injectStyleOnce } from "@/lib/injectCSS";
 
 // ── Spline constants ──────────────────────────────────────────────────────────
 const N_SAMPLES  = 600;
 const LOOK_AHEAD = 12;
 
-// ── CSS ping animation (injected once) ───────────────────────────────────────
-let pingStyleInjected = false;
-function injectPingStyle() {
-  if (pingStyleInjected) return;
-  pingStyleInjected = true;
-  const s = document.createElement("style");
-  s.textContent = `
-    @keyframes flightPing {
-      0%   { transform: scale(1);   opacity: 0.6; }
-      100% { transform: scale(3);   opacity: 0; }
-    }
-    .flight-ping {
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 24px; height: 24px;
-      margin: -12px 0 0 -12px;
-      border-radius: 50%;
-      animation: flightPing 2s ease-out infinite;
-      pointer-events: none;
-    }
-    .flight-ping-2 {
-      animation-delay: 1s;
-    }
-  `;
-  document.head.appendChild(s);
-}
+const FLIGHT_PING_CSS = `
+  @keyframes flightPing {
+    0%   { transform: scale(1);   opacity: 0.6; }
+    100% { transform: scale(3);   opacity: 0; }
+  }
+  .flight-ping {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 24px; height: 24px;
+    margin: -12px 0 0 -12px;
+    border-radius: 50%;
+    animation: flightPing 2s ease-out infinite;
+    pointer-events: none;
+  }
+  .flight-ping-2 {
+    animation-delay: 1s;
+  }
+`;
 
 // ── Plane SVG (top-down silhouette) ──────────────────────────────────────────
 function planeSVG(color: string): string {
@@ -58,7 +51,7 @@ function planeSVG(color: string): string {
 function makeFlightEl(
   callsign: string, country: string, color: string,
 ): { el: HTMLDivElement; rotateEl: HTMLDivElement } {
-  injectPingStyle();
+  injectStyleOnce("flight-ping-css", FLIGHT_PING_CSS);
 
   const outer = document.createElement("div");
   outer.style.cssText = "will-change:transform;display:flex;flex-direction:column;align-items:center;cursor:pointer;pointer-events:auto;z-index:5;position:relative;";

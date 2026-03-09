@@ -18,9 +18,9 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SettingsMenu } from "./SettingsMenu";
 import { useTheme } from "@/hooks/useTheme";
 import { useSettings } from "@/hooks/useSettings";
-import { useDrawing } from "@/hooks/useDrawing";
-import type { Annotation } from "@/hooks/useDrawing";
-import { useUnitPlacement } from "@/hooks/useUnitPlacement";
+import { usePanelState } from "@/hooks/usePanelState";
+import { AnnotationProvider, useAnnotationContext } from "@/context/AnnotationContext";
+import { UnitPlacementProvider, useUnitPlacementContext } from "@/context/UnitPlacementContext";
 import type { NATOUnitType } from "@/types/units";
 import { mockEventTypes, mockMapEvents } from "@/data/index";
 import type { StaticMarkerType } from "@/data/staticMarkers";
@@ -37,10 +37,23 @@ function buildDefaultFilters(): AtlasFilters {
 }
 
 export function AtlasView() {
+  return (
+    <AnnotationProvider>
+      <UnitPlacementProvider>
+        <AtlasViewInner />
+      </UnitPlacementProvider>
+    </AnnotationProvider>
+  );
+}
+
+function AtlasViewInner() {
   const { dark, toggle: toggleTheme } = useTheme();
   const { showLabels, toggleLabels } = useSettings();
   const isMobile = useIsMobile();
   const [filters, setFilters] = useState<AtlasFilters>(buildDefaultFilters);
+
+  const ann = useAnnotationContext();
+  const up = useUnitPlacementContext();
 
   const filteredEvents = useMemo(() => {
     return mockMapEvents.filter((event) => {
@@ -58,20 +71,7 @@ export function AtlasView() {
   }, [filteredEvents]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
-
-  type PanelId = 'filter' | 'feed' | 'layers' | 'legend' | 'draw' | 'briefing' | 'timeline';
-  const [openPanels, setOpenPanels] = useState<Set<PanelId>>(new Set());
-  const isPanelOpen = (id: PanelId) => openPanels.has(id);
-  const togglePanel = (id: PanelId) => setOpenPanels(prev => {
-    const next = new Set(prev);
-    if (next.has(id)) next.delete(id); else next.add(id);
-    return next;
-  });
-  const setPanelOpen = (id: PanelId, open: boolean) => setOpenPanels(prev => {
-    const next = new Set(prev);
-    if (open) next.add(id); else next.delete(id);
-    return next;
-  });
+  const { isPanelOpen, togglePanel, setPanelOpen } = usePanelState();
   const [layers, setLayers] = useState<LayerVisibility>({
     terrain: false,
     hillshade: true,
@@ -100,27 +100,15 @@ export function AtlasView() {
     });
   }
 
-  const drawing = useDrawing();
-  const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null);
-  const unitPlacement = useUnitPlacement();
-
   function handleStartPlacement(type: NATOUnitType) {
-    drawing.cancel();
-    unitPlacement.startPlacement(type);
+    ann.cancel();
+    up.startPlacement(type);
   }
 
   function handleStartPathDrawing(unitId: string) {
-    drawing.cancel();
-    unitPlacement.startPathDrawing(unitId);
+    ann.cancel();
+    up.startPathDrawing(unitId);
   }
-
-  // Consume completed annotation from drawing hook — inherit current float default
-  useEffect(() => {
-    if (!drawing.completed) return;
-    setAnnotations(prev => [...prev, { ...drawing.completed!, float: false }]);
-    drawing.clearCompleted();
-  }, [drawing.completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setTimelineDay(null);
@@ -216,30 +204,27 @@ export function AtlasView() {
               layers={layers}
               dark={dark}
               selectedInfraTypes={filters.selectedInfraTypes}
-              annotations={annotations}
-              drawingMode={drawing.mode}
-              drawingColor={drawing.color}
-              tempDrawingCoords={drawing.tempCoords}
-              onMapClick={drawing.handleClick}
-              onMapDblClick={drawing.handleDblClick}
-              onDeleteAnnotation={(id) => {
-                setAnnotations(prev => prev.filter(a => a.id !== id));
-                setSelectedAnnotationId(prev => prev === id ? null : prev);
-              }}
+              annotations={ann.annotations}
+              drawingMode={ann.mode}
+              drawingColor={ann.color}
+              tempDrawingCoords={ann.tempCoords}
+              onMapClick={ann.handleClick}
+              onMapDblClick={ann.handleDblClick}
+              onDeleteAnnotation={ann.deleteAnnotation}
               onSelectAnnotation={(id) => {
-                setSelectedAnnotationId(id);
+                ann.setSelectedAnnotationId(id);
                 setPanelOpen('draw', true);
               }}
               externalMapRef={mapRef}
-              previewWidth={drawing.drawWidth}
-              previewArrowStyle={drawing.drawArrowStyle}
-              placedUnits={unitPlacement.units}
-              unitPaths={unitPlacement.paths}
-              placementMode={unitPlacement.placementMode}
-              pathDrawingUnitId={unitPlacement.pathDrawingUnitId}
-              onPlaceUnit={unitPlacement.placeUnit}
-              onAddPathWaypoint={unitPlacement.addWaypoint}
-              onFinishPath={unitPlacement.finishPathDrawing}
+              previewWidth={ann.drawWidth}
+              previewArrowStyle={ann.drawArrowStyle}
+              placedUnits={up.units}
+              unitPaths={up.paths}
+              placementMode={up.placementMode}
+              pathDrawingUnitId={up.pathDrawingUnitId}
+              onPlaceUnit={up.placeUnit}
+              onAddPathWaypoint={up.addWaypoint}
+              onFinishPath={up.finishPathDrawing}
             />
             </ErrorBoundary>
             <AISummaryCard
@@ -259,65 +244,48 @@ export function AtlasView() {
             {/* Top-right: draw toolbar + unit palette */}
             <div className="absolute top-[10px] right-3 z-30 flex flex-col items-end gap-1">
               <DrawingToolbar
-                mode={drawing.mode}
-                color={drawing.color}
-                drawWidth={drawing.drawWidth}
-                drawArrowStyle={drawing.drawArrowStyle}
-                annotations={annotations}
+                mode={ann.mode}
+                color={ann.color}
+                drawWidth={ann.drawWidth}
+                drawArrowStyle={ann.drawArrowStyle}
+                annotations={ann.annotations}
                 open={isPanelOpen('draw')}
                 onToggle={() => togglePanel('draw')}
-                onStartDrawing={drawing.startDrawing}
-                onSetColor={drawing.setColor}
-                onSetWidth={drawing.setDrawWidth}
-                onSetArrowStyle={drawing.setDrawArrowStyle}
-                drawGlow={drawing.drawGlow}
-                drawDash={drawing.drawDash}
-                drawFloat={drawing.drawFloat}
-                onSetDrawGlow={drawing.setDrawGlow}
-                onSetDrawDash={drawing.setDrawDash}
-                onSetDrawFloat={drawing.setDrawFloat}
-                onCancel={drawing.cancel}
-                onDeleteAnnotation={(id) => {
-                  setAnnotations(prev => prev.filter(a => a.id !== id));
-                  setSelectedAnnotationId(prev => prev === id ? null : prev);
-                }}
-                onRenameAnnotation={(id, label) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, label } : a))
-                }
-                onToggleGlow={(id) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, glow: !a.glow } : a))
-                }
-                onToggleDash={(id) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, dash: !a.dash } : a))
-                }
-                onToggleLabel={(id) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, showLabel: !a.showLabel } : a))
-                }
-                onToggleAnnotationFloat={(id) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, float: !a.float } : a))
-                }
-                selectedAnnotationId={selectedAnnotationId}
-                onSelectAnnotation={(id) => setSelectedAnnotationId(id)}
-                onSetAnnotationColor={(id, color) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, color } : a))
-                }
-                onSetAnnotationWidth={(id, width) =>
-                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, width } : a))
-                }
-                units={unitPlacement.units}
-                paths={unitPlacement.paths}
-                placementMode={unitPlacement.placementMode}
-                pendingColor={unitPlacement.pendingColor}
-                pathDrawingUnitId={unitPlacement.pathDrawingUnitId}
+                onStartDrawing={ann.startDrawing}
+                onSetColor={ann.setColor}
+                onSetWidth={ann.setDrawWidth}
+                onSetArrowStyle={ann.setDrawArrowStyle}
+                drawGlow={ann.drawGlow}
+                drawDash={ann.drawDash}
+                drawFloat={ann.drawFloat}
+                onSetDrawGlow={ann.setDrawGlow}
+                onSetDrawDash={ann.setDrawDash}
+                onSetDrawFloat={ann.setDrawFloat}
+                onCancel={ann.cancel}
+                onDeleteAnnotation={ann.deleteAnnotation}
+                onRenameAnnotation={ann.renameAnnotation}
+                onToggleGlow={ann.toggleGlow}
+                onToggleDash={ann.toggleDash}
+                onToggleLabel={ann.toggleLabel}
+                onToggleAnnotationFloat={ann.toggleAnnotationFloat}
+                selectedAnnotationId={ann.selectedAnnotationId}
+                onSelectAnnotation={ann.setSelectedAnnotationId}
+                onSetAnnotationColor={ann.setAnnotationColor}
+                onSetAnnotationWidth={ann.setAnnotationWidth}
+                units={up.units}
+                paths={up.paths}
+                placementMode={up.placementMode}
+                pendingColor={up.pendingColor}
+                pathDrawingUnitId={up.pathDrawingUnitId}
                 onStartPlacement={handleStartPlacement}
-                onCancelPlacement={unitPlacement.cancelPlacement}
-                onSetPendingColor={unitPlacement.setPendingColor}
-                onUpdateUnit={unitPlacement.updateUnit}
-                onDeleteUnit={unitPlacement.deleteUnit}
+                onCancelPlacement={up.cancelPlacement}
+                onSetPendingColor={up.setPendingColor}
+                onUpdateUnit={up.updateUnit}
+                onDeleteUnit={up.deleteUnit}
                 onStartPathDrawing={handleStartPathDrawing}
-                onFinishPathDrawing={unitPlacement.finishPathDrawing}
-                onCancelPathDrawing={unitPlacement.cancelPathDrawing}
-                onDeletePath={unitPlacement.deletePath}
+                onFinishPathDrawing={up.finishPathDrawing}
+                onCancelPathDrawing={up.cancelPathDrawing}
+                onDeletePath={up.deletePath}
                 direction="down"
                 showLabels={showLabels}
               />
@@ -339,7 +307,7 @@ export function AtlasView() {
               layers={layers}
               eventTypes={mockEventTypes}
               showLabels={showLabels}
-              placedUnits={unitPlacement.units}
+              placedUnits={up.units}
             />
             {mapEvents.length === 0 && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

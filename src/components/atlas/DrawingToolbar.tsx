@@ -6,6 +6,8 @@ import { ColorPickerButton } from "./ColorPickerPopover";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
 import { Slider } from "@/components/ui/slider";
+import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
+import { ToggleChip } from "@/components/ui/ToggleChip";
 import { natoMiniSVG } from "@/lib/natoSymbols";
 import type { NATOUnitType, PlacedUnit, UnitPath } from "@/types/units";
 
@@ -82,60 +84,6 @@ const UNIT_SHORT_LABELS: Record<NATOUnitType, string> = {
 const UNIT_FULL_LABELS: Record<NATOUnitType, string> = {
   infantry: "Infantry", armor: "Armor", artillery: "Artillery", mechanized: "Mechanized", hq: "HQ",
 };
-
-/* ── Segmented toggle ──────────────────────────────────────── */
-
-function SegmentedToggle<T extends string>({
-  options, value, onChange,
-}: {
-  options: { value: T; label: React.ReactNode }[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex rounded-lg overflow-hidden border border-border text-[11px] font-medium">
-      {options.map((o) => (
-        <button
-          key={o.value}
-          onClick={() => onChange(o.value)}
-          className={`flex flex-1 items-center justify-center gap-1 py-1.5 transition-colors ${
-            value === o.value
-              ? "bg-primary text-primary-foreground"
-              : "hover:bg-muted text-muted-foreground"
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-/* ── ToggleChip ────────────────────────────────────────────── */
-
-function ToggleChip({
-  active, onClick, activeClass, icon, label, title,
-}: {
-  active: boolean;
-  onClick: () => void;
-  activeClass: string;
-  icon: React.ReactNode;
-  label: string;
-  title: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      className={`flex flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-[10px] font-medium transition-colors ${
-        active ? activeClass : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
 
 /* ── Annotation row ────────────────────────────────────────── */
 

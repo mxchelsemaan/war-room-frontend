@@ -3,28 +3,22 @@ import { useMap } from "react-map-gl/maplibre";
 import maplibregl from "maplibre-gl";
 import { natoSVG } from "@/lib/natoSymbols";
 import { buildSpline, buildArc, getState } from "@/lib/spline";
+import { injectStyleOnce } from "@/lib/injectCSS";
 import type { PlacedUnit, UnitPath } from "@/types/units";
 
 const N_SAMPLES  = 800;
 const LOOK_AHEAD = 14;
 
-// ── CSS keyframes (injected once) ─────────────────────────────────────────────
-function ensureStyles() {
-  if (document.getElementById("unit-layer-css")) return;
-  const s = document.createElement("style");
-  s.id = "unit-layer-css";
-  s.textContent = `
-    @keyframes unit-ring0 {
-      0%   { transform:translate(-50%,-50%) scale(0.45); opacity:0.75; }
-      100% { transform:translate(-50%,-50%) scale(1.65); opacity:0;    }
-    }
-    @keyframes unit-ring1 {
-      0%   { transform:translate(-50%,-50%) scale(0.45); opacity:0.40; }
-      100% { transform:translate(-50%,-50%) scale(1.65); opacity:0;    }
-    }
-  `;
-  document.head.appendChild(s);
-}
+const UNIT_LAYER_CSS = `
+  @keyframes unit-ring0 {
+    0%   { transform:translate(-50%,-50%) scale(0.45); opacity:0.75; }
+    100% { transform:translate(-50%,-50%) scale(1.65); opacity:0;    }
+  }
+  @keyframes unit-ring1 {
+    0%   { transform:translate(-50%,-50%) scale(0.45); opacity:0.40; }
+    100% { transform:translate(-50%,-50%) scale(1.65); opacity:0;    }
+  }
+`;
 
 // ── Marker element builder ────────────────────────────────────────────────────
 function makeUnitEl(unit: PlacedUnit, terrain: boolean): HTMLDivElement {
@@ -96,7 +90,7 @@ export function UnitLayer({ terrain = false, units, paths }: {
     const map = mapRef?.getMap();
     if (!map) return;
 
-    ensureStyles();
+    injectStyleOnce("unit-layer-css", UNIT_LAYER_CSS);
 
     const allMarkers: maplibregl.Marker[] = [];
     const layerIds: string[] = [];

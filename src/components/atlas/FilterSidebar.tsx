@@ -7,6 +7,7 @@ import type { StaticMarkerType } from "@/data/staticMarkers";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { SidePanel } from "./SidePanel";
 
 export interface AtlasFilters {
   selectedTypes: Set<string>;
@@ -83,40 +84,27 @@ export function FilterSidebar({
       : null;
 
   return (
-    <>
-      {/* Mobile backdrop */}
-      {isMobile && (
-        <div
-          className={`fixed inset-0 z-[79] bg-black/60 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          onClick={() => setOpen(false)}
-        />
-      )}
-      <aside
-        className={
-          isMobile
-            ? `fixed left-0 inset-y-0 z-[80] flex flex-col border-r border-border bg-card w-72 transition-transform duration-300 ease-out ${open ? "translate-x-0" : "-translate-x-full"}`
-            : `relative z-30 flex h-full shrink-0 flex-col border-r border-border bg-card transition-all duration-200 ${open ? "w-72" : "w-14 cursor-pointer"}`
-        }
-        onClick={!open && !isMobile ? () => setOpen(true) : undefined}
-      >
-      {/* Header with toggle — not scrollable */}
-      <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
-        {(open || isMobile) && (
-          <span className="flex-1 text-sm font-semibold text-foreground">Filters</span>
-        )}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => setOpen(!open)}
-          className={open || isMobile ? "ml-auto" : "mx-auto"}
-          aria-label={open ? "Collapse filters" : "Expand filters"}
-        >
-          <ChevronLeft className={`size-4 transition-transform duration-200 ${open || isMobile ? "" : "rotate-180"}`} />
-        </Button>
-      </div>
-
-      {/* Collapsed: vertical label — desktop only */}
-      {!open && !isMobile && (
+    <SidePanel
+      open={open}
+      onOpenChange={setOpen}
+      side="left"
+      header={
+        <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
+          {(open || isMobile) && (
+            <span className="flex-1 text-sm font-semibold text-foreground">Filters</span>
+          )}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setOpen(!open)}
+            className={open || isMobile ? "ml-auto" : "mx-auto"}
+            aria-label={open ? "Collapse filters" : "Expand filters"}
+          >
+            <ChevronLeft className={`size-4 transition-transform duration-200 ${open || isMobile ? "" : "rotate-180"}`} />
+          </Button>
+        </div>
+      }
+      collapsedContent={
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4">
           <span
             className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground select-none"
@@ -125,11 +113,9 @@ export function FilterSidebar({
             Filters
           </span>
         </div>
-      )}
-
-      {/* Expanded content — scrollable */}
-      {(open || isMobile) && (
-        <div className="flex flex-col flex-1 min-h-0 overflow-y-auto"><>
+      }
+    >
+      <div className="flex flex-col flex-1 min-h-0 overflow-y-auto"><>
       {/* Event type filter */}
       <div className="p-3 border-b border-border">
         <div className="flex items-center justify-between mb-2">
@@ -231,8 +217,6 @@ export function FilterSidebar({
         </Button>
       </div>
       </></div>
-      )}
-    </aside>
-    </>
+    </SidePanel>
   );
 }

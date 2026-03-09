@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DRAW_COLOR_PRESETS } from "@/config/colors";
+
+export { DRAW_COLOR_PRESETS };
 
 export type AnnotationType = "pin" | "line" | "arrow" | "area";
 export type ArrowStyle = "simple" | "jagged";
@@ -16,11 +19,6 @@ export interface Annotation {
   width: number;
   arrowStyle: ArrowStyle;
 }
-
-export const DRAW_COLOR_PRESETS = [
-  "#e2e8f0", "#000000", "#ef4444", "#f97316", "#eab308", "#22c55e",
-  "#3b82f6", "#a855f7", "#ec4899",
-] as const;
 
 interface DrawingHookResult {
   mode: AnnotationType | null;

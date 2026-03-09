@@ -5,17 +5,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@700&family=Milker&family=Inter+Tight:wght@100..900&display=swap");
 @import "maplibre-gl/dist/maplibre-gl.css";
 
-/* ── WW2 rubber stamp distressed effect ── */
-.war-stamp {
-  text-shadow:
-    1px 0 0 rgba(198, 40, 40, 0.3),
-    -1px 0 0 rgba(198, 40, 40, 0.2),
-    0 1px 0 rgba(198, 40, 40, 0.3);
-  filter: url(#stamp-rough);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 .maplibregl-map { background: #0f0f1a; }
 
 /* Cap MapLibre marker/popup containers so app overlays (briefing card z-60) sit above */

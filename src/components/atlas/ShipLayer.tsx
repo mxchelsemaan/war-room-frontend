@@ -3,32 +3,25 @@ import { useMap } from "react-map-gl/maplibre";
 import maplibregl from "maplibre-gl";
 import { SHIP_SPECS } from "@/data/ships";
 import { buildSpline, buildArc, getState } from "@/lib/spline";
+import { injectStyleOnce } from "@/lib/injectCSS";
 
 // ── Spline constants ──────────────────────────────────────────────────────────
 const N_SAMPLES  = 400;
 const LOOK_AHEAD = 8;
 
-// ── CSS ping animation (injected once) ───────────────────────────────────────
-let pingStyleInjected = false;
-function injectPingStyle() {
-  if (pingStyleInjected) return;
-  pingStyleInjected = true;
-  const s = document.createElement("style");
-  s.textContent = `
-    @keyframes shipPing {
-      0%   { transform: scale(1);   opacity: 0.5; }
-      100% { transform: scale(2.5); opacity: 0; }
-    }
-    .ship-ping {
-      position: absolute;
-      top: 50%; left: 50%;
-      border-radius: 50%;
-      animation: shipPing 3s ease-out infinite;
-      pointer-events: none;
-    }
-  `;
-  document.head.appendChild(s);
-}
+const SHIP_PING_CSS = `
+  @keyframes shipPing {
+    0%   { transform: scale(1);   opacity: 0.5; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  .ship-ping {
+    position: absolute;
+    top: 50%; left: 50%;
+    border-radius: 50%;
+    animation: shipPing 3s ease-out infinite;
+    pointer-events: none;
+  }
+`;
 
 // ── Ship SVG (top-down silhouette) ───────────────────────────────────────────
 function shipSVG(color: string, type: string): string {
@@ -59,7 +52,7 @@ function shipSVG(color: string, type: string): string {
 function makeShipEl(
   name: string, flag: string, color: string, type: string,
 ): { el: HTMLDivElement; rotateEl: HTMLDivElement } {
-  injectPingStyle();
+  injectStyleOnce("ship-ping-css", SHIP_PING_CSS);
 
   const isNaval = type === "naval" || type === "patrol";
   const ringSize = isNaval ? 28 : 32;
