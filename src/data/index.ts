@@ -11,13 +11,17 @@ export interface EventLocation {
 }
 
 export interface MapEvent {
-  id: number;
+  id: string;
   event_type: string;
   event_icon: string;
   event_label: string;
   event_location: EventLocation;
   event_count: number;
   date: string;
+  summary?: string;
+  severity?: string;
+  sourceChannel?: string;
+  verificationStatus?: string;
 }
 
 export interface EventType {
@@ -28,11 +32,11 @@ export interface EventType {
 
 export interface MockEventsData {
   event_types: EventType[];
-  events: MapEvent[];
+  events: (Omit<MapEvent, 'id'> & { id: number })[];
 }
 
 const eventsData = rawEvents as MockEventsData;
 
 export const mockEventTypes: EventType[] = eventsData.event_types;
-export const mockMapEvents: MapEvent[] = eventsData.events;
+export const mockMapEvents: MapEvent[] = eventsData.events.map(e => ({ ...e, id: String(e.id) }));
 
