@@ -405,93 +405,99 @@ export function DrawingToolbar({
   );
 
   const panel = (
-    <CollapsePanel open={open} direction={direction}>
-      <div className="glass-panel p-3 w-72 flex flex-col gap-3 mb-1">
+    <CollapsePanel open={open} direction="left">
+      <div className="glass-panel p-3 w-96 flex flex-col gap-3 mr-1 max-h-[calc(100vh-80px)] overflow-y-auto">
 
-        {/* ── Shapes ── */}
-        <div>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Shapes</span>
-          <div className="grid grid-cols-4 gap-1.5">
-            {drawTypes.map((m) => (
-              <Button
-                key={m}
-                variant="ghost"
-                onClick={() => handleModeBtn(m)}
-                title={MODE_LABEL[m]}
-                className={`flex flex-col items-center justify-center gap-1.5 h-auto py-3 text-[11px] font-medium ${
-                  mode === m
-                    ? "bg-primary/20 text-primary ring-1 ring-primary/40"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {TYPE_ICON[m]}
-                <span>{MODE_LABEL[m]}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Units ── */}
-        <div>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Units</span>
-          <div className="grid grid-cols-5 gap-1.5">
-            {NATO_TYPES.map((type) => (
-              <Button
-                key={type}
-                variant="ghost"
-                onClick={() => placementMode === type ? onCancelPlacement() : onStartPlacement(type)}
-                title={UNIT_FULL_LABELS[type]}
-                className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-[10px] font-medium ${
-                  placementMode === type
-                    ? "bg-primary/20 text-primary ring-1 ring-primary/40"
-                    : "text-muted-foreground"
-                }`}
-              >
-                <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : "#000000", placementMode === type ? "#1a1a2e" : "#ffffff") }} />
-                <span>{UNIT_SHORT_LABELS[type]}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Color selector ── */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Color</span>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {DRAW_COLOR_PRESETS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setActiveColor(c)}
-                style={{
-                  background: c,
-                  outline: activeColor === c ? `2px solid ${c}` : undefined,
-                  outlineOffset: activeColor === c ? "2px" : undefined,
-                  opacity: activeColor === c ? 1 : 0.55,
-                }}
-                className="size-5 rounded-full transition-all hover:opacity-100 hover:scale-110"
-                title={c}
-              />
-            ))}
-            <ColorPickerButton color={activeColor} onChange={setActiveColor} />
-          </div>
-        </div>
-
-        {/* ── Width slider ── */}
-        {!isPinContext && (
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Width</span>
-              <span className="text-[11px] font-medium text-foreground tabular-nums">{activeWidth}px</span>
+        {/* ── Shapes + Units (side by side) ── */}
+        <div className="flex gap-3">
+          {/* Shapes */}
+          <div className="flex-1 min-w-0">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Shapes</span>
+            <div className={`grid gap-1 ${drawTypes.length >= 4 ? "grid-cols-4" : "grid-cols-2"}`}>
+              {drawTypes.map((m) => (
+                <Button
+                  key={m}
+                  variant="ghost"
+                  onClick={() => handleModeBtn(m)}
+                  title={MODE_LABEL[m]}
+                  className={`flex flex-col items-center justify-center gap-1.5 h-auto py-2.5 text-[10px] font-medium ${
+                    mode === m
+                      ? "bg-primary/20 text-primary ring-1 ring-primary/40"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {TYPE_ICON[m]}
+                  <span>{MODE_LABEL[m]}</span>
+                </Button>
+              ))}
             </div>
-            <Slider
-              min={1}
-              max={12}
-              step={1}
-              value={[activeWidth]}
-              onValueChange={([v]) => selectedAnn ? onSetAnnotationWidth(selectedAnn.id, v) : onSetWidth(v)}
-            />
           </div>
-        )}
+
+          {/* Units */}
+          <div className="flex-1 min-w-0">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Units</span>
+            <div className="grid grid-cols-5 gap-1">
+              {NATO_TYPES.map((type) => (
+                <Button
+                  key={type}
+                  variant="ghost"
+                  onClick={() => placementMode === type ? onCancelPlacement() : onStartPlacement(type)}
+                  title={UNIT_FULL_LABELS[type]}
+                  className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-[10px] font-medium ${
+                    placementMode === type
+                      ? "bg-primary/20 text-primary ring-1 ring-primary/40"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : "#000000", placementMode === type ? "#1a1a2e" : "#ffffff") }} />
+                  <span>{UNIT_SHORT_LABELS[type]}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Color + Width (side by side) ── */}
+        <div className={`flex gap-3 ${isPinContext ? "" : "items-start"}`}>
+          {/* Color selector */}
+          <div className="flex-1 flex flex-col gap-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Color</span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {DRAW_COLOR_PRESETS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setActiveColor(c)}
+                  style={{
+                    background: c,
+                    outline: activeColor === c ? `2px solid ${c}` : undefined,
+                    outlineOffset: activeColor === c ? "2px" : undefined,
+                    opacity: activeColor === c ? 1 : 0.55,
+                  }}
+                  className="size-5 rounded-full transition-all hover:opacity-100 hover:scale-110"
+                  title={c}
+                />
+              ))}
+              <ColorPickerButton color={activeColor} onChange={setActiveColor} />
+            </div>
+          </div>
+
+          {/* Width slider */}
+          {!isPinContext && (
+            <div className="w-32 flex flex-col gap-1.5 shrink-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Width</span>
+                <span className="text-[11px] font-medium text-foreground tabular-nums">{activeWidth}</span>
+              </div>
+              <Slider
+                min={1}
+                max={12}
+                step={1}
+                value={[activeWidth]}
+                onValueChange={([v]) => selectedAnn ? onSetAnnotationWidth(selectedAnn.id, v) : onSetWidth(v)}
+              />
+            </div>
+          )}
+        </div>
 
         {/* ── Toggle strip ── */}
         <div className="flex items-stretch rounded-lg border border-border overflow-hidden">
@@ -658,12 +664,9 @@ export function DrawingToolbar({
   );
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      {direction === "down" ? (
-        <>{trigger}{panel}</>
-      ) : (
-        <>{panel}{trigger}</>
-      )}
+    <div className="flex flex-row-reverse items-start gap-1">
+      {trigger}
+      {panel}
     </div>
   );
 }

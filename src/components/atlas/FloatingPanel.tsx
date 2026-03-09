@@ -11,14 +11,32 @@ import { Button } from "@/components/ui/button";
 
 interface CollapsePanelProps {
   open: boolean;
-  /** "down" (default) expands toward bottom. "up" flips via scaleY trick. */
-  direction?: "down" | "up";
+  /** "down" (default) expands toward bottom. "up" flips via scaleY. "left" slides horizontally. */
+  direction?: "down" | "up" | "left";
   className?: string;
   children: React.ReactNode;
 }
 
 export function CollapsePanel({ open, direction = "down", className, children }: CollapsePanelProps) {
   const isUp = direction === "up";
+  const isLeft = direction === "left";
+
+  if (isLeft) {
+    return (
+      <div
+        className={cn(
+          "grid transition-[grid-template-columns] duration-200 ease-out",
+          open ? "grid-cols-[1fr]" : "grid-cols-[0fr]",
+          className
+        )}
+      >
+        <div className={cn("overflow-hidden", !open && "pointer-events-none")}>
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -28,9 +46,7 @@ export function CollapsePanel({ open, direction = "down", className, children }:
         className
       )}
     >
-      <div
-        className={cn("overflow-hidden", isUp && "-scale-y-100")}
-      >
+      <div className={cn("overflow-hidden", isUp && "-scale-y-100", !open && "pointer-events-none")}>
         {children}
       </div>
     </div>
