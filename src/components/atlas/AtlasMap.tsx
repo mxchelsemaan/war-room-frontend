@@ -25,7 +25,8 @@ try {
 } catch { /* already set (HMR) */ }
 
 export const DEFAULT_VIEW = { longitude: 35.5018, latitude: 33.8938, zoom: 9, pitch: 0, bearing: 0 } as const;
-// No maxBounds — let the map show surrounding countries
+// Loose bounds — allows surrounding countries to be visible with vignette treatment
+const MAX_BOUNDS: [[number, number], [number, number]] = [[31.0, 29.5], [40.5, 37.5]];
 
 // ── Event cluster layer IDs ──────────────────────────────────────────────────
 const EVENT_CLUSTER_LAYERS = [
@@ -198,18 +199,18 @@ export function AtlasMap({
         const s1 = Math.sin((ts / 18000) * Math.PI * 2);       // ~18 s cycle
         const s2 = Math.sin((ts /  7300) * Math.PI * 2 + 1.4); //  ~7 s offset cycle
         const drift = (s1 * 0.6 + s2 * 0.4) * 0.5 + 0.5;       // 0..1, weighted mix
-        // atmosphere-blend: 0.62 (light cloud) → 0.82 (thick overcast)
-        const atmo = 0.62 + drift * 0.20;
-        // horizon brightens slightly as light diffuses through cloud cover
-        const hBright = Math.round(200 + drift * 20);
-        const hColor = `rgb(${hBright},${Math.round(hBright * 0.97)},${Math.round(hBright * 0.94)})`;
+        // atmosphere-blend: 0.38 (thin haze) → 0.52 (light overcast)
+        const atmo = 0.38 + drift * 0.14;
+        // subtle horizon warmth shift
+        const hBright = Math.round(210 + drift * 12);
+        const hColor = `rgb(${hBright},${Math.round(hBright * 0.98)},${Math.round(hBright * 0.96)})`;
         m.setSky({
-          "sky-color":        "#8fa4b5",
+          "sky-color":        "#9ab5c8",
           "horizon-color":    hColor,
-          "fog-color":        "#c4ae88",
-          "fog-ground-blend": 0.38,
-          "horizon-fog-blend":0.55,
-          "sky-horizon-blend":0.42,
+          "fog-color":        "#cbbf9e",
+          "fog-ground-blend": 0.22,
+          "horizon-fog-blend":0.45,
+          "sky-horizon-blend":0.38,
           "atmosphere-blend": atmo,
         });
         lastSky.current = ts;
@@ -239,13 +240,13 @@ export function AtlasMap({
       map.easeTo({ pitch: 65, duration: 600 });
       // Initial sky — animation loop drifts atmosphere-blend for a cloudy shimmer
       map.setSky({
-        "sky-color":        "#8fa4b5",
-        "horizon-color":    "#cad6de",
-        "fog-color":        "#c4ae88",
-        "fog-ground-blend": 0.38,
-        "horizon-fog-blend":0.55,
-        "sky-horizon-blend":0.42,
-        "atmosphere-blend": 0.72,
+        "sky-color":        "#9ab5c8",
+        "horizon-color":    "#d4dfe6",
+        "fog-color":        "#cbbf9e",
+        "fog-ground-blend": 0.22,
+        "horizon-fog-blend":0.45,
+        "sky-horizon-blend":0.38,
+        "atmosphere-blend": 0.45,
       });
     } else {
       map.setTerrain(null);
@@ -771,8 +772,9 @@ export function AtlasMap({
       <Map
         ref={mapRef}
         initialViewState={DEFAULT_VIEW}
-        minZoom={5}
+        minZoom={7}
         maxZoom={14}
+        maxBounds={MAX_BOUNDS}
         maxPitch={85}
         style={{ width: "100%", height: "100%", cursor: (drawingMode || placementMode || pathDrawingUnitId) ? "crosshair" : undefined }}
         mapStyle={dark ? "https://tiles.openfreemap.org/styles/dark" : "https://tiles.openfreemap.org/styles/bright"}
