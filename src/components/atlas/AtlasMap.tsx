@@ -183,7 +183,7 @@ export const AtlasMap = React.memo(function AtlasMap({
   useRiverLayers(mapRef, layers.rivers, mapLoaded);
   useOverlayLayers(mapRef, layers, mapLoaded);
   useEventLayers(
-    mapRef, events, layers.markers, layers.heatmap, mapLoaded,
+    mapRef, events, layers.markers, mapLoaded,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     setPopupEvent, setPopupInfra as (v: null) => void,
   );

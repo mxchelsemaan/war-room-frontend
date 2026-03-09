@@ -5,18 +5,31 @@ import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
 import { registerEmojiImages } from "@/lib/mapUtils";
+import { EVENT_TYPE_COLORS, EVENT_COLOR_DEFAULT } from "@/config/colors";
 
 // ── Event cluster layer IDs ──────────────────────────────────────────────────
 const EVENT_CLUSTER_LAYERS = [
-  "event-cluster-shadow", "event-clusters", "event-cluster-count",
-  "event-unclustered-bg", "event-unclustered", "event-unclustered-badge",
+  "event-cluster-shadow", "event-cluster-glow", "event-clusters", "event-cluster-count",
+  "event-unclustered-glow", "event-unclustered-bg", "event-unclustered",
+  "event-unclustered-badge-bg", "event-unclustered-badge",
 ] as const;
+
+/** Build a MapLibre `match` expression that maps event_type → color */
+function eventTypeColorExpr(): maplibregl.ExpressionSpecification {
+  const entries: (string)[] = [];
+  for (const [type, color] of Object.entries(EVENT_TYPE_COLORS)) {
+    entries.push(type, color);
+  }
+  return ["match", ["get", "event_type"], ...entries, EVENT_COLOR_DEFAULT] as unknown as maplibregl.ExpressionSpecification;
+}
+
+const CLUSTER_ACCENT = "#06b6d4"; // cyan-500
+const DARK_FILL = "#0f172a";      // slate-900
 
 export function useEventLayers(
   mapRef: React.RefObject<MapRef | null>,
   events: MapEvent[],
   markersEnabled: boolean,
-  heatmapEnabled: boolean,
   mapLoaded: boolean,
   drawingModeRef: React.RefObject<AnnotationType | null>,
   placementModeRef: React.RefObject<NATOUnitType | null>,
@@ -25,15 +38,6 @@ export function useEventLayers(
   setPopupInfra: (infra: null) => void,
 ) {
   // ── Memoize GeoJSON data ──────────────────────────────────────────────
-  const heatmapGeoJson = useMemo<GeoJSON.FeatureCollection>(() => ({
-    type: "FeatureCollection",
-    features: events.map((e) => ({
-      type: "Feature" as const,
-      properties: { weight: e.event_count },
-      geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
-    })),
-  }), [events]);
-
   const clusterGeoJson = useMemo<GeoJSON.FeatureCollection>(() => ({
     type: "FeatureCollection",
     features: events.map((e) => ({
@@ -56,33 +60,8 @@ export function useEventLayers(
   const uniqueEmojis = useMemo(() => [...new Set(events.map((e) => e.event_icon))], [events]);
 
   // Keep refs so visibility-only effects don't depend on data
-  const heatmapGeoJsonRef = useRef(heatmapGeoJson);
-  heatmapGeoJsonRef.current = heatmapGeoJson;
   const clusterGeoJsonRef = useRef(clusterGeoJson);
   clusterGeoJsonRef.current = clusterGeoJson;
-
-  // ── Heatmap: data update ──────────────────────────────────────────────
-  useEffect(() => {
-    if (!mapLoaded) return;
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    if (!map.getSource("heatmap-src")) {
-      map.addSource("heatmap-src", { type: "geojson", data: heatmapGeoJson });
-      map.addLayer({ id: "heatmap-layer", type: "heatmap", source: "heatmap-src",
-        paint: { "heatmap-weight": ["get", "weight"], "heatmap-intensity": 1, "heatmap-radius": 60, "heatmap-opacity": 1 },
-        layout: { visibility: heatmapEnabled ? "visible" : "none" } });
-    } else {
-      (map.getSource("heatmap-src") as maplibregl.GeoJSONSource).setData(heatmapGeoJson);
-    }
-  }, [heatmapGeoJson, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Heatmap: visibility toggle ────────────────────────────────────────
-  useEffect(() => {
-    if (!mapLoaded) return;
-    const map = mapRef.current?.getMap();
-    if (!map || !map.getLayer("heatmap-layer")) return;
-    map.setLayoutProperty("heatmap-layer", "visibility", heatmapEnabled ? "visible" : "none");
-  }, [heatmapEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Clustered event markers: data update ──────────────────────────────
   useEffect(() => {
@@ -104,6 +83,7 @@ export function useEventLayers(
         clusterProperties: { totalCount: ["+", ["get", "event_count"]] },
       });
 
+      // ── Cluster shadow ──
       map.addLayer({
         id: "event-cluster-shadow", type: "circle", source: "events-clustered",
         filter: ["has", "point_count"],
@@ -115,17 +95,32 @@ export function useEventLayers(
         },
       });
 
+      // ── Cluster glow (cyan) ──
+      map.addLayer({
+        id: "event-cluster-glow", type: "circle", source: "events-clustered",
+        filter: ["has", "point_count"],
+        layout: { visibility: vis },
+        paint: {
+          "circle-color": CLUSTER_ACCENT,
+          "circle-radius": ["step", ["get", "point_count"], 28, 10, 34, 50, 40],
+          "circle-blur": 0.5, "circle-opacity": 0.35,
+        },
+      });
+
+      // ── Cluster main circle ──
       map.addLayer({
         id: "event-clusters", type: "circle", source: "events-clustered",
         filter: ["has", "point_count"],
         layout: { visibility: vis },
         paint: {
-          "circle-color": ["step", ["get", "point_count"], "#334155", 10, "#475569", 50, "#ef4444"],
+          "circle-color": DARK_FILL,
           "circle-radius": ["step", ["get", "point_count"], 20, 10, 26, 50, 32],
-          "circle-stroke-width": 2, "circle-stroke-color": "#1e1e2e",
+          "circle-stroke-width": 2,
+          "circle-stroke-color": CLUSTER_ACCENT,
         },
       });
 
+      // ── Cluster count text ──
       map.addLayer({
         id: "event-cluster-count", type: "symbol", source: "events-clustered",
         filter: ["has", "point_count"],
@@ -136,19 +131,39 @@ export function useEventLayers(
           "text-size": 13,
           "text-allow-overlap": true,
         },
-        paint: { "text-color": "#e2e8f0" },
+        paint: {
+          "text-color": "#ffffff",
+          "text-halo-color": DARK_FILL,
+          "text-halo-width": 1,
+        },
       });
 
+      // ── Unclustered glow (per-type color) ──
+      map.addLayer({
+        id: "event-unclustered-glow", type: "circle", source: "events-clustered",
+        filter: ["!", ["has", "point_count"]],
+        layout: { visibility: vis },
+        paint: {
+          "circle-color": eventTypeColorExpr(),
+          "circle-radius": 24,
+          "circle-blur": 0.5, "circle-opacity": 0.35,
+        },
+      });
+
+      // ── Unclustered main circle ──
       map.addLayer({
         id: "event-unclustered-bg", type: "circle", source: "events-clustered",
         filter: ["!", ["has", "point_count"]],
         layout: { visibility: vis },
         paint: {
-          "circle-color": "#1e1e2e", "circle-radius": 18,
-          "circle-stroke-width": 2, "circle-stroke-color": "#334155",
+          "circle-color": DARK_FILL,
+          "circle-radius": 18,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": eventTypeColorExpr(),
         },
       });
 
+      // ── Unclustered emoji ──
       map.addLayer({
         id: "event-unclustered", type: "symbol", source: "events-clustered",
         filter: ["!", ["has", "point_count"]],
@@ -160,9 +175,24 @@ export function useEventLayers(
         },
       });
 
+      // ── Unclustered badge background (red pill, count > 1 only) ──
+      map.addLayer({
+        id: "event-unclustered-badge-bg", type: "circle", source: "events-clustered",
+        filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "event_count"], 1]],
+        layout: { visibility: vis },
+        paint: {
+          "circle-color": "#ef4444",
+          "circle-radius": 8,
+          "circle-stroke-width": 1.5,
+          "circle-stroke-color": DARK_FILL,
+          "circle-translate": [12, -12],
+        },
+      });
+
+      // ── Unclustered badge text (count > 1 only) ──
       map.addLayer({
         id: "event-unclustered-badge", type: "symbol", source: "events-clustered",
-        filter: ["!", ["has", "point_count"]],
+        filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "event_count"], 1]],
         layout: {
           visibility: vis,
           "text-field": ["get", "event_count"],
@@ -173,8 +203,6 @@ export function useEventLayers(
         },
         paint: {
           "text-color": "#ffffff",
-          "text-halo-color": "#ef4444",
-          "text-halo-width": 5,
         },
       });
     } else {

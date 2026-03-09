@@ -1,4 +1,4 @@
-import { Layers, Mountain, MapPin, Flame, Waves, Landmark, Map, Navigation, Plane, Ship, Pencil } from "lucide-react";
+import { Layers, Mountain, MapPin, Waves, Landmark, Map, Navigation, Plane, Ship, Pencil } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Switch } from "@/components/ui/switch";
@@ -7,7 +7,6 @@ export interface LayerVisibility {
   terrain: boolean;
   hillshade: boolean;
   markers: boolean;
-  heatmap: boolean;
   rivers: boolean;
   frontLines: boolean;
   territory: boolean;
@@ -47,7 +46,6 @@ const LAYER_GROUPS: { heading: string; items: LayerDef[] }[] = [
     heading: "Intelligence",
     items: [
       { key: "markers",  label: "Events",   Icon: MapPin },
-      { key: "heatmap",  label: "Heatmap",  Icon: Flame },
       { key: "flights",  label: "Flights",  Icon: Plane },
       { key: "ships",    label: "Ships",    Icon: Ship },
     ],

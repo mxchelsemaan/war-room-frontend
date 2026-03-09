@@ -76,7 +76,6 @@ function AtlasViewInner() {
     terrain: false,
     hillshade: true,
     markers: true,
-    heatmap: false,
     rivers: true,
     frontLines: false,
     territory: false,

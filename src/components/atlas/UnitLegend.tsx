@@ -30,8 +30,7 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
     layers.flights ||
     layers.ships ||
     layers.frontLines ||
-    layers.territory ||
-    layers.heatmap;
+    layers.territory;
 
   return (
     <div className="absolute bottom-4 left-3 z-10 flex flex-col-reverse items-start gap-1">
@@ -177,21 +176,6 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
             </Section>
           )}
 
-          {/* ── Heatmap ────────────────────────────────────────────────────── */}
-          {layers.heatmap && (
-            <Section title="Heatmap">
-              <div className="space-y-1">
-                <div style={{
-                  width: "100%", height: 8, borderRadius: 4,
-                  background: "linear-gradient(to right, #3b82f6, #22c55e, #eab308, #ef4444)",
-                }} />
-                <div className="flex justify-between">
-                  <span className="text-[10px] text-muted-foreground">Low</span>
-                  <span className="text-[10px] text-muted-foreground">High</span>
-                </div>
-              </div>
-            </Section>
-          )}
 
         </div>
       </CollapsePanel>
