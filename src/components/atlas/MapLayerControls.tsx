@@ -1,4 +1,4 @@
-import { Layers, Mountain, MapPin, Waves, Landmark, Map, Navigation, Plane, Ship, Pencil } from "lucide-react";
+import { Layers, Mountain, MapPin, Waves, Landmark, Map, Navigation, Plane, Ship, Pencil, Flame } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Switch } from "@/components/ui/switch";
@@ -16,6 +16,7 @@ export interface LayerVisibility {
   units: boolean;
   flights: boolean;
   ships: boolean;
+  heatmap: boolean;
   geoLabels: boolean;
 }
 
@@ -46,6 +47,7 @@ const LAYER_GROUPS: { heading: string; items: LayerDef[] }[] = [
     heading: "Intelligence",
     items: [
       { key: "markers",  label: "Events",   Icon: MapPin },
+      { key: "heatmap",  label: "Heatmap",  Icon: Flame },
       { key: "flights",  label: "Flights",  Icon: Plane },
       { key: "ships",    label: "Ships",    Icon: Ship },
     ],
@@ -78,14 +80,10 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
     .filter(g => g.items.length > 0);
 
   return (
-    <div className="flex flex-col items-start gap-1">
-      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close layers" : "Open layers"} showLabels={showLabels}>
-        <Layers className="size-3.5" />
-        Layers
-      </FloatingTriggerBtn>
-
-      <CollapsePanel open={open}>
-        <div className="glass-panel p-2 w-48 max-h-[calc(50vh-3rem)] overflow-y-auto">
+    <div className="relative flex flex-col items-center gap-1">
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 w-56">
+        <CollapsePanel open={open} direction="up">
+          <div className="glass-panel p-2 max-h-[calc(100vh-8rem)] overflow-y-auto">
           {visibleGroups.map(({ heading, items }) => (
             <div key={heading}>
               <p className="px-2 pt-2 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 first:pt-1">
@@ -109,8 +107,13 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
               ))}
             </div>
           ))}
-        </div>
-      </CollapsePanel>
+          </div>
+        </CollapsePanel>
+      </div>
+      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close layers" : "Open layers"} showLabels={showLabels} open={open}>
+        <Layers className="size-3.5" />
+        Layers
+      </FloatingTriggerBtn>
     </div>
   );
 }

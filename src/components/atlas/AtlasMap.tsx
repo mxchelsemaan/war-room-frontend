@@ -20,6 +20,7 @@ import { useKeyboardCamera } from "@/hooks/map/useKeyboardCamera";
 import { useTerrainLayer } from "@/hooks/map/useTerrainLayer";
 import { useRiverLayers } from "@/hooks/map/useRiverLayers";
 import { useOverlayLayers } from "@/hooks/map/useOverlayLayers";
+import { useHeatmapLayer } from "@/hooks/map/useHeatmapLayer";
 import { useEventLayers } from "@/hooks/map/useEventLayers";
 import { useMapAnimation } from "@/hooks/map/useMapAnimation";
 
@@ -182,6 +183,7 @@ export const AtlasMap = React.memo(function AtlasMap({
   useTerrainLayer(mapRef, layers.terrain, layers.hillshade, mapLoaded);
   useRiverLayers(mapRef, layers.rivers, mapLoaded);
   useOverlayLayers(mapRef, layers, mapLoaded);
+  useHeatmapLayer(mapRef, events, layers.heatmap, mapLoaded);
   useEventLayers(
     mapRef, events, layers.markers, mapLoaded,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
@@ -317,13 +319,38 @@ export const AtlasMap = React.memo(function AtlasMap({
         {/* ── Event popup ── */}
         {popupEvent && (
           <Popup longitude={popupEvent.event_location.lng} latitude={popupEvent.event_location.lat}
-            anchor="bottom" offset={22} onClose={() => setPopupEvent(null)} closeOnClick={true}>
-            <div className="flex flex-col gap-1 pr-3">
-              <div className="text-xl text-center">{popupEvent.event_icon}</div>
-              <div className="font-semibold text-sm text-foreground">{popupEvent.event_label}</div>
-              <div className="text-muted-foreground text-xs">📍 {popupEvent.event_location.name}</div>
-              <div className="text-xs text-foreground">Count: <span className="font-semibold">{popupEvent.event_count}</span></div>
-              <div className="text-[11px] text-muted-foreground">{popupEvent.date}</div>
+            anchor="bottom" offset={22} onClose={() => setPopupEvent(null)} closeOnClick={true}
+            maxWidth="280px">
+            <div className="flex flex-col gap-1.5 pr-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{popupEvent.event_icon}</span>
+                <span className="font-semibold text-sm text-foreground">{popupEvent.event_label}</span>
+                {popupEvent.severity && (
+                  <span className={`ml-auto rounded-full px-1.5 py-0.5 text-2xs font-semibold leading-none ${
+                    popupEvent.severity === "critical" ? "bg-red-600 text-white" :
+                    popupEvent.severity === "major" ? "bg-red-500 text-white" :
+                    popupEvent.severity === "moderate" ? "bg-amber-500 text-white" :
+                    "bg-slate-400 text-white"
+                  }`}>
+                    {popupEvent.severity}
+                  </span>
+                )}
+              </div>
+              {popupEvent.summary && (
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{popupEvent.summary}</p>
+              )}
+              <div className="text-muted-foreground text-xs flex items-center gap-1">
+                <span>📍</span> {popupEvent.event_location.name}
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                <span>{popupEvent.date}</span>
+                {popupEvent.sourceChannel && (
+                  <span className="text-muted-foreground/70">· {popupEvent.sourceChannel}</span>
+                )}
+                {popupEvent.verificationStatus && popupEvent.verificationStatus !== "reported" && (
+                  <span className="rounded bg-muted px-1 py-0.5 text-2xs">{popupEvent.verificationStatus}</span>
+                )}
+              </div>
             </div>
           </Popup>
         )}
