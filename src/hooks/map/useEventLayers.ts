@@ -4,21 +4,30 @@ import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
-import { registerEmojiImages } from "@/lib/mapUtils";
-import { EVENT_TYPE_COLORS, EVENT_COLOR_DEFAULT } from "@/config/colors";
+import { registerPinImages } from "@/lib/mapUtils";
+import { getEventTypeColor } from "@/config/eventTypes";
+
+const EVENT_COLOR_DEFAULT = "#64748b";
 
 // ── Event cluster layer IDs ──────────────────────────────────────────────────
 const EVENT_CLUSTER_LAYERS = [
   "event-cluster-shadow", "event-cluster-glow", "event-clusters", "event-cluster-count",
-  "event-unclustered-glow", "event-unclustered-bg", "event-unclustered",
+  "event-unclustered-pin",
   "event-unclustered-badge-bg", "event-unclustered-badge",
 ] as const;
 
-/** Build a MapLibre `match` expression that maps event_type → color */
-function eventTypeColorExpr(): maplibregl.ExpressionSpecification {
-  const entries: (string)[] = [];
-  for (const [type, color] of Object.entries(EVENT_TYPE_COLORS)) {
-    entries.push(type, color);
+/** Build a MapLibre `match` expression that maps event_type → color dynamically */
+function eventTypeColorExpr(events: MapEvent[]): maplibregl.ExpressionSpecification {
+  const seen = new Set<string>();
+  const entries: string[] = [];
+  for (const e of events) {
+    if (!seen.has(e.event_type)) {
+      seen.add(e.event_type);
+      entries.push(e.event_type, getEventTypeColor(e.event_type));
+    }
+  }
+  if (entries.length === 0) {
+    return EVENT_COLOR_DEFAULT as unknown as maplibregl.ExpressionSpecification;
   }
   return ["match", ["get", "event_type"], ...entries, EVENT_COLOR_DEFAULT] as unknown as maplibregl.ExpressionSpecification;
 }
@@ -52,12 +61,25 @@ export function useEventLayers(
         event_location_lng: e.event_location.lng,
         event_count: e.event_count,
         date: e.date,
+        summary: e.summary ?? "",
+        severity: e.severity ?? "",
+        sourceChannel: e.sourceChannel ?? "",
+        verificationStatus: e.verificationStatus ?? "",
       },
       geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
     })),
   }), [events]);
 
   const uniqueEmojis = useMemo(() => [...new Set(events.map((e) => e.event_icon))], [events]);
+  const pinColors = useMemo(() => {
+    const colors = new Set<string>();
+    events.forEach((e) => colors.add(getEventTypeColor(e.event_type)));
+    colors.add(EVENT_COLOR_DEFAULT);
+    return [...colors];
+  }, [events]);
+
+  // Memoize the color expression
+  const colorExpr = useMemo(() => eventTypeColorExpr(events), [events]);
 
   // Keep refs so visibility-only effects don't depend on data
   const clusterGeoJsonRef = useRef(clusterGeoJson);
@@ -69,7 +91,7 @@ export function useEventLayers(
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    registerEmojiImages(map, uniqueEmojis);
+    registerPinImages(map, uniqueEmojis, pinColors);
 
     const vis = markersEnabled ? "visible" : "none";
 
@@ -138,44 +160,21 @@ export function useEventLayers(
         },
       });
 
-      // ── Unclustered glow (per-type color) ──
+      // ── Unclustered pin marker ──
       map.addLayer({
-        id: "event-unclustered-glow", type: "circle", source: "events-clustered",
-        filter: ["!", ["has", "point_count"]],
-        layout: { visibility: vis },
-        paint: {
-          "circle-color": eventTypeColorExpr(),
-          "circle-radius": 24,
-          "circle-blur": 0.5, "circle-opacity": 0.35,
-        },
-      });
-
-      // ── Unclustered main circle ──
-      map.addLayer({
-        id: "event-unclustered-bg", type: "circle", source: "events-clustered",
-        filter: ["!", ["has", "point_count"]],
-        layout: { visibility: vis },
-        paint: {
-          "circle-color": DARK_FILL,
-          "circle-radius": 18,
-          "circle-stroke-width": 2,
-          "circle-stroke-color": eventTypeColorExpr(),
-        },
-      });
-
-      // ── Unclustered emoji ──
-      map.addLayer({
-        id: "event-unclustered", type: "symbol", source: "events-clustered",
+        id: "event-unclustered-pin", type: "symbol", source: "events-clustered",
         filter: ["!", ["has", "point_count"]],
         layout: {
           visibility: vis,
-          "icon-image": ["concat", "emoji-", ["get", "event_icon"]],
-          "icon-size": 0.55,
-          "icon-allow-overlap": true, "icon-ignore-placement": true,
+          "icon-image": ["concat", "pin-", colorExpr, "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
+          "icon-size": 0.85,
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
         },
       });
 
-      // ── Unclustered badge background (red pill, count > 1 only) ──
+      // ── Unclustered badge background ──
       map.addLayer({
         id: "event-unclustered-badge-bg", type: "circle", source: "events-clustered",
         filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "event_count"], 1]],
@@ -185,11 +184,11 @@ export function useEventLayers(
           "circle-radius": 8,
           "circle-stroke-width": 1.5,
           "circle-stroke-color": DARK_FILL,
-          "circle-translate": [12, -12],
+          "circle-translate": [12, -42],
         },
       });
 
-      // ── Unclustered badge text (count > 1 only) ──
+      // ── Unclustered badge text ──
       map.addLayer({
         id: "event-unclustered-badge", type: "symbol", source: "events-clustered",
         filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "event_count"], 1]],
@@ -198,7 +197,7 @@ export function useEventLayers(
           "text-field": ["get", "event_count"],
           "text-font": ["Noto Sans Bold"],
           "text-size": 9,
-          "text-offset": [1.2, -1.2],
+          "text-offset": [1.2, -4.2],
           "text-allow-overlap": true, "text-ignore-placement": true,
         },
         paint: {
@@ -207,8 +206,13 @@ export function useEventLayers(
       });
     } else {
       (map.getSource("events-clustered") as maplibregl.GeoJSONSource).setData(clusterGeoJson);
+      // Update icon-image expression so new event types get correct colors
+      if (map.getLayer("event-unclustered-pin")) {
+        map.setLayoutProperty("event-unclustered-pin", "icon-image",
+          ["concat", "pin-", colorExpr, "-", ["get", "event_icon"]]);
+      }
     }
-  }, [clusterGeoJson, uniqueEmojis, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [clusterGeoJson, uniqueEmojis, colorExpr, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Clustered event markers: visibility toggle ────────────────────────
   useEffect(() => {
@@ -241,7 +245,7 @@ export function useEventLayers(
 
     function onUnclusteredClick(e: maplibregl.MapMouseEvent) {
       if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
-      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-unclustered-bg"] });
+      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-unclustered-pin"] });
       if (!features.length) return;
       const p = features[0].properties!;
       const evt: MapEvent = {
@@ -252,6 +256,10 @@ export function useEventLayers(
         event_location: { name: p.event_location_name, lat: p.event_location_lat, lng: p.event_location_lng },
         event_count: p.event_count,
         date: p.date,
+        summary: p.summary,
+        severity: p.severity,
+        sourceChannel: p.sourceChannel,
+        verificationStatus: p.verificationStatus,
       };
       setPopupInfra(null);
       setPopupEvent(evt);
@@ -269,19 +277,19 @@ export function useEventLayers(
     }
 
     map.on("click", "event-clusters", onClusterClick);
-    map.on("click", "event-unclustered-bg", onUnclusteredClick);
+    map.on("click", "event-unclustered-pin", onUnclusteredClick);
     map.on("mouseenter", "event-clusters", onMouseEnter);
     map.on("mouseleave", "event-clusters", onMouseLeave);
-    map.on("mouseenter", "event-unclustered-bg", onMouseEnter);
-    map.on("mouseleave", "event-unclustered-bg", onMouseLeave);
+    map.on("mouseenter", "event-unclustered-pin", onMouseEnter);
+    map.on("mouseleave", "event-unclustered-pin", onMouseLeave);
 
     return () => {
       map.off("click", "event-clusters", onClusterClick);
-      map.off("click", "event-unclustered-bg", onUnclusteredClick);
+      map.off("click", "event-unclustered-pin", onUnclusteredClick);
       map.off("mouseenter", "event-clusters", onMouseEnter);
       map.off("mouseleave", "event-clusters", onMouseLeave);
-      map.off("mouseenter", "event-unclustered-bg", onMouseEnter);
-      map.off("mouseleave", "event-unclustered-bg", onMouseLeave);
+      map.off("mouseenter", "event-unclustered-pin", onMouseEnter);
+      map.off("mouseleave", "event-unclustered-pin", onMouseLeave);
     };
   }, [mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 }
