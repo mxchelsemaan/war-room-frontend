@@ -137,7 +137,7 @@ export function AtlasView() {
           <button
             onClick={() => setFilterOpen(v => !v)}
             aria-label="Open filters"
-            className="glass-panel p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="glass-panel size-9 flex items-center justify-center shrink-0"
           >
             <SlidersHorizontal className="size-4" />
           </button>
@@ -151,7 +151,7 @@ export function AtlasView() {
             <button
               onClick={() => setFeedOpen(v => !v)}
               aria-label="Open live feeds"
-              className="glass-panel p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="glass-panel size-9 flex items-center justify-center shrink-0"
             >
               <List className="size-4" />
             </button>

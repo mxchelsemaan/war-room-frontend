@@ -13,7 +13,7 @@ export function SettingsMenu({ dark, onToggleTheme, showLabels, onToggleLabels }
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="flex items-center justify-center size-8 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="flex items-center justify-center size-9 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           aria-label="Settings"
         >
           <Settings className="size-4" />
