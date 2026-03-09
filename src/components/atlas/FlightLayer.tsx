@@ -135,8 +135,6 @@ export function FlightLayer({ terrain = false }: { terrain?: boolean }) {
 
     // Altitude in metres used to project plane markers above all terrain in 3D mode
     const ALTITUDE_M = 24000;
-    // Route/trail lines float at this altitude — just above Qurnat as Sawda (3,088m)
-    const ROUTE_ALT_M = 4000;
 
     // Helper: safe remove layer/source
     function safeRemoveLayer(id: string) {
@@ -149,65 +147,6 @@ export function FlightLayer({ terrain = false }: { terrain?: boolean }) {
     for (const spec of FLIGHT_SPECS) {
       const pts = buildSpline(spec.route, N_SAMPLES);
       const arc = buildArc(pts);
-
-      // ── Ghost route + trail ───────────────────────────────────────────────────
-      // In terrain mode: float at ROUTE_ALT_M (flat, parallel to ground) via 3D coords.
-      // In flat mode: standard 2D drape.
-      {
-        const lift = (p: [number, number]): number[] => terrain ? [p[0], p[1], ROUTE_ALT_M] : [p[0], p[1]];
-
-        const routeSrcId = `route-flight-${spec.id}`;
-        const routeLyrId = `layer-route-flight-${spec.id}`;
-        map.addSource(routeSrcId, {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: pts.map(lift) },
-            properties: {},
-          },
-        });
-        map.addLayer({
-          id: routeLyrId,
-          type: "line",
-          source: routeSrcId,
-          paint: {
-            "line-color": spec.color + "25",
-            "line-width": 1,
-            "line-dasharray": [4, 5],
-          },
-        });
-        sourceIds.push(routeSrcId);
-        layerIds.push(routeLyrId);
-
-        const trailSrcId = `trail-flight-${spec.id}`;
-        const trailLyrId = `layer-trail-flight-${spec.id}`;
-        const initPt = lift(pts[0]);
-        map.addSource(trailSrcId, {
-          type: "geojson",
-          lineMetrics: true,
-          data: {
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: [initPt, initPt] },
-            properties: {},
-          },
-        });
-        map.addLayer({
-          id: trailLyrId,
-          type: "line",
-          source: trailSrcId,
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-width": 2,
-            "line-gradient": [
-              "interpolate", ["linear"], ["line-progress"],
-              0, "rgba(0,0,0,0)",
-              1, spec.color + "cc",
-            ],
-          },
-        });
-        sourceIds.push(trailSrcId);
-        layerIds.push(trailLyrId);
-      }
 
       // ── Marker ───────────────────────────────────────────────────────────────
       // rotationAlignment: "viewport" keeps the whole element upright — we
@@ -226,9 +165,6 @@ export function FlightLayer({ terrain = false }: { terrain?: boolean }) {
       animFlights.push({ spec, marker, rotateEl, pts, arc, loopMs: spec.loopMs, startOffset: spec.startOffset });
     }
 
-    // Trail fraction: 12% of spline points behind current position
-    const TRAIL_FRAC = 0.12;
-
     function onRender() {
       const ts = performance.now();
       if (!startRef.current) startRef.current = ts;
@@ -236,7 +172,7 @@ export function FlightLayer({ terrain = false }: { terrain?: boolean }) {
 
       for (const f of animFlights) {
         const t = ((elapsed + f.startOffset) % f.loopMs) / f.loopMs;
-        const { pos, bearing, idx } = getState(f.pts, f.arc, t, LOOK_AHEAD);
+        const { pos, bearing } = getState(f.pts, f.arc, t, LOOK_AHEAD);
 
         f.marker.setLngLat(pos);
 
@@ -258,23 +194,6 @@ export function FlightLayer({ terrain = false }: { terrain?: boolean }) {
 
         // Rotate only the SVG; label stays horizontal in viewport space
         f.rotateEl.style.transform = `rotate(${bearing - map.getBearing()}deg) scaleY(0.6)`;
-
-        // Update trail
-        const trailSrc = map.getSource(`trail-flight-${f.spec.id}`) as maplibregl.GeoJSONSource | undefined;
-        if (trailSrc) {
-          const trailLen = Math.max(2, Math.floor(f.pts.length * TRAIL_FRAC));
-          const start = Math.max(0, idx - trailLen);
-          const trailCoords = f.pts.slice(start, idx + 1);
-          if (trailCoords.length < 2) trailCoords.push(trailCoords[0]);
-          const coords = terrain
-            ? trailCoords.map(p => [p[0], p[1], ROUTE_ALT_M])
-            : trailCoords;
-          trailSrc.setData({
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: coords },
-            properties: {},
-          });
-        }
       }
     }
 

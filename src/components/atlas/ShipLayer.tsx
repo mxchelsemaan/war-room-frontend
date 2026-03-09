@@ -142,61 +142,6 @@ export function ShipLayer({ terrain = false }: { terrain?: boolean }) {
       const pts = buildSpline(spec.route, N_SAMPLES);
       const arc = buildArc(pts);
 
-      // ── Ghost route + wake trail — flat mode only (terrain draping looks off) ─
-      const isNaval = spec.type === "naval" || spec.type === "patrol";
-      if (!terrain) {
-        const routeSrcId = `route-ship-${spec.id}`;
-        const routeLyrId = `layer-route-ship-${spec.id}`;
-        map.addSource(routeSrcId, {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: pts },
-            properties: {},
-          },
-        });
-        map.addLayer({
-          id: routeLyrId,
-          type: "line",
-          source: routeSrcId,
-          paint: {
-            "line-color": spec.color + "20",
-            "line-width": 1,
-            "line-dasharray": [3, 6],
-          },
-        });
-        sourceIds.push(routeSrcId);
-        layerIds.push(routeLyrId);
-
-        const trailSrcId = `trail-ship-${spec.id}`;
-        const trailLyrId = `layer-trail-ship-${spec.id}`;
-        map.addSource(trailSrcId, {
-          type: "geojson",
-          lineMetrics: true,
-          data: {
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: [pts[0], pts[0]] },
-            properties: {},
-          },
-        });
-        map.addLayer({
-          id: trailLyrId,
-          type: "line",
-          source: trailSrcId,
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-width": isNaval ? 3 : 2.5,
-            "line-gradient": [
-              "interpolate", ["linear"], ["line-progress"],
-              0, "rgba(0,0,0,0)",
-              1, spec.color + "bb",
-            ],
-          },
-        });
-        sourceIds.push(trailSrcId);
-        layerIds.push(trailLyrId);
-      }
-
       // ── Marker ───────────────────────────────────────────────────────────────
       // rotationAlignment: "viewport" keeps the whole element upright — we
       // manually rotate only the ship SVG so labels are always readable.
@@ -214,9 +159,6 @@ export function ShipLayer({ terrain = false }: { terrain?: boolean }) {
       animShips.push({ spec, marker, rotateEl, pts, arc, loopMs: spec.loopMs, startOffset: spec.startOffset });
     }
 
-    // Trail fraction: 8% of spline points behind current position
-    const TRAIL_FRAC = 0.08;
-
     function onRender() {
       const ts = performance.now();
       if (!startRef.current) startRef.current = ts;
@@ -224,26 +166,10 @@ export function ShipLayer({ terrain = false }: { terrain?: boolean }) {
 
       for (const s of animShips) {
         const t = ((elapsed + s.startOffset) % s.loopMs) / s.loopMs;
-        const { pos, bearing, idx } = getState(s.pts, s.arc, t, LOOK_AHEAD);
+        const { pos, bearing } = getState(s.pts, s.arc, t, LOOK_AHEAD);
         s.marker.setLngLat(pos);
         // Rotate only the SVG; label stays horizontal in viewport space
         s.rotateEl.style.transform = `rotate(${bearing - map.getBearing()}deg) scaleY(0.62)`;
-
-        // Update wake trail (flat mode only)
-        const trailSrc = !terrain
-          ? map.getSource(`trail-ship-${s.spec.id}`) as maplibregl.GeoJSONSource | undefined
-          : undefined;
-        if (trailSrc) {
-          const trailLen = Math.max(2, Math.floor(s.pts.length * TRAIL_FRAC));
-          const start = Math.max(0, idx - trailLen);
-          const trailCoords = s.pts.slice(start, idx + 1);
-          if (trailCoords.length < 2) trailCoords.push(trailCoords[0]);
-          trailSrc.setData({
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: trailCoords },
-            properties: {},
-          });
-        }
       }
     }
 
