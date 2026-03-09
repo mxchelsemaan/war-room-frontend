@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # deploy/update.sh
 #
-# Pull latest code and rebuild/restart the container.
-# Run from your laptop:
+# Re-deploy latest code on the server. Run from your laptop:
 #   ssh root@YOUR_IP 'bash -s' < deploy/update.sh
 set -euo pipefail
 

@@ -1,4 +1,3 @@
-# Local development only — production is deployed via DigitalOcean App Platform
 services:
   war-room:
     build: .
