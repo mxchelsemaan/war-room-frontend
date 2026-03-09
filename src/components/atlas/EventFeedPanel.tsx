@@ -46,7 +46,7 @@ function groupByDate(events: MapEvent[]): { date: string; items: MapEvent[] }[] 
 
 export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventFeedPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const groups = groupByDate(events);
+  const groups = useMemo(() => groupByDate(events), [events]);
   const isMobile = useIsMobile();
 
   const [tab, setTab] = useState<"events" | "youtube">("events");

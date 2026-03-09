@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { X, Bot, Globe, Shield, Landmark, TrendingUp } from "lucide-react";
-import { FloatingTriggerBtn } from "./FloatingPanel";
 import { Button } from "@/components/ui/button";
 import { CopilotChat } from "./CopilotChat";
 import { useCopilot } from "@/hooks/useCopilot";
@@ -62,7 +61,7 @@ interface AISummaryCardProps {
   date?: string;
 }
 
-export function AISummaryCard({ open, onToggle, date = "6 March 2026" }: AISummaryCardProps) {
+export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: AISummaryCardProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Copilot");
   const copilot = useCopilot();
   const briefing = activeTab !== "Copilot" ? CONTENT[activeTab as BriefingTab] : null;

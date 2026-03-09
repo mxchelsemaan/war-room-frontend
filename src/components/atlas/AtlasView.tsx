@@ -12,8 +12,9 @@ import { DrawingToolbar } from "./DrawingToolbar";
 import { FloatingTriggerBtn } from "./FloatingPanel";
 import { Sparkles, SlidersHorizontal, List } from "lucide-react";
 import { CameraControls } from "./CameraControls";
-import { DEFAULT_VIEW } from "./AtlasMap";
+import { DEFAULT_VIEW } from "@/config/map";
 import { MapLegend } from "./UnitLegend";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SettingsMenu } from "./SettingsMenu";
 import { useTheme } from "@/hooks/useTheme";
 import { useSettings } from "@/hooks/useSettings";
@@ -57,13 +58,20 @@ export function AtlasView() {
   }, [filteredEvents]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [feedOpen, setFeedOpen] = useState(false);
-  const [layersOpen,   setLayersOpen]   = useState(false);
-  const [legendOpen,   setLegendOpen]   = useState(false);
-  const [drawOpen,     setDrawOpen]     = useState(false);
-  const [briefingOpen, setBriefingOpen] = useState(false);
-  const [timelineOpen, setTimelineOpen] = useState(false);
+
+  type PanelId = 'filter' | 'feed' | 'layers' | 'legend' | 'draw' | 'briefing' | 'timeline';
+  const [openPanels, setOpenPanels] = useState<Set<PanelId>>(new Set());
+  const isPanelOpen = (id: PanelId) => openPanels.has(id);
+  const togglePanel = (id: PanelId) => setOpenPanels(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  const setPanelOpen = (id: PanelId, open: boolean) => setOpenPanels(prev => {
+    const next = new Set(prev);
+    if (open) next.add(id); else next.delete(id);
+    return next;
+  });
   const [layers, setLayers] = useState<LayerVisibility>({
     terrain: false,
     hillshade: true,
@@ -136,7 +144,7 @@ export function AtlasView() {
       {isMobile ? (
         <div className="relative z-[70] flex h-12 shrink-0 items-center border-b border-border px-3 gap-2">
           <button
-            onClick={() => setFilterOpen(v => !v)}
+            onClick={() => togglePanel('filter')}
             aria-label="Open filters"
             className="glass-panel size-9 flex items-center justify-center shrink-0"
           >
@@ -152,7 +160,7 @@ export function AtlasView() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setFeedOpen(v => !v)}
+              onClick={() => togglePanel('feed')}
               aria-label="Open live feeds"
               className="glass-panel size-9 flex items-center justify-center shrink-0"
             >
@@ -166,8 +174,8 @@ export function AtlasView() {
         <div
           className="relative z-[70] flex h-20 shrink-0 items-center border-b border-border transition-all duration-200"
           style={{
-            paddingLeft: filterOpen ? 288 : 56,
-            paddingRight: feedOpen ? 288 : 56,
+            paddingLeft: isPanelOpen('filter') ? 288 : 56,
+            paddingRight: isPanelOpen('feed') ? 288 : 56,
           }}
         >
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none">
@@ -197,11 +205,12 @@ export function AtlasView() {
           filteredCount={filteredEvents.length}
           onFiltersChange={setFilters}
           onClear={() => setFilters(buildDefaultFilters())}
-          open={filterOpen}
-          onOpenChange={setFilterOpen}
+          open={isPanelOpen('filter')}
+          onOpenChange={(v) => setPanelOpen('filter', v)}
         />
         <div className="flex flex-1 min-h-0 min-w-0">
           <div className="relative flex-1 min-h-0 min-w-0">
+            <ErrorBoundary>
             <AtlasMap
               events={mapEvents}
               layers={layers}
@@ -219,7 +228,7 @@ export function AtlasView() {
               }}
               onSelectAnnotation={(id) => {
                 setSelectedAnnotationId(id);
-                setDrawOpen(true);
+                setPanelOpen('draw', true);
               }}
               externalMapRef={mapRef}
               previewWidth={drawing.drawWidth}
@@ -232,15 +241,16 @@ export function AtlasView() {
               onAddPathWaypoint={unitPlacement.addWaypoint}
               onFinishPath={unitPlacement.finishPathDrawing}
             />
+            </ErrorBoundary>
             <AISummaryCard
-              open={briefingOpen}
-              onToggle={() => setBriefingOpen(v => !v)}
+              open={isPanelOpen('briefing')}
+              onToggle={() => togglePanel('briefing')}
             />
             {/* Top-center: briefing trigger */}
             <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-20">
               <FloatingTriggerBtn
-                onClick={() => setBriefingOpen(v => !v)}
-                aria-label={briefingOpen ? "Close briefing" : "Open briefing"}
+                onClick={() => togglePanel('briefing')}
+                aria-label={isPanelOpen('briefing') ? "Close briefing" : "Open briefing"}
               >
                 <Sparkles className="size-3.5 text-primary" />
                 Debrief with Shifra
@@ -254,8 +264,8 @@ export function AtlasView() {
                 drawWidth={drawing.drawWidth}
                 drawArrowStyle={drawing.drawArrowStyle}
                 annotations={annotations}
-                open={drawOpen}
-                onToggle={() => setDrawOpen(v => !v)}
+                open={isPanelOpen('draw')}
+                onToggle={() => togglePanel('draw')}
                 onStartDrawing={drawing.startDrawing}
                 onSetColor={drawing.setColor}
                 onSetWidth={drawing.setDrawWidth}
@@ -315,8 +325,8 @@ export function AtlasView() {
             <MapLayerControls
               layers={layers}
               onChange={setLayers}
-              open={layersOpen}
-              onToggle={() => setLayersOpen(v => !v)}
+              open={isPanelOpen('layers')}
+              onToggle={() => togglePanel('layers')}
               showLabels={showLabels}
             />
             {/* Bottom-right control stack */}
@@ -324,8 +334,8 @@ export function AtlasView() {
               <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={showLabels} />
             </div>
             <MapLegend
-              open={legendOpen}
-              onToggle={() => setLegendOpen(v => !v)}
+              open={isPanelOpen('legend')}
+              onToggle={() => togglePanel('legend')}
               layers={layers}
               eventTypes={mockEventTypes}
               showLabels={showLabels}
@@ -344,16 +354,16 @@ export function AtlasView() {
                 dates={timelineDates}
                 activeDay={timelineDay}
                 onChange={setTimelineDay}
-                open={timelineOpen}
-                onToggle={() => setTimelineOpen(v => !v)}
+                open={isPanelOpen('timeline')}
+                onToggle={() => togglePanel('timeline')}
               />
             )}
           </div>
           <EventFeedPanel
             events={filteredEvents}
             activeDay={timelineDay}
-            open={feedOpen}
-            onOpenChange={setFeedOpen}
+            open={isPanelOpen('feed')}
+            onOpenChange={(v) => setPanelOpen('feed', v)}
           />
         </div>
       </div>

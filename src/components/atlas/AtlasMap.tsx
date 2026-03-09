@@ -16,6 +16,7 @@ import { staticMarkers, STATIC_MARKER_COLORS } from "@/data/staticMarkers";
 import type { StaticMarker, StaticMarkerType } from "@/data/staticMarkers";
 import { GOVERNORATES, GOVERNORATE_GEOJSON } from "@/data/governorates";
 import { GEO_LABELS_GEOJSON } from "@/data/geoLabels";
+import { DEFAULT_VIEW as _DEFAULT_VIEW, MAX_BOUNDS as _MAX_BOUNDS, TERRAIN_CONFIG, FACTION_COLORS } from "@/config/map";
 
 try {
   maplibregl.setRTLTextPlugin(
@@ -24,9 +25,8 @@ try {
   );
 } catch { /* already set (HMR) */ }
 
-export const DEFAULT_VIEW = { longitude: 35.5018, latitude: 33.8938, zoom: 9, pitch: 0, bearing: 0 } as const;
-// Loose bounds — allows surrounding countries to be visible with vignette treatment
-const MAX_BOUNDS: [[number, number], [number, number]] = [[31.0, 29.5], [40.5, 37.5]];
+export const DEFAULT_VIEW = _DEFAULT_VIEW;
+const MAX_BOUNDS = _MAX_BOUNDS;
 
 // ── Event cluster layer IDs ──────────────────────────────────────────────────
 const EVENT_CLUSTER_LAYERS = [
@@ -62,7 +62,7 @@ const DASH_SEQ = [
 
 // MapLibre match expression: faction → color
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const FACTION_COLOR: any = ["match", ["get", "faction"], "idf", "#dc2626", "hezbollah", "#f59e0b", "#808080"];
+const FACTION_COLOR: any = ["match", ["get", "faction"], "idf", FACTION_COLORS.idf, "hezbollah", FACTION_COLORS.hezbollah, FACTION_COLORS.unknown];
 
 interface AtlasMapProps {
   events: MapEvent[];
@@ -236,8 +236,8 @@ export function AtlasMap({
       });
     }
     if (layers.terrain) {
-      map.setTerrain({ source: "terrain-dem", exaggeration: 5.0 });
-      map.easeTo({ pitch: 65, duration: 600 });
+      map.setTerrain({ source: "terrain-dem", exaggeration: TERRAIN_CONFIG.exaggeration });
+      map.easeTo({ pitch: TERRAIN_CONFIG.pitch3d, duration: 600 });
       // Initial sky — animation loop drifts atmosphere-blend for a cloudy shimmer
       map.setSky({
         "sky-color":        "#9ab5c8",
@@ -974,7 +974,7 @@ export function AtlasMap({
       {/* ── Strategy-game vignette — dims distant areas, focuses on center ── */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 55% 65% at 50% 50%, transparent 0%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.52) 80%, rgba(0,0,0,0.72) 100%)" }}
+        style={{ background: "radial-gradient(ellipse 75% 80% at 50% 50%, transparent 0%, rgba(0,0,0,0.05) 65%, rgba(0,0,0,0.18) 85%, rgba(0,0,0,0.32) 100%)" }}
       />
 
       {/* ── Float annotation overlay (SVG, screen-space) — renders per-annotation floated ones ── */}

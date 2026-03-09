@@ -379,7 +379,7 @@ function UnitRow({
 export function DrawingToolbar({
   mode, color, drawWidth, drawArrowStyle, annotations, open, onToggle,
   onStartDrawing, onSetColor, onSetWidth, onSetArrowStyle, onCancel,
-  onDeleteAnnotation, onRenameAnnotation, onToggleGlow, onToggleDash, onToggleLabel,
+  onDeleteAnnotation, onRenameAnnotation, onToggleGlow, onToggleDash, onToggleLabel: _onToggleLabel,
   onToggleAnnotationFloat,
   onSetAnnotationColor, onSetAnnotationWidth,
   drawGlow, drawDash, drawFloat,

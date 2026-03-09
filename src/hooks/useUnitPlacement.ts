@@ -4,8 +4,6 @@ import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
 
 const DEFAULT_LOOP_MS = 30_000;
 
-let unitCounter = 0;
-
 const UNIT_LABELS: Record<NATOUnitType, string> = {
   infantry: "Infantry",
   armor: "Armor",
@@ -53,6 +51,7 @@ export function useUnitPlacement(): UseUnitPlacementResult {
   pathDrawingUnitIdRef.current = pathDrawingUnitId;
   const tempPathCoordsRef = useRef(tempPathCoords);
   tempPathCoordsRef.current = tempPathCoords;
+  const unitCounterRef = useRef(0);
   const unitsRef = useRef(units);
   unitsRef.current = units;
 
@@ -69,12 +68,12 @@ export function useUnitPlacement(): UseUnitPlacementResult {
   const placeUnit = useCallback((lngLat: [number, number]) => {
     const type = placementModeRef.current;
     if (!type) return;
-    unitCounter += 1;
+    unitCounterRef.current += 1;
     const newUnit: PlacedUnit = {
       id: crypto.randomUUID(),
       unitType: type,
       color: pendingColorRef.current,
-      label: `${UNIT_LABELS[type]} ${unitCounter}`,
+      label: `${UNIT_LABELS[type]} ${unitCounterRef.current}`,
       glow: false,
       position: lngLat,
       pathId: null,
