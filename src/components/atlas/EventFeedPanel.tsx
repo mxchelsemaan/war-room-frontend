@@ -4,6 +4,7 @@ import { format, isToday, parseISO } from "date-fns";
 import { ChevronRight } from "lucide-react";
 import type { MapEvent } from "@/data/index";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useYoutubeChannels } from "@/hooks/useYoutubeChannels";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -225,16 +226,24 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
                     <label className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Channel
                     </label>
-                    <select
-                      value={selectedGroup}
-                      onChange={(e) => handleGroupChange(Number(e.target.value))}
-                      className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    <Select
+                      value={selectedGroup === -1 ? "" : String(selectedGroup)}
+                      onValueChange={(v) => handleGroupChange(Number(v))}
                     >
-                      <option value={-1} disabled>Select a channel…</option>
-                      {channelGroups.map((g, i) => (
-                        <option key={g.name} value={i}>{g.name}</option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="w-full text-xs h-8">
+                        <SelectValue placeholder="Select a channel…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {channelGroups.map((g, i) => (
+                          <SelectItem key={g.name} value={String(i)}>
+                            <span className="flex items-center gap-2">
+                              <LiveDot />
+                              {g.name}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Prompt when nothing selected */}
@@ -291,6 +300,15 @@ export function EventFeedPanel({ events, activeDay, open, onOpenChange }: EventF
       )}
     </aside>
     </>
+  );
+}
+
+function LiveDot() {
+  return (
+    <span className="relative flex h-2 w-2 shrink-0">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+      <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+    </span>
   );
 }
 
