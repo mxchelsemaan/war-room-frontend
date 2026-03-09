@@ -1,8 +1,0 @@
-Total messages: 8 (Errors: 0, Warnings: 5)
-Returning 5 messages for level "warning"
-
-[WARNING] MAP_ERROR __publicField is not defined undefined @ http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772989758386:427
-[WARNING] MAP_ERROR __publicField is not defined undefined @ http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772989758386:427
-[WARNING] MAP_ERROR __publicField is not defined undefined @ http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772989758386:427
-[WARNING] MAP_ERROR __publicField is not defined undefined @ http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772989758386:427
-[WARNING] MAP_ERROR __publicField is not defined undefined @ http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772989758386:427

@@ -1,8 +1,0 @@
-Total messages: 8 (Errors: 5, Warnings: 0)
-Returning 5 messages for level "error"
-
-[ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
-[ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
-[ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
-[ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
-[ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258

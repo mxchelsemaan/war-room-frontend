@@ -2,6 +2,18 @@
 
 # dependencies
 /node_modules
+
+# next.js (legacy)
+/.next/
+
+# screenshots / debug images
+*.png
+*.jpg
+*.jpeg
+
+# mcp config
+.mcp.json
+.playwright-mcp/
 /.pnp
 .pnp.*
 .yarn/*
