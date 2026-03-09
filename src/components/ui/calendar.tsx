@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import {
   ChevronDownIcon,
@@ -107,9 +105,9 @@ function Calendar({
           "group/day relative flex h-full w-full items-center justify-center p-0 text-center select-none",
           defaultClassNames.day
         ),
-        range_start: cn("bg-[linear-gradient(90deg,transparent_50%,#0f172a33_50%)]", defaultClassNames.range_start),
-        range_middle: cn("bg-[#0f172a33]", defaultClassNames.range_middle),
-        range_end: cn("bg-[linear-gradient(90deg,#0f172a33_50%,transparent_50%)]", defaultClassNames.range_end),
+        range_start: cn("bg-[linear-gradient(90deg,transparent_50%,color-mix(in_srgb,var(--primary)_15%,transparent)_50%)]", defaultClassNames.range_start),
+        range_middle: cn("bg-primary/15", defaultClassNames.range_middle),
+        range_end: cn("bg-[linear-gradient(90deg,color-mix(in_srgb,var(--primary)_15%,transparent)_50%,transparent_50%)]", defaultClassNames.range_end),
         today: cn(
           "text-accent-foreground font-semibold",
           defaultClassNames.today

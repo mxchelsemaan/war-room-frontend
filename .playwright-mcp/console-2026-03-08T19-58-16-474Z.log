@@ -1,0 +1,130 @@
+[   34877ms] [WARNING] Image "wood-pattern" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[  126753ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773000023036:30:14
+[  155750ms] [ERROR] The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [[object Object]] [[object Object], false] @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5627
+[  259918ms] [WARNING] Image "circle-11" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[  525874ms] [WARNING] Image "wood-pattern" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[  529492ms] [WARNING] Image "circle-11" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[ 1380971ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001261857:30:14
+[ 1391340ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001279979:30:14
+[ 1413981ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001310035:30:14
+[ 1417384ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001313666:30:14
+[ 1420377ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001316442:30:14
+[ 1430435ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001326000:30:14
+[ 1430439ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773001261857:158:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773001261857:290:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+[ 1430439ms] [WARNING] %s
+
+%s
+ An error occurred in the <FlightLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1430441ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/ShipLayer.tsx?t=1773001279979:163:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/ShipLayer.tsx?t=1773001279979:291:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+[ 1430439ms] [WARNING] %s
+
+%s
+ An error occurred in the <ShipLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1438636ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001335069:30:14
+[ 1448025ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001344011:30:14
+[ 1465076ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773001360955:30:14

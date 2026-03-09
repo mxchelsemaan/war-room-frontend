@@ -1,4 +1,3 @@
-"use client";
 
 import { useState, useEffect } from "react";
 import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";

@@ -1,0 +1,29 @@
+[    1276ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[  245486ms] [ERROR] Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://react.dev/link/setstate-in-render AtlasView TimelineScrubber TimelineScrubber @ http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=304c3c1c:11685
+[  267418ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:32:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:14133:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:23501:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1773012353618:30:14
+[  271718ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:32:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:14133:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:23501:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1773012362210:30:14
+[  497812ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:32:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:14133:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=2d9cc439:23501:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1773012507670:30:14

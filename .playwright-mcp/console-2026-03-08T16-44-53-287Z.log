@@ -1,0 +1,7 @@
+[     495ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[     623ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     623ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     624ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     624ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     624ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  143320ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=HIgLudy1lHBZ' failed:  @ http://localhost:5173/@vite/client:801

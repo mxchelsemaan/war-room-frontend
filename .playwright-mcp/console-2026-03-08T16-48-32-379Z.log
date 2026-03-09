@@ -1,0 +1,6 @@
+[    4281ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[    4397ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[    4397ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[    4397ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[    4397ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[    4397ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258

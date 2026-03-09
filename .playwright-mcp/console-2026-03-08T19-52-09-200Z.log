@@ -1,0 +1,28 @@
+[  147519ms] [WARNING] Image "circle-11" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[  311275ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772999837078:29:14
+[  323519ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772999852264:29:14
+[  330332ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772999858910:30:14

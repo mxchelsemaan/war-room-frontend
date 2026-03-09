@@ -1,0 +1,37 @@
+[     539ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[    7554ms] [WARNING] Image "wood-pattern" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[   10379ms] [WARNING] Image "circle-11" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[   76890ms] ReferenceError: Cannot access 'ROUTE_ALT_M' before initialization
+    at lift (http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773013495830:162:52)
+    at Array.map (<anonymous>)
+    at http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773013495830:169:62
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9465:60)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11040:29)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11201:13)
+[   76890ms] [WARNING] %s
+
+%s
+ An error occurred in the <FlightLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[   76933ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at http://localhost:5173/src/components/atlas/DrawingLayers.tsx?t=1773015835180:547:15
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+    at commitPassiveUnmountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11498:13)
+    at flushPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:13146:11)
+[   76932ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[  127735ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773016022288:0
+[  127735ms] [ERROR] [vite] Failed to reload /src/components/atlas/FlightLayer.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881

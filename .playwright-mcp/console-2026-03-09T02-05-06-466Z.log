@@ -1,0 +1,4 @@
+[    1434ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[    1704ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/b1d83518-e93d-44a5-8461-398d5e64ff80:2762
+[    1705ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/b1d83518-e93d-44a5-8461-398d5e64ff80:2762
+[    1705ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/b1d83518-e93d-44a5-8461-398d5e64ff80:2762

@@ -1,12 +1,15 @@
-"use client";
-
 import { useState } from "react";
-import { Sparkles, ChevronUp } from "lucide-react";
+import { X, Bot, Globe, Shield, Landmark, TrendingUp } from "lucide-react";
+import { FloatingTriggerBtn } from "./FloatingPanel";
+import { Button } from "@/components/ui/button";
+import { CopilotChat } from "./CopilotChat";
+import { useCopilot } from "@/hooks/useCopilot";
 
-const TABS = ["Overall", "Military", "Political", "Economic"] as const;
+const TABS = ["Overall", "Military", "Political", "Economic", "Copilot"] as const;
 type Tab = (typeof TABS)[number];
 
-const CONTENT: Record<Tab, { summary: string; bullets: string[] }> = {
+type BriefingTab = Exclude<Tab, "Copilot">;
+const CONTENT: Record<BriefingTab, { summary: string; bullets: string[] }> = {
   Overall: {
     summary:
       "Lebanon's security and political landscape remained fragile on 6 March 2026, with overlapping pressures across the southern front, the parliament, and an economy still struggling to stabilise.",
@@ -54,82 +57,103 @@ const CONTENT: Record<Tab, { summary: string; bullets: string[] }> = {
 };
 
 interface AISummaryCardProps {
+  open: boolean;
+  onToggle: () => void;
   date?: string;
 }
 
-export function AISummaryCard({ date = "6 March 2026" }: AISummaryCardProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("Overall");
-  const [collapsed, setCollapsed] = useState(false);
-
-  const { summary, bullets } = CONTENT[activeTab];
+export function AISummaryCard({ open, onToggle, date = "6 March 2026" }: AISummaryCardProps) {
+  const [activeTab, setActiveTab] = useState<Tab>("Copilot");
+  const copilot = useCopilot();
+  const briefing = activeTab !== "Copilot" ? CONTENT[activeTab as BriefingTab] : null;
 
   return (
-    <div className="absolute top-4 right-4 z-[1000] flex w-72 flex-col rounded-xl border border-border bg-card/95 shadow-xl backdrop-blur-sm">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2 px-3 pt-2.5 pb-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <Sparkles className="h-3 w-3 shrink-0 text-indigo-500" />
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              AI Briefing · {date}
-            </p>
-            <p className="text-xs font-semibold leading-snug text-foreground mt-0.5">
-              Lebanon Situation Report
-            </p>
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onToggle}
+        className={`absolute inset-0 z-[60] bg-black/40 transition-opacity duration-300 ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      />
+
+      {/* Panel */}
+      <div
+        className={`absolute top-14 bottom-4 left-[136px] right-[136px] z-[60] flex flex-col glass-panel overflow-hidden transition-all duration-300 ease-out ${
+          open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+        }`}
+      >
+        {/* Tabs as folders */}
+        <div className="flex items-end border-b border-border px-4 pt-3 gap-1">
+          <button
+            onClick={() => setActiveTab("Copilot")}
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-t border -mb-px transition-colors ${
+              activeTab === "Copilot"
+                ? "border-border border-b-card bg-card/90 text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Bot className="size-3" />
+            Copilot
+          </button>
+
+          {/* Reports group — pushed to the right */}
+          <div className="ml-auto flex items-end gap-1">
+            <span className="flex items-center pb-2 pr-2 text-2xs font-medium uppercase tracking-widest text-muted-foreground/40 select-none">
+              Reports
+            </span>
+            {TABS.filter((t) => t !== "Copilot").map((tab) => {
+              const Icon = { Overall: Globe, Military: Shield, Political: Landmark, Economic: TrendingUp }[tab];
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-t border -mb-px transition-colors ${
+                    activeTab === tab
+                      ? "border-border border-b-card bg-card/90 text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="size-3" />
+                  {tab}
+                </button>
+              );
+            })}
           </div>
+
+          <Button variant="ghost" size="icon-sm" onClick={onToggle} className="ml-2 mb-1" aria-label="Close daily briefing">
+            <X className="size-4" />
+          </Button>
         </div>
-        <button
-          onClick={() => setCollapsed((c) => !c)}
-          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          aria-label={collapsed ? "Expand" : "Collapse"}
-        >
-          <ChevronUp
-            className={`h-3 w-3 transition-transform duration-200 ${collapsed ? "rotate-180" : ""}`}
-          />
-        </button>
+
+        {/* Content */}
+        {activeTab === "Copilot" ? (
+          <div className="flex-1 overflow-hidden">
+            <CopilotChat {...copilot} />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            <div className="mx-auto max-w-2xl flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">{briefing!.summary}</p>
+              <ul className="flex flex-col gap-2.5">
+                {briefing!.bullets.map((b, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground leading-relaxed">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Disclaimer */}
+        <div className="shrink-0 border-t border-border px-5 py-2.5">
+          <p className="text-2xs leading-relaxed text-destructive/80 max-w-2xl mx-auto">
+            ⚠ AI-generated. May contain inaccuracies — verify against primary sources before operational use.
+          </p>
+        </div>
       </div>
-
-      {/* Collapsible body */}
-      {!collapsed && (
-        <>
-          {/* Tabs */}
-          <div className="flex border-t border-border">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-1 text-[10px] font-medium transition-colors border-b-2 ${
-                  activeTab === tab
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* Content */}
-          <div className="flex flex-col gap-2 px-3 py-2.5 max-h-56 overflow-y-auto">
-            <p className="text-[11px] text-muted-foreground leading-relaxed">{summary}</p>
-            <ul className="flex flex-col gap-1">
-              {bullets.map((b, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-[11px] text-foreground leading-relaxed">
-                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary/60" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Disclaimer */}
-          <div className="border-t border-border px-3 py-2">
-            <p className="text-[10px] leading-relaxed text-red-400/80">
-              ⚠ AI-generated. May contain inaccuracies — verify against primary sources before operational use.
-            </p>
-          </div>
-        </>
-      )}
-    </div>
+    </>
   );
 }

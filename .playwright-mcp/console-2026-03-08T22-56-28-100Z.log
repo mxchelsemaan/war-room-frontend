@@ -1,0 +1,351 @@
+[     481ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[   32196ms] [ERROR] Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://react.dev/link/setstate-in-render AtlasView TimelineScrubber TimelineScrubber @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11685
+[  414291ms] [WARNING] Image "wood-pattern" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[  414318ms] [WARNING] Image "circle-11" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:312
+[  895312ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773011347064:30:14
+[  895322ms] [ERROR] React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ AtlasView 1. useState                   useState
+2. useEffect                  useEffect
+3. useState                   useState
+4. useMemo                    useMemo
+5. useMemo                    useMemo
+6. useState                   useState
+7. useState                   useState
+8. useState                   useState
+9. useState                   useState
+10. useState                  useState
+11. useState                  useState
+12. useRef                    useRef
+13. useState                  useState
+14. useState                  useState
+15. useState                  useState
+16. useState                  useState
+17. useState                  useState
+18. useRef                    useState
+ @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5593
+[  895335ms] Error: Should have a queue. You are likely calling Hooks conditionally, which is not allowed. (https://react.dev/link/invalid-hook-call)
+    at updateReducerImpl (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5892:17)
+    at updateReducer (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5887:16)
+    at Object.useState (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18996:20)
+    at exports.useState (http://localhost:5173/node_modules/.vite/deps/chunk-KEQAXXRI.js?v=f2f2f0b3:959:36)
+    at useDrawing (http://localhost:5173/src/hooks/useDrawing.ts?t=1773011482779:16:41)
+    at AtlasView (http://localhost:5173/src/components/atlas/AtlasView.tsx?t=1773011482779:89:19)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18509:20)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5654:24)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:7475:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:8525:20)
+[  895333ms] [WARNING] %s
+
+%s
+ An error occurred in the <AtlasView> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[  895409ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at http://localhost:5173/src/components/atlas/DrawingLayers.tsx?t=1773010412177:388:15
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+    at commitPassiveUnmountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11498:13)
+    at flushPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:13146:11)
+[  895402ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1149088ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773011737036:30:14
+[ 1153488ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773011741380:30:14
+[ 1161194ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773011749160:30:14
+[ 1166120ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773011754072:30:14
+[ 1181390ms] [ERROR] A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://react.dev/link/controlled-components @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:14863
+[ 1381919ms] ReferenceError: float is not defined
+    at DrawingLayers (http://localhost:5173/src/components/atlas/DrawingLayers.tsx?t=1773011969753:579:35)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18509:20)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5654:24)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:7475:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:8525:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12561:98)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12424:43)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12408:13)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11827:37)
+[ 1381915ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1381943ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at http://localhost:5173/src/components/atlas/DrawingLayers.tsx?t=1773011581889:535:15
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+    at commitPassiveUnmountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11498:13)
+    at flushPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:13146:11)
+[ 1381943ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1381944ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773005059183:153:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773005059183:298:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+[ 1381943ms] [WARNING] %s
+
+%s
+ An error occurred in the <FlightLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1381944ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/ShipLayer.tsx?t=1773002960360:163:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/ShipLayer.tsx?t=1773002960360:293:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+[ 1381943ms] [WARNING] %s
+
+%s
+ An error occurred in the <ShipLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1388739ms] ReferenceError: float is not defined
+    at DrawingLayers (http://localhost:5173/src/components/atlas/DrawingLayers.tsx?t=1773011976431:579:35)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18509:20)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5654:24)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:7475:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:8525:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12561:98)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12424:43)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12408:13)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11827:37)
+[ 1388738ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1413986ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012001829:30:14
+[ 1416536ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012004502:30:14
+[ 1416648ms] ReferenceError: floatAnnotations is not defined
+    at AtlasMap (http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012004502:549:22)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18509:20)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5654:24)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:7475:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:8525:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12561:98)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12424:43)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12408:13)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11827:37)
+[ 1416647ms] [WARNING] %s
+
+%s
+ An error occurred in the <AtlasMap> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1416670ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at http://localhost:5173/src/components/atlas/DrawingLayers.tsx?t=1773011983125:534:15
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+    at commitPassiveUnmountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11498:13)
+    at flushPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:13146:11)
+[ 1416670ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1416670ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773005059183:153:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/FlightLayer.tsx?t=1773005059183:298:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+[ 1416670ms] [WARNING] %s
+
+%s
+ An error occurred in the <FlightLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1416671ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/ShipLayer.tsx?t=1773002960360:163:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/ShipLayer.tsx?t=1773002960360:293:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11465:15)
+[ 1416670ms] [WARNING] %s
+
+%s
+ An error occurred in the <ShipLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1423036ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012011099:30:14
+[ 1423090ms] ReferenceError: floatAnnotations is not defined
+    at AtlasMap (http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012011099:935:5)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:18509:20)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5654:24)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:7475:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:8525:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:997:72)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12561:98)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12424:43)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:12408:13)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:11827:37)
+[ 1423090ms] [WARNING] %s
+
+%s
+ An error occurred in the <AtlasMap> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:6965
+[ 1429949ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012018020:30:14
+[ 1772976ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012353645:30:14
+[ 1777807ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012362223:30:14
+[ 2003481ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773012507670:30:14
+[ 2630487ms] [ERROR] The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [true, [object Object], ] [true, [object Object], , false] @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=8a18eaf1:5627
+[ 2638630ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773013221795:30:14
+[ 2644826ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14134:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:53:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:32:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:14133:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=1ef26563:23501:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1773013229553:30:14

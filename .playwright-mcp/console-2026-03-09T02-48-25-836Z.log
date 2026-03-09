@@ -1,0 +1,256 @@
+[     432ms] Error: supabaseUrl is required.
+    at validateSupabaseUrl (http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=273e30b4:11376:26)
+    at new SupabaseClient (http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=273e30b4:11414:21)
+    at createClient (http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=273e30b4:11593:10)
+    at http://localhost:5173/src/lib/supabase.ts:4:25
+[   11444ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9465:60)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11040:29)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11201:13)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11201:13)
+[   11421ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:6965
+[   11444ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9465:60)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11317:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11317:13)
+[   11422ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:6965
+[   18957ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9465:60)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11040:29)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11201:13)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11201:13)
+[   18957ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:6965
+[   18958ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9465:60)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11317:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11317:13)
+[   18957ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:6965
+[   24589ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9465:60)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11040:29)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11201:13)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11201:13)
+[   24579ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:6965
+[   24590ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:9465:60)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11317:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:11317:13)
+[   24583ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=273e30b4:6965
+[   25786ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:9465:60)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11040:29)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11201:13)
+    at recursivelyTraversePassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11010:13)
+    at commitPassiveMountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11201:13)
+[   25777ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:6965
+[   25787ms] TypeError: Cannot read properties of null (reading 'from')
+    at http://localhost:5173/src/hooks/useYoutubeChannels.ts?t=1773024516771:9:14
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:18567:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:997:72)
+    at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:9411:163)
+    at commitHookPassiveMountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:9465:60)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11273:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11317:13)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11240:11)
+    at reconnectPassiveEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:11317:13)
+[   25777ms] [WARNING] %s
+
+%s
+ An error occurred in the <EventFeedPanel> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=e7dbf5fd:6965
+[   31274ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/c068b239-6b55-4bc2-a03b-5cde96c71359:2762
+[   31275ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/c068b239-6b55-4bc2-a03b-5cde96c71359:2762
+[   31275ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/c068b239-6b55-4bc2-a03b-5cde96c71359:2762
+[  117098ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error during WebSocket handshake: net::ERR_CONNECTION_RESET @ http://localhost:5173/@vite/client:1034
+[  118107ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[  171420ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/c58f8bb8-f542-429b-8b9e-e3b656753918:2762
+[  171421ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/c58f8bb8-f542-429b-8b9e-e3b656753918:2762
+[  171421ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/c58f8bb8-f542-429b-8b9e-e3b656753918:2762
+[  209437ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/14a9944f-4832-4ae8-9dac-fb6826bba763:2762
+[  209438ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/14a9944f-4832-4ae8-9dac-fb6826bba763:2762
+[  209438ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/14a9944f-4832-4ae8-9dac-fb6826bba763:2762
+[  302586ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/3a29e168-3cc5-4b7d-b0dd-59a43b21e2cc:2762
+[  302586ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/3a29e168-3cc5-4b7d-b0dd-59a43b21e2cc:2762
+[  302586ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/3a29e168-3cc5-4b7d-b0dd-59a43b21e2cc:2762
+[  430137ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[  431150ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[  435113ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  435224ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  452430ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  452500ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  460872ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/22a4701e-2191-4c76-8783-990f7a10d46a:2762
+[  460872ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/22a4701e-2191-4c76-8783-990f7a10d46a:2762
+[  460873ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/22a4701e-2191-4c76-8783-990f7a10d46a:2762
+[  535202ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[  543894ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  543939ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  544703ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/fc2af995-2e5e-4344-9e1b-cd1faa4caa13:2762
+[  544704ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/fc2af995-2e5e-4344-9e1b-cd1faa4caa13:2762
+[  544704ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/fc2af995-2e5e-4344-9e1b-cd1faa4caa13:2762
+[  822207ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[  824655ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  824689ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  824757ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/6408ce7d-a1aa-4f65-b8fd-18b262ee9166:2762
+[  824765ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/6408ce7d-a1aa-4f65-b8fd-18b262ee9166:2762
+[  824766ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/6408ce7d-a1aa-4f65-b8fd-18b262ee9166:2762
+[ 1202169ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 1207443ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1207491ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1209221ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d7e3492d-5118-4732-b75d-d18c99e7eb3a:2762
+[ 1209226ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d7e3492d-5118-4732-b75d-d18c99e7eb3a:2762
+[ 1209227ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d7e3492d-5118-4732-b75d-d18c99e7eb3a:2762
+[ 1277085ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error during WebSocket handshake: net::ERR_CONNECTION_RESET @ http://localhost:5173/@vite/client:1034
+[ 1280369ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1280438ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1280744ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/4480398e-badc-40f6-96e4-afebbfae1919:2762
+[ 1280744ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/4480398e-badc-40f6-96e4-afebbfae1919:2762
+[ 1280744ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/4480398e-badc-40f6-96e4-afebbfae1919:2762
+[ 1285545ms] [WARNING] GoTrueClient@sb-rvsoeyqsexokywouajsb-auth-token:1 (2.98.0) 2026-03-09T03:09:51.380Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. @ http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=dabb0fca:8784
+[ 1296635ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 1299332ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1299436ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1299571ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/e07cf4a5-12be-4690-9080-28182017b011:2762
+[ 1299572ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/e07cf4a5-12be-4690-9080-28182017b011:2762
+[ 1299572ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/e07cf4a5-12be-4690-9080-28182017b011:2762
+[ 1659934ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=dabb0fca:23081:31)
+    at http://localhost:5173/src/components/atlas/DrawingLayers.tsx:572:15
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11465:15)
+    at commitPassiveUnmountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11516:13)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11481:13)
+[ 1659407ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:6965
+[ 1659970ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=dabb0fca:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/FlightLayer.tsx:155:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/FlightLayer.tsx:271:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11465:15)
+[ 1659407ms] [WARNING] %s
+
+%s
+ An error occurred in the <FlightLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:6965
+[ 1659990ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=dabb0fca:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/ShipLayer.tsx:149:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/ShipLayer.tsx:253:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11465:15)
+[ 1659407ms] [WARNING] %s
+
+%s
+ An error occurred in the <ShipLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:6965
+[ 1659458ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1665646ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1665739ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1834487ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/e07cf4a5-12be-4690-9080-28182017b011:2762
+[ 1834488ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/e07cf4a5-12be-4690-9080-28182017b011:2762
+[ 1834488ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/e07cf4a5-12be-4690-9080-28182017b011:2762
+[ 2190329ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2191341ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2192349ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2193356ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2194426ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2197688ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d6671337-f7f9-4818-8f0f-311288ddc5ae:2762
+[ 2197688ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d6671337-f7f9-4818-8f0f-311288ddc5ae:2762
+[ 2197689ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d6671337-f7f9-4818-8f0f-311288ddc5ae:2762
+[ 2197930ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 2197930ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 2268459ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 2268480ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 2268486ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/da960e89-e4a0-48f3-a436-ffc35cebb55f:2762
+[ 2268486ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/da960e89-e4a0-48f3-a436-ffc35cebb55f:2762
+[ 2268486ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/da960e89-e4a0-48f3-a436-ffc35cebb55f:2762

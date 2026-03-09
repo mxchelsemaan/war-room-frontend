@@ -1,0 +1,14 @@
+[     571ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     571ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     571ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     571ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[     571ms] [ERROR] Error @ http://localhost:5173/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[   58973ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14149:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:54:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:33:18)
+    at le.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14148:22)
+    at e.setRTLTextPlugin (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:23516:23)
+    at http://localhost:5173/src/components/atlas/AtlasMap.tsx?t=1772989758386:27:12

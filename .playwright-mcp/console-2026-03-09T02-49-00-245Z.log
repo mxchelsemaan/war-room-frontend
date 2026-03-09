@@ -1,0 +1,120 @@
+[    1216ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/63c8a577-53ec-4625-8f23-1d5c5727f214:2762
+[    1216ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/63c8a577-53ec-4625-8f23-1d5c5727f214:2762
+[    1216ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/63c8a577-53ec-4625-8f23-1d5c5727f214:2762
+[   82721ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[   83733ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[   92090ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/463254c8-c3e7-4461-ac37-d703a38a95fb:2762
+[   92091ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/463254c8-c3e7-4461-ac37-d703a38a95fb:2762
+[   92092ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/463254c8-c3e7-4461-ac37-d703a38a95fb:2762
+[  174532ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/439f5efe-2e9a-4fa2-86f6-1a1e08bf6b9b:2762
+[  174532ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/439f5efe-2e9a-4fa2-86f6-1a1e08bf6b9b:2762
+[  174533ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/439f5efe-2e9a-4fa2-86f6-1a1e08bf6b9b:2762
+[  267672ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/634e0202-1083-492a-a303-66790112fc1c:2762
+[  267673ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/634e0202-1083-492a-a303-66790112fc1c:2762
+[  267673ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/634e0202-1083-492a-a303-66790112fc1c:2762
+[  395703ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error during WebSocket handshake: net::ERR_CONNECTION_RESET @ http://localhost:5173/@vite/client:1034
+[  396726ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[  400765ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  400766ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  402635ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/0b49b2fe-fb5a-4bcc-9e04-1af8c389f012:2762
+[  402636ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/0b49b2fe-fb5a-4bcc-9e04-1af8c389f012:2762
+[  402636ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/0b49b2fe-fb5a-4bcc-9e04-1af8c389f012:2762
+[  417194ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  417359ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  418335ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/bc8e80da-a76e-4cd0-9ee0-5586710c0e57:2762
+[  418338ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/bc8e80da-a76e-4cd0-9ee0-5586710c0e57:2762
+[  418338ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/bc8e80da-a76e-4cd0-9ee0-5586710c0e57:2762
+[  500767ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error during WebSocket handshake: net::ERR_CONNECTION_RESET @ http://localhost:5173/@vite/client:1034
+[  510913ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  510945ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  510999ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/02e1b21b-4f02-4336-a456-c057ac8aa1f0:2762
+[  511000ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/02e1b21b-4f02-4336-a456-c057ac8aa1f0:2762
+[  511000ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/02e1b21b-4f02-4336-a456-c057ac8aa1f0:2762
+[  787747ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[  790300ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[  790304ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/fd932f33-e406-4055-bb23-92152d74e701:2762
+[  790304ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/fd932f33-e406-4055-bb23-92152d74e701:2762
+[  790304ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/fd932f33-e406-4055-bb23-92152d74e701:2762
+[  790328ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1167875ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 1172381ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1172423ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1173430ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/ae247a31-0b7e-4359-88a6-7bdaeece2188:2762
+[ 1173430ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/ae247a31-0b7e-4359-88a6-7bdaeece2188:2762
+[ 1173430ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/ae247a31-0b7e-4359-88a6-7bdaeece2188:2762
+[ 1242753ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 1246117ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1246160ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1246313ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/dcf29ae4-5451-49c3-a1ad-1f693c7bf2a5:2762
+[ 1246313ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/dcf29ae4-5451-49c3-a1ad-1f693c7bf2a5:2762
+[ 1246313ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/dcf29ae4-5451-49c3-a1ad-1f693c7bf2a5:2762
+[ 1250622ms] [WARNING] GoTrueClient@sb-rvsoeyqsexokywouajsb-auth-token:1 (2.98.0) 2026-03-09T03:09:50.863Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. @ http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=dabb0fca:8784
+[ 1262207ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 1264998ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1265022ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1265205ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/18b161c6-b61f-4137-890a-3882ca770d73:2762
+[ 1265206ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/18b161c6-b61f-4137-890a-3882ca770d73:2762
+[ 1265206ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/18b161c6-b61f-4137-890a-3882ca770d73:2762
+[ 1624659ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=dabb0fca:23081:31)
+    at http://localhost:5173/src/components/atlas/DrawingLayers.tsx:572:15
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11465:15)
+    at commitPassiveUnmountOnFiber (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11516:13)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11481:13)
+[ 1624284ms] [WARNING] %s
+
+%s
+ An error occurred in the <DrawingLayers> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:6965
+[ 1624676ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=dabb0fca:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/FlightLayer.tsx:155:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/FlightLayer.tsx:271:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11465:15)
+[ 1624285ms] [WARNING] %s
+
+%s
+ An error occurred in the <FlightLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:6965
+[ 1624749ms] TypeError: Cannot read properties of undefined (reading 'getLayer')
+    at e.Map.getLayer (http://localhost:5173/node_modules/.vite/deps/maplibre-gl.js?v=dabb0fca:23081:31)
+    at safeRemoveLayer (http://localhost:5173/src/components/atlas/ShipLayer.tsx:149:15)
+    at Array.forEach (<anonymous>)
+    at http://localhost:5173/src/components/atlas/ShipLayer.tsx:253:16
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:18573:13)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:997:72)
+    at commitHookEffectListUnmount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9449:160)
+    at commitHookPassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:9468:60)
+    at commitPassiveUnmountEffectsInsideOfDeletedTree_begin (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11593:15)
+    at recursivelyTraversePassiveUnmountEffects (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:11465:15)
+[ 1624285ms] [WARNING] %s
+
+%s
+ An error occurred in the <ShipLayer> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=dabb0fca:6965
+[ 1624441ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1631366ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1631399ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 1792673ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/18b161c6-b61f-4137-890a-3882ca770d73:2762
+[ 1792674ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/18b161c6-b61f-4137-890a-3882ca770d73:2762
+[ 1792674ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/18b161c6-b61f-4137-890a-3882ca770d73:2762
+[ 2156383ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error during WebSocket handshake: net::ERR_CONNECTION_RESET @ http://localhost:5173/@vite/client:1034
+[ 2157467ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2158612ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2159738ms] [ERROR] WebSocket connection to 'ws://localhost:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/@vite/client:1034
+[ 2163301ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 2163373ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[ 2163396ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d85cb712-4a83-4bbd-a4b3-0dbd4768b0a4:2762
+[ 2163396ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d85cb712-4a83-4bbd-a4b3-0dbd4768b0a4:2762
+[ 2163397ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/d85cb712-4a83-4bbd-a4b3-0dbd4768b0a4:2762

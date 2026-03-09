@@ -1,0 +1,1275 @@
+[00:00:00.846] Server  LOG     ✓ Ready in 602ms
+[00:00:08.005] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:50.937] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:05:34.905] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:05:55.902] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:09:56.914] Server  LOG     ✓ Compiled in 175ms
+[00:09:57.890] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:09:57.890] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:09:59.891] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:09:59.892] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:10:03.891] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:10:03.891] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.754] Server  LOG     ✓ Compiled in 226ms
+[00:11:46.890] Browser ERROR   ./src/components/atlas/AISummaryCard.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { Sparkles, ChevronUp } from "lucide-react";
+  4 |
+  5 | const TABS = ["Overall", "Military", "Political", "Economic"] as const;
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AISummaryCard.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/FilterSidebar.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { ChevronLeft } from "lucide-react";
+  5 | import { EventType, MapEvent } from "@/data/index";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                     ^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:29
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                             ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:20
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |                    ^^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:46.890] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.641] Server  LOG     ✓ Compiled in 142ms
+[00:11:58.888] Browser ERROR   ./src/components/atlas/AISummaryCard.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { Sparkles, ChevronUp } from "lucide-react";
+  4 |
+  5 | const TABS = ["Overall", "Military", "Political", "Economic"] as const;
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AISummaryCard.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/FilterSidebar.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { ChevronLeft } from "lucide-react";
+  5 | import { EventType, MapEvent } from "@/data/index";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                     ^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:29
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                             ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:20
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |                    ^^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:58.888] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/AISummaryCard.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { Sparkles, ChevronUp } from "lucide-react";
+  4 |
+  5 | const TABS = ["Overall", "Military", "Political", "Economic"] as const;
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AISummaryCard.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/FilterSidebar.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { ChevronLeft } from "lucide-react";
+  5 | import { EventType, MapEvent } from "@/data/index";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                     ^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:29
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                             ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:20
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |                    ^^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:11:59.892] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/AISummaryCard.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { Sparkles, ChevronUp } from "lucide-react";
+  4 |
+  5 | const TABS = ["Overall", "Military", "Political", "Economic"] as const;
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AISummaryCard.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/FilterSidebar.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { ChevronLeft } from "lucide-react";
+  5 | import { EventType, MapEvent } from "@/data/index";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                     ^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:29
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                             ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:20
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |                    ^^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:02.889] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/AISummaryCard.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { Sparkles, ChevronUp } from "lucide-react";
+  4 |
+  5 | const TABS = ["Overall", "Military", "Political", "Economic"] as const;
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AISummaryCard.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/AtlasMap.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import type { Map as LeafletMap, LayerGroup } from "leaflet";
+  4 | import type { MapEvent } from "@/data/index";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasMap.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:26
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                          ^^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/AtlasView.tsx:1:46
+Ecmascript file had an error
+> 1 | import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+    |                                              ^^^^^^^^
+  2 | import { FilterSidebar } from "./FilterSidebar";
+  3 | import type { AtlasFilters } from "./FilterSidebar";
+  4 | import { TimelineScrubber } from "./TimelineScrubber";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/EventFeedPanel.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef } from "react";
+    |                     ^^^^^^
+  3 | import { format, isToday, parseISO } from "date-fns";
+  4 | import { ChevronRight } from "lucide-react";
+  5 | import type { MapEvent } from "@/data/index";
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/EventFeedPanel.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/FilterSidebar.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { ChevronLeft } from "lucide-react";
+  5 | import { EventType, MapEvent } from "@/data/index";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |          ^^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:21
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                     ^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useRef`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/atlas/TimelineScrubber.tsx:2:29
+Ecmascript file had an error
+  1 |
+> 2 | import { useEffect, useRef, useState } from "react";
+    |                             ^^^^^^^^
+  3 | import { format, parseISO } from "date-fns";
+  4 | import { Pause, Play } from "lucide-react";
+  5 |
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/atlas/TimelineScrubber.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:20
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |                    ^^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:03.904] Browser ERROR   ./src/components/ui/DatePicker.tsx:2:10
+Ecmascript file had an error
+  1 |
+> 2 | import { useState, useEffect } from "react";
+    |          ^^^^^^^^
+  3 | import { format, parseISO, subHours, subDays, subWeeks, subMonths } from "date-fns";
+  4 | import type { DateRange } from "react-day-picker";
+  5 | import { Calendar } from "@/components/ui/calendar";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./src/components/ui/DatePicker.tsx
+    ./src/components/atlas/FilterSidebar.tsx
+    ./src/components/atlas/AtlasView.tsx
+    ./src/app/page.tsx
+[00:12:06.896] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.898] Server  ERROR   ⨯ "unhandledRejection:" Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.899] Server  ERROR   ⨯ "unhandledRejection: " Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.909] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.910] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.913] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.914] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.917] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.918] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.929] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'
+[00:12:06.930] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/michel/Documents/repos/war-room-frontend/src/app'

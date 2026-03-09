@@ -1,0 +1,6 @@
+[     666ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[     825ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0
+[     835ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/81fe04dd-00c3-4002-b055-cee80d10c2ac:2762
+[     836ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/81fe04dd-00c3-4002-b055-cee80d10c2ac:2762
+[     836ms] [WARNING] Expected value to be of type number, but found null instead. @ blob:http://localhost:5173/81fe04dd-00c3-4002-b055-cee80d10c2ac:2762
+[     853ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://rvsoeyqsexokywouajsb.supabase.co/rest/v1/youtube_channels?select=*&active=eq.true&order=display_name.asc%2Clanguage.asc:0

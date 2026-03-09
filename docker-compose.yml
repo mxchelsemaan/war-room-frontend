@@ -1,0 +1,7 @@
+services:
+  war-room:
+    build: .
+    container_name: war-room
+    restart: unless-stopped
+    ports:
+      - "80:80"

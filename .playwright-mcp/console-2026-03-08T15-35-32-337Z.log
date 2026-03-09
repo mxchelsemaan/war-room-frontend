@@ -1,0 +1,124 @@
+[    1040ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[    1040ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[   81593ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[   81593ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[   90780ms] [WARNING] Image "wood-pattern" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:313
+[   95808ms] [WARNING] You are using the same source for a hillshade layer and for 3D terrain. Please consider using two separate sources to improve rendering quality. @ http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:313
+[  110969ms] [WARNING] Image "circle-11" could not be loaded. Please make sure you have added the image with map.addImage() or a "sprite" property in your style. You can provide missing images by listening for the "styleimagemissing" map event. @ http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:313
+[  265152ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14149:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:54:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:33:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14148:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:23516:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1772984397352:29:12
+[  273525ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14149:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:54:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:33:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14148:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:23516:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1772984405752:29:12
+[  279486ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14149:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:54:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:33:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14148:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:23516:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1772984411765:29:12
+[  282206ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14149:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:54:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:33:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14148:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:23516:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1772984414488:29:12
+[  282391ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  282391ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  285615ms] Error: setRTLTextPlugin cannot be called multiple times.
+    at le.<anonymous> (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14149:35)
+    at Generator.next (<anonymous>)
+    at http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:54:46
+    at new Promise (<anonymous>)
+    at Object.e [as _] (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:33:18)
+    at le.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:14148:22)
+    at e.setRTLTextPlugin (http://localhost:3000/node_modules/.vite/deps/maplibre-gl.js?v=d1698ab9:23516:23)
+    at http://localhost:3000/src/components/atlas/AtlasMap.tsx?t=1772984417883:29:12
+[  540956ms] ReferenceError: useState is not defined
+    at MapLayerControls (http://localhost:3000/src/components/atlas/MapLayerControls.tsx?t=1772984673164:34:27)
+    at Object.react_stack_bottom_frame (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:18509:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:5654:24)
+    at updateFunctionComponent (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:7475:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:8525:20)
+    at runWithFiberInDEV (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:997:72)
+    at performUnitOfWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12561:98)
+    at workLoopSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12424:43)
+    at renderRootSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12408:13)
+    at performWorkOnRoot (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:11827:37)
+[  540952ms] [WARNING] %s
+
+%s
+ An error occurred in the <MapLayerControls> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:6965
+[  545445ms] ReferenceError: useState is not defined
+    at MapLayerControls (http://localhost:3000/src/components/atlas/MapLayerControls.tsx?t=1772984677695:33:27)
+    at Object.react_stack_bottom_frame (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:18509:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:5654:24)
+    at updateFunctionComponent (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:7475:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:8525:20)
+    at runWithFiberInDEV (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:997:72)
+    at performUnitOfWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12561:98)
+    at workLoopSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12424:43)
+    at renderRootSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12408:13)
+    at performWorkOnRoot (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:11827:37)
+[  545444ms] [WARNING] %s
+
+%s
+ An error occurred in the <MapLayerControls> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:6965
+[  553517ms] ReferenceError: useState is not defined
+    at MapLayerControls (http://localhost:3000/src/components/atlas/MapLayerControls.tsx?t=1772984685756:33:27)
+    at Object.react_stack_bottom_frame (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:18509:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:5654:24)
+    at updateFunctionComponent (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:7475:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:8525:20)
+    at runWithFiberInDEV (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:997:72)
+    at performUnitOfWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12561:98)
+    at workLoopSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12424:43)
+    at renderRootSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12408:13)
+    at performWorkOnRoot (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:11827:37)
+[  553517ms] [WARNING] %s
+
+%s
+ An error occurred in the <MapLayerControls> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:6965
+[  559964ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  559982ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  572464ms] ReferenceError: useState is not defined
+    at UnitLegend (http://localhost:3000/src/components/atlas/UnitLegend.tsx?t=1772984704281:22:27)
+    at Object.react_stack_bottom_frame (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:18509:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:5654:24)
+    at updateFunctionComponent (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:7475:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:8525:20)
+    at runWithFiberInDEV (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:997:72)
+    at performUnitOfWork (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12561:98)
+    at workLoopSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12424:43)
+    at renderRootSync (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:12408:13)
+    at performWorkOnRoot (http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:11827:37)
+[  572441ms] [WARNING] %s
+
+%s
+ An error occurred in the <UnitLegend> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=d1698ab9:6965
+[  577831ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  577832ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  590951ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
+[  590951ms] [ERROR] Error @ http://localhost:3000/node_modules/.vite/deps/react-map-gl_maplibre.js?v=d1698ab9:258
