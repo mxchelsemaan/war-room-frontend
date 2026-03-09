@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDrawing } from "@/hooks/useDrawing";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 
@@ -89,38 +89,49 @@ export function AnnotationProvider({ children }: { children: React.ReactNode }) 
     setAnnotations(prev => prev.map(a => a.id === id ? { ...a, width } : a));
   }, []);
 
+  const value = useMemo<AnnotationContextValue>(() => ({
+    mode: drawing.mode,
+    color: drawing.color,
+    drawWidth: drawing.drawWidth,
+    drawArrowStyle: drawing.drawArrowStyle,
+    drawGlow: drawing.drawGlow,
+    drawDash: drawing.drawDash,
+    drawFloat: drawing.drawFloat,
+    tempCoords: drawing.tempCoords,
+    startDrawing: drawing.startDrawing,
+    setColor: drawing.setColor,
+    setDrawWidth: drawing.setDrawWidth,
+    setDrawArrowStyle: drawing.setDrawArrowStyle,
+    setDrawGlow: drawing.setDrawGlow,
+    setDrawDash: drawing.setDrawDash,
+    setDrawFloat: drawing.setDrawFloat,
+    handleClick: drawing.handleClick,
+    handleDblClick: drawing.handleDblClick,
+    cancel: drawing.cancel,
+    annotations,
+    selectedAnnotationId,
+    setSelectedAnnotationId,
+    deleteAnnotation,
+    renameAnnotation,
+    toggleGlow,
+    toggleDash,
+    toggleLabel,
+    toggleAnnotationFloat,
+    setAnnotationColor,
+    setAnnotationWidth,
+  }), [
+    drawing.mode, drawing.color, drawing.drawWidth, drawing.drawArrowStyle,
+    drawing.drawGlow, drawing.drawDash, drawing.drawFloat, drawing.tempCoords,
+    drawing.startDrawing, drawing.setColor, drawing.setDrawWidth, drawing.setDrawArrowStyle,
+    drawing.setDrawGlow, drawing.setDrawDash, drawing.setDrawFloat,
+    drawing.handleClick, drawing.handleDblClick, drawing.cancel,
+    annotations, selectedAnnotationId,
+    deleteAnnotation, renameAnnotation, toggleGlow, toggleDash, toggleLabel,
+    toggleAnnotationFloat, setAnnotationColor, setAnnotationWidth,
+  ]);
+
   return (
-    <AnnotationCtx.Provider value={{
-      mode: drawing.mode,
-      color: drawing.color,
-      drawWidth: drawing.drawWidth,
-      drawArrowStyle: drawing.drawArrowStyle,
-      drawGlow: drawing.drawGlow,
-      drawDash: drawing.drawDash,
-      drawFloat: drawing.drawFloat,
-      tempCoords: drawing.tempCoords,
-      startDrawing: drawing.startDrawing,
-      setColor: drawing.setColor,
-      setDrawWidth: drawing.setDrawWidth,
-      setDrawArrowStyle: drawing.setDrawArrowStyle,
-      setDrawGlow: drawing.setDrawGlow,
-      setDrawDash: drawing.setDrawDash,
-      setDrawFloat: drawing.setDrawFloat,
-      handleClick: drawing.handleClick,
-      handleDblClick: drawing.handleDblClick,
-      cancel: drawing.cancel,
-      annotations,
-      selectedAnnotationId,
-      setSelectedAnnotationId,
-      deleteAnnotation,
-      renameAnnotation,
-      toggleGlow,
-      toggleDash,
-      toggleLabel,
-      toggleAnnotationFloat,
-      setAnnotationColor,
-      setAnnotationWidth,
-    }}>
+    <AnnotationCtx.Provider value={value}>
       {children}
     </AnnotationCtx.Provider>
   );
