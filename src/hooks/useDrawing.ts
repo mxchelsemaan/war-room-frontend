@@ -26,12 +26,18 @@ interface DrawingHookResult {
   color: string;
   drawWidth: number;
   drawArrowStyle: ArrowStyle;
+  drawGlow: boolean;
+  drawDash: boolean;
+  drawFloat: boolean;
   tempCoords: [number, number][];
   completed: Annotation | null;
   startDrawing: (m: AnnotationType) => void;
   setColor: (c: string) => void;
   setDrawWidth: (w: number) => void;
   setDrawArrowStyle: (s: ArrowStyle) => void;
+  setDrawGlow: (v: boolean) => void;
+  setDrawDash: (v: boolean) => void;
+  setDrawFloat: (v: boolean) => void;
   handleClick: (lngLat: [number, number]) => void;
   handleDblClick: (lngLat: [number, number]) => void;
   cancel: () => void;
@@ -43,6 +49,9 @@ export function useDrawing(): DrawingHookResult {
   const [color, setColorState] = useState<string>(DRAW_COLOR_PRESETS[0]);
   const [drawWidth, setDrawWidthState] = useState(3);
   const [drawArrowStyle, setDrawArrowStyleState] = useState<ArrowStyle>("simple");
+  const [drawGlow, setDrawGlowState] = useState(false);
+  const [drawDash, setDrawDashState] = useState(false);
+  const [drawFloat, setDrawFloatState] = useState(false);
   const [tempCoords, setTempCoords] = useState<[number, number][]>([]);
   const [completed, setCompleted] = useState<Annotation | null>(null);
 
@@ -55,6 +64,12 @@ export function useDrawing(): DrawingHookResult {
   drawWidthRef.current = drawWidth;
   const drawArrowStyleRef = useRef(drawArrowStyle);
   drawArrowStyleRef.current = drawArrowStyle;
+  const drawGlowRef = useRef(drawGlow);
+  drawGlowRef.current = drawGlow;
+  const drawDashRef = useRef(drawDash);
+  drawDashRef.current = drawDash;
+  const drawFloatRef = useRef(drawFloat);
+  drawFloatRef.current = drawFloat;
   // Live ref updated synchronously — not derived from React state.
   const liveCoordsRef = useRef<[number, number][]>([]);
   // Track last click time to detect double-clicks in handleClick itself.
@@ -73,9 +88,9 @@ export function useDrawing(): DrawingHookResult {
       label: `${typeLabel} ${counters.current[m]}`,
       showLabel: true,
       color: colorRef.current,
-      glow: false,
-      dash: false,
-      float: false,
+      glow: drawGlowRef.current,
+      dash: drawDashRef.current,
+      float: drawFloatRef.current,
       coordinates: finalCoords,
       width: drawWidthRef.current,
       arrowStyle: drawArrowStyleRef.current,
@@ -96,6 +111,9 @@ export function useDrawing(): DrawingHookResult {
   const setColor = useCallback((c: string) => setColorState(c), []);
   const setDrawWidth = useCallback((w: number) => setDrawWidthState(w), []);
   const setDrawArrowStyle = useCallback((s: ArrowStyle) => setDrawArrowStyleState(s), []);
+  const setDrawGlow = useCallback((v: boolean) => setDrawGlowState(v), []);
+  const setDrawDash = useCallback((v: boolean) => setDrawDashState(v), []);
+  const setDrawFloat = useCallback((v: boolean) => setDrawFloatState(v), []);
 
   const handleClick = useCallback((lngLat: [number, number]) => {
     const m = modeRef.current;
@@ -109,7 +127,7 @@ export function useDrawing(): DrawingHookResult {
         label: `Pin ${counters.current.pin}`,
         showLabel: true,
         color: colorRef.current,
-        glow: false,
+        glow: drawGlowRef.current,
         dash: false,
         float: false,
         coordinates: [lngLat],
@@ -164,8 +182,8 @@ export function useDrawing(): DrawingHookResult {
   }, [cancel]);
 
   return {
-    mode, color, drawWidth, drawArrowStyle, tempCoords, completed,
-    startDrawing, setColor, setDrawWidth, setDrawArrowStyle,
+    mode, color, drawWidth, drawArrowStyle, drawGlow, drawDash, drawFloat, tempCoords, completed,
+    startDrawing, setColor, setDrawWidth, setDrawArrowStyle, setDrawGlow, setDrawDash, setDrawFloat,
     handleClick, handleDblClick, cancel, clearCompleted,
   };
 }

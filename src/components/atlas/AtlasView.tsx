@@ -260,6 +260,12 @@ export function AtlasView() {
                 onSetColor={drawing.setColor}
                 onSetWidth={drawing.setDrawWidth}
                 onSetArrowStyle={drawing.setDrawArrowStyle}
+                drawGlow={drawing.drawGlow}
+                drawDash={drawing.drawDash}
+                drawFloat={drawing.drawFloat}
+                onSetDrawGlow={drawing.setDrawGlow}
+                onSetDrawDash={drawing.setDrawDash}
+                onSetDrawFloat={drawing.setDrawFloat}
                 onCancel={drawing.cancel}
                 onDeleteAnnotation={(id) => {
                   setAnnotations(prev => prev.filter(a => a.id !== id));
@@ -276,6 +282,9 @@ export function AtlasView() {
                 }
                 onToggleLabel={(id) =>
                   setAnnotations(prev => prev.map(a => a.id === id ? { ...a, showLabel: !a.showLabel } : a))
+                }
+                onToggleAnnotationFloat={(id) =>
+                  setAnnotations(prev => prev.map(a => a.id === id ? { ...a, float: !a.float } : a))
                 }
                 selectedAnnotationId={selectedAnnotationId}
                 onSelectAnnotation={(id) => setSelectedAnnotationId(id)}

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Pencil, MapPin, Spline, Pentagon, MoveRight, Sparkles, Trash2, Eye, EyeOff, Minus, Crosshair, Route, Play, Pause, X } from "lucide-react";
+import { Pencil, MapPin, Spline, Pentagon, MoveRight, Sparkles, Trash2, Minus, Map as MapIcon, Layers, Crosshair, Route, Play, Pause, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
-import { ColorPickerButton } from "./ColorPickerPopover";
+import { ColorPickerButton, ColorPickerPopover } from "./ColorPickerPopover";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
 import { natoMiniSVG } from "@/lib/natoSymbols";
@@ -26,8 +26,15 @@ interface DrawingToolbarProps {
   onToggleGlow: (id: string) => void;
   onToggleDash: (id: string) => void;
   onToggleLabel: (id: string) => void;
+  onToggleAnnotationFloat: (id: string) => void;
   onSetAnnotationColor: (id: string, color: string) => void;
   onSetAnnotationWidth: (id: string, width: number) => void;
+  drawGlow: boolean;
+  drawDash: boolean;
+  drawFloat: boolean;
+  onSetDrawGlow: (v: boolean) => void;
+  onSetDrawDash: (v: boolean) => void;
+  onSetDrawFloat: (v: boolean) => void;
   selectedAnnotationId: string | null;
   onSelectAnnotation: (id: string | null) => void;
   // Unit placement
@@ -372,7 +379,10 @@ export function DrawingToolbar({
   mode, color, drawWidth, drawArrowStyle, annotations, open, onToggle,
   onStartDrawing, onSetColor, onSetWidth, onSetArrowStyle, onCancel,
   onDeleteAnnotation, onRenameAnnotation, onToggleGlow, onToggleDash, onToggleLabel,
+  onToggleAnnotationFloat,
   onSetAnnotationColor, onSetAnnotationWidth,
+  drawGlow, drawDash, drawFloat,
+  onSetDrawGlow, onSetDrawDash, onSetDrawFloat,
   selectedAnnotationId, onSelectAnnotation,
   units, paths, placementMode, pendingColor, pathDrawingUnitId,
   onStartPlacement, onCancelPlacement, onSetPendingColor,
@@ -396,6 +406,11 @@ export function DrawingToolbar({
     else if (placementMode) onSetPendingColor(c);
     else onSetColor(c);
   }
+
+  const activeFloat = selectedAnn?.float ?? drawFloat;
+  const activeGlow = selectedAnn?.glow ?? drawGlow;
+  const activeDash = selectedAnn?.dash ?? drawDash;
+  const isPinContext = selectedAnn?.type === "pin" || (mode === "pin" && !selectedAnn);
 
   function startEdit(ann: Annotation) {
     setEditingId(ann.id);
@@ -445,9 +460,9 @@ export function DrawingToolbar({
     <CollapsePanel open={open} direction={direction}>
       <div className="glass-panel p-3 w-72 flex flex-col gap-3 mb-1">
 
-        {/* ── Draw tools ── */}
+        {/* ── Shapes ── */}
         <div>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Draw</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Shapes</span>
           <div className="grid grid-cols-4 gap-1.5">
             {drawTypes.map((m) => (
               <button
@@ -467,49 +482,87 @@ export function DrawingToolbar({
           </div>
         </div>
 
-        {/* ── Color row (unified) ── */}
-        <div className="flex items-center gap-2.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Color</span>
-          <div className="flex items-center gap-2 flex-wrap">
-            {DRAW_COLOR_PRESETS.map((c) => (
+        {/* ── Units ── */}
+        <div>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Units</span>
+          <div className="grid grid-cols-5 gap-1.5">
+            {NATO_TYPES.map((type) => (
               <button
-                key={c}
-                onClick={() => setActiveColor(c)}
-                style={{
-                  background: c,
-                  outline: activeColor === c ? `2px solid ${c}` : undefined,
-                  outlineOffset: activeColor === c ? "2px" : undefined,
-                  opacity: activeColor === c ? 1 : 0.55,
-                }}
-                className="size-5 rounded-full transition-all hover:opacity-100 hover:scale-110"
-                title={c}
-              />
+                key={type}
+                onClick={() => placementMode === type ? onCancelPlacement() : onStartPlacement(type)}
+                title={UNIT_FULL_LABELS[type]}
+                className={`flex flex-col items-center justify-center gap-1 rounded-lg py-2 text-[10px] font-medium transition-colors ${
+                  placementMode === type
+                    ? "bg-primary/20 text-primary ring-1 ring-primary/40"
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : pendingColor) }} />
+                <span>{UNIT_SHORT_LABELS[type]}</span>
+              </button>
             ))}
-            <ColorPickerButton color={activeColor} onChange={setActiveColor} />
           </div>
         </div>
 
-        {/* ── Width (unified, hidden for selected pins) ── */}
-        {!(selectedAnn?.type === "pin") && (
-          <div className="flex items-center gap-2.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Width</span>
-            <div className="flex flex-1 rounded-lg border border-border overflow-hidden">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((w) => (
-                <button
-                  key={w}
-                  onClick={() => selectedAnn ? onSetAnnotationWidth(selectedAnn.id, w) : onSetWidth(w)}
-                  className={`flex-1 py-1.5 text-[11px] font-medium transition-colors ${
-                    activeWidth === w
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {w}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* ── Control strip ── */}
+        <div className="flex items-stretch rounded-lg border border-border overflow-hidden">
+          {/* Color */}
+          <ColorPickerPopover color={activeColor} onChange={setActiveColor} side="left">
+            <button className="flex flex-1 flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-medium hover:bg-muted/40 transition-colors" title="Color">
+              <span className="size-3.5 rounded-full border border-white/20 shrink-0" style={{ background: activeColor }} />
+              <span className="text-muted-foreground">Color</span>
+            </button>
+          </ColorPickerPopover>
+
+          {/* Width — cycle on click, hidden for pins */}
+          {!isPinContext && (
+            <button
+              onClick={() => {
+                const next = activeWidth >= 8 ? 1 : activeWidth + 1;
+                selectedAnn ? onSetAnnotationWidth(selectedAnn.id, next) : onSetWidth(next);
+              }}
+              className="flex flex-1 flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-medium hover:bg-muted/40 transition-colors"
+              title="Width (click to cycle)"
+            >
+              <span className="font-bold text-sm leading-none text-foreground">{activeWidth}</span>
+              <span className="text-muted-foreground">Width</span>
+            </button>
+          )}
+
+          {/* Float — hidden for pins */}
+          {!isPinContext && (
+            <ToggleChip
+              active={activeFloat}
+              onClick={() => selectedAnn ? onToggleAnnotationFloat(selectedAnn.id) : onSetDrawFloat(!drawFloat)}
+              activeClass="text-violet-300 bg-violet-400/10"
+              icon={activeFloat ? <Layers className="size-3" /> : <MapIcon className="size-3" />}
+              label={activeFloat ? "Float" : "Map"}
+              title={activeFloat ? "Switch to on-map (drapes terrain)" : "Switch to float (SVG overlay)"}
+            />
+          )}
+
+          {/* Glow */}
+          <ToggleChip
+            active={activeGlow}
+            onClick={() => selectedAnn ? onToggleGlow(selectedAnn.id) : onSetDrawGlow(!drawGlow)}
+            activeClass="text-yellow-300 bg-yellow-400/10"
+            icon={<Sparkles className="size-3" />}
+            label="Glow"
+            title="Toggle glow effect"
+          />
+
+          {/* Dash — hidden for pins */}
+          {!isPinContext && (
+            <ToggleChip
+              active={activeDash}
+              onClick={() => selectedAnn ? onToggleDash(selectedAnn.id) : onSetDrawDash(!drawDash)}
+              activeClass="text-sky-300 bg-sky-400/10"
+              icon={<Minus className="size-3" />}
+              label="Dash"
+              title="Toggle dashed"
+            />
+          )}
+        </div>
 
         {/* ── Arrow style toggle ── */}
         {(mode === "arrow" || selectedAnn?.type === "arrow") && (
@@ -522,38 +575,6 @@ export function DrawingToolbar({
                 { value: "simple" as const, label: "Simple →" },
                 { value: "jagged" as const, label: "Jagged ⟹" },
               ]}
-            />
-          </div>
-        )}
-
-        {/* ── Toggle chips: shown when annotation selected ── */}
-        {selectedAnn && (
-          <div className="flex items-stretch rounded-lg border border-border overflow-hidden">
-            <ToggleChip
-              active={selectedAnn.glow}
-              onClick={() => onToggleGlow(selectedAnn.id)}
-              activeClass="text-yellow-300 bg-yellow-400/10"
-              icon={<Sparkles className="size-3" />}
-              label="Glow"
-              title={selectedAnn.glow ? "Remove glow effect" : "Add pulsing glow"}
-            />
-            {selectedAnn.type !== "pin" && (
-              <ToggleChip
-                active={selectedAnn.dash}
-                onClick={() => onToggleDash(selectedAnn.id)}
-                activeClass="text-sky-300 bg-sky-400/10"
-                icon={<Minus className="size-3" />}
-                label="Dash"
-                title={selectedAnn.dash ? "Make solid" : "Make dashed"}
-              />
-            )}
-            <ToggleChip
-              active={selectedAnn.showLabel}
-              onClick={() => onToggleLabel(selectedAnn.id)}
-              activeClass="text-foreground bg-foreground/10"
-              icon={selectedAnn.showLabel ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
-              label="Label"
-              title={selectedAnn.showLabel ? "Hide label" : "Show label"}
             />
           </div>
         )}
@@ -580,38 +601,11 @@ export function DrawingToolbar({
         {mode && (
           <div className="rounded-lg bg-amber-400/10 border border-amber-400/20 px-3 py-2 flex items-start gap-2">
             <span className="size-1.5 rounded-full bg-amber-400 animate-pulse mt-1 shrink-0" />
-            <p className="text-[11px] leading-snug">
-              <span className="text-amber-400/90">{MODE_STATUS[mode]}</span>
-            </p>
+            <p className="text-[11px] leading-snug text-amber-400/90">{MODE_STATUS[mode]}</p>
           </div>
         )}
 
-        {/* ── Divider ── */}
-        <div className="border-t border-border" />
-
-        {/* ── Unit type grid ── */}
-        <div>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Units</span>
-          <div className="grid grid-cols-5 gap-1.5">
-            {NATO_TYPES.map((type) => (
-              <button
-                key={type}
-                onClick={() => placementMode === type ? onCancelPlacement() : onStartPlacement(type)}
-                title={UNIT_FULL_LABELS[type]}
-                className={`flex flex-col items-center justify-center gap-1 rounded-lg py-2 text-[10px] font-medium transition-colors ${
-                  placementMode === type
-                    ? "bg-primary/20 text-primary ring-1 ring-primary/40"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : pendingColor) }} />
-                <span>{UNIT_SHORT_LABELS[type]}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Active unit hints ── */}
+        {/* ── Active unit/path hints ── */}
         {placementMode && (
           <div className="rounded-lg bg-amber-400/10 border border-amber-400/20 px-3 py-2 flex items-start gap-2">
             <span className="size-1.5 rounded-full bg-amber-400 animate-pulse mt-1 shrink-0" />
