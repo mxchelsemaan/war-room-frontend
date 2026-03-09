@@ -291,7 +291,6 @@ function AtlasViewInner() {
                 onFinishPathDrawing={up.finishPathDrawing}
                 onCancelPathDrawing={up.cancelPathDrawing}
                 onDeletePath={up.deletePath}
-                direction="down"
                 showLabels={showLabels}
               />
             </div>
