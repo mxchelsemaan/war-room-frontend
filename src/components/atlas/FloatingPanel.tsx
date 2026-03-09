@@ -50,20 +50,15 @@ export function FloatingTriggerBtn({ onClick, children, className, showLabels = 
       onClick={onClick}
       aria-label={ariaLabel}
       className={cn(
-        "glass-panel flex items-center gap-1.5 px-3 py-3 md:px-2.5 md:py-2.5 min-h-[44px] md:min-h-0 text-xs font-semibold transition-colors hover:bg-muted",
+        "glass-panel flex items-center px-3 py-3 md:px-2.5 md:py-2.5 min-h-[44px] md:min-h-0 text-xs font-semibold transition-colors hover:bg-muted",
+        showLabels ? "gap-1.5" : "gap-0",
         className
       )}
     >
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) return child;
-        return (
-          <span
-            className="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-out"
-            style={{ maxWidth: showLabels ? "8rem" : "0", opacity: showLabels ? 1 : 0 }}
-          >
-            {child}
-          </span>
-        );
+        if (!showLabels) return null;
+        return <span className="whitespace-nowrap">{child}</span>;
       })}
     </button>
   );
