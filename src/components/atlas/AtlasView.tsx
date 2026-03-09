@@ -141,12 +141,14 @@ export function AtlasView() {
           >
             <SlidersHorizontal className="size-4" />
           </button>
-          <span
-            className="flex-1 text-center font-black text-[#c62828] uppercase tracking-tight"
-            style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontSize: '1rem' }}
-          >
-            War Room
-          </span>
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <span
+              className="font-black text-[#c62828] uppercase tracking-widest leading-none"
+              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontSize: '0.85rem', letterSpacing: '0.15em' }}
+            >
+              The War Room
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setFeedOpen(v => !v)}
@@ -161,47 +163,25 @@ export function AtlasView() {
       ) : (
         /* Desktop header */
         <div
-          className="relative z-[70] flex h-28 shrink-0 items-center border-b border-border transition-all duration-200"
+          className="relative z-[70] flex h-20 shrink-0 items-center border-b border-border transition-all duration-200"
           style={{
             paddingLeft: filterOpen ? 288 : 56,
             paddingRight: feedOpen ? 288 : 56,
           }}
         >
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ paddingTop: '22px', paddingBottom: '10px' }}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none">
             <h1
-              style={{
-                fontFamily: "'Inter Tight', system-ui, sans-serif",
-                fontWeight: 900,
-                fontSize: '2rem',
-                color: '#c62828',
-                letterSpacing: '-0.02em',
-                textTransform: 'uppercase',
-                fontVariantCaps: 'all-small-caps',
-                lineHeight: 0.8,
-                transform: 'scale(0.8, 2.6)',
-                transformOrigin: 'center center',
-                marginBottom: '8px',
-              }}
+              className="font-black text-[#c62828] uppercase tracking-widest leading-none"
+              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontSize: '1.5rem', letterSpacing: '0.2em' }}
             >
-              The ◆ War ◆ Room
+              The War Room
             </h1>
-            <div style={{ width: '60%', height: '3px', background: '#c62828', marginBottom: '8px' }} />
-            <span
-              style={{
-                fontFamily: "'Inter Tight', system-ui, sans-serif",
-                fontWeight: 700,
-                fontSize: '1.1rem',
-                color: 'var(--muted-foreground)',
-                letterSpacing: '-0.02em',
-                textTransform: 'uppercase',
-                lineHeight: 1,
-                transform: 'scale(0.8, 2.0)',
-                transformOrigin: 'center center',
-                display: 'block',
-              }}
+            <p
+              className="uppercase tracking-widest text-muted-foreground leading-none"
+              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontWeight: 500, fontSize: '0.65rem', letterSpacing: '0.25em' }}
             >
-              2026 Israeli Campaign in Lebanon Monitor
-            </span>
+              2026 Israeli Campaign in Lebanon — Live Monitor
+            </p>
           </div>
           <div className="absolute flex items-center gap-3" style={{ right: 56 + 16 }}>
             <SettingsMenu dark={dark} onToggleTheme={toggleTheme} showLabels={showLabels} onToggleLabels={toggleLabels} />
