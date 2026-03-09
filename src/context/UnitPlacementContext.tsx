@@ -26,6 +26,7 @@ export function UnitPlacementProvider({ children }: { children: React.ReactNode 
     setPendingColor: up.setPendingColor,
     updateUnit: up.updateUnit,
     deleteUnit: up.deleteUnit,
+    reorderUnit: up.reorderUnit,
     startPathDrawing: up.startPathDrawing,
     addWaypoint: up.addWaypoint,
     finishPathDrawing: up.finishPathDrawing,
@@ -35,7 +36,7 @@ export function UnitPlacementProvider({ children }: { children: React.ReactNode 
     up.units, up.paths, up.placementMode, up.pendingColor,
     up.pathDrawingUnitId, up.tempPathCoords,
     up.startPlacement, up.cancelPlacement, up.placeUnit,
-    up.setPendingColor, up.updateUnit, up.deleteUnit,
+    up.setPendingColor, up.updateUnit, up.deleteUnit, up.reorderUnit,
     up.startPathDrawing, up.addWaypoint, up.finishPathDrawing,
     up.cancelPathDrawing, up.deletePath,
   ]);

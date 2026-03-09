@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BookMarked, Trash2, Sparkles, Minus, Layers, Map as MapIcon,
-  Route, Play, Pause, X, MapPin, Spline, MoveRight, Pentagon,
+  Route, Play, Pause, X, MapPin, Spline, MoveRight, Pentagon, GripVertical,
+  ArrowUpDown, Target, Circle,
 } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { ColorPickerButton } from "./ColorPickerPopover";
@@ -38,6 +39,7 @@ function SectionHeader({ label, count }: { label: string; count: number }) {
 
 interface AnnItemRowProps {
   ann: Annotation;
+  index: number;
   expanded: boolean;
   onToggle: () => void;
   onDelete: () => void;
@@ -47,11 +49,15 @@ interface AnnItemRowProps {
   onToggleGlow: () => void;
   onToggleDash: () => void;
   onToggleFloat: () => void;
+  onDragStart: (index: number) => void;
+  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDrop: (index: number) => void;
 }
 
 function AnnItemRow({
-  ann, expanded, onToggle, onDelete, onRename,
+  ann, index, expanded, onToggle, onDelete, onRename,
   onSetColor, onSetWidth, onToggleGlow, onToggleDash, onToggleFloat,
+  onDragStart, onDragOver, onDrop,
 }: AnnItemRowProps) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [editValue, setEditValue] = useState(ann.label);
@@ -63,11 +69,20 @@ function AnnItemRow({
   }
 
   return (
-    <div className={`flex flex-col rounded-lg border overflow-hidden mb-1 transition-colors ${
-      expanded ? "border-primary/40 bg-primary/5" : "border-border/40 bg-muted/30 hover:bg-muted/50"
-    }`}>
+    <div
+      className={`flex flex-col rounded-lg border overflow-hidden mb-1 transition-colors ${
+        expanded ? "border-primary/40 bg-primary/5" : "border-border/40 bg-muted/30 hover:bg-muted/50"
+      }`}
+      draggable
+      onDragStart={() => onDragStart(index)}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDrop={() => onDrop(index)}
+    >
       {/* Main row */}
       <div className="flex items-center gap-2 px-2.5 py-1.5 cursor-pointer" onClick={onToggle}>
+        <span className="shrink-0 text-muted-foreground/30 cursor-grab active:cursor-grabbing">
+          <GripVertical className="size-3.5" />
+        </span>
         <span
           className="size-3 rounded-full shrink-0 ring-1 ring-white/20"
           style={{ background: ann.color }}
@@ -187,21 +202,26 @@ function AnnItemRow({
 interface UnitItemRowProps {
   unit: PlacedUnit;
   path: UnitPath | undefined;
+  index: number;
   expanded: boolean;
   onToggle: () => void;
   pathDrawingUnitId: string | null;
-  onUpdateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "glow" | "animating" | "loopMs">>) => void;
+  onUpdateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "effect" | "bearing" | "target" | "groundCircle" | "animating" | "loopMs">>) => void;
   onDeleteUnit: (id: string) => void;
   onStartPathDrawing: (unitId: string) => void;
   onFinishPathDrawing: () => void;
   onCancelPathDrawing: () => void;
   onDeletePath: (unitId: string) => void;
+  onDragStart: (index: number) => void;
+  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDrop: (index: number) => void;
 }
 
 function UnitItemRow({
-  unit, path, expanded, onToggle, pathDrawingUnitId,
+  unit, path, index, expanded, onToggle, pathDrawingUnitId,
   onUpdateUnit, onDeleteUnit,
   onStartPathDrawing, onFinishPathDrawing, onCancelPathDrawing, onDeletePath,
+  onDragStart, onDragOver, onDrop,
 }: UnitItemRowProps) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [editValue, setEditValue] = useState(unit.label);
@@ -214,11 +234,20 @@ function UnitItemRow({
   }
 
   return (
-    <div className={`flex flex-col rounded-lg border overflow-hidden mb-1 transition-colors ${
-      expanded ? "border-primary/40 bg-primary/5" : "border-border/40 bg-muted/30 hover:bg-muted/50"
-    }`}>
+    <div
+      className={`flex flex-col rounded-lg border overflow-hidden mb-1 transition-colors ${
+        expanded ? "border-primary/40 bg-primary/5" : "border-border/40 bg-muted/30 hover:bg-muted/50"
+      }`}
+      draggable
+      onDragStart={() => onDragStart(index)}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDrop={() => onDrop(index)}
+    >
       {/* Main row */}
       <div className="flex items-center gap-2 px-2.5 py-1.5 cursor-pointer" onClick={onToggle}>
+        <span className="shrink-0 text-muted-foreground/30 cursor-grab active:cursor-grabbing">
+          <GripVertical className="size-3.5" />
+        </span>
         <span
           className="size-3 rounded-full shrink-0 ring-1 ring-white/20"
           style={{ background: unit.color }}
@@ -356,6 +385,118 @@ function UnitItemRow({
   );
 }
 
+/* ── SavedItemsContent (reusable, reads from context) ───────── */
+
+export function SavedItemsContent() {
+  const ann = useAnnotationContext();
+  const up = useUnitPlacementContext();
+  const [expandedAnnId, setExpandedAnnId] = useState<string | null>(null);
+  const [expandedUnitId, setExpandedUnitId] = useState<string | null>(null);
+
+  const dragAnnIdx = useRef<number>(-1);
+  const dragUnitIdx = useRef<number>(-1);
+
+  const total = ann.annotations.length + up.units.length;
+
+  useEffect(() => {
+    if (ann.selectedAnnotationId) {
+      setExpandedAnnId(ann.selectedAnnotationId);
+    }
+  }, [ann.selectedAnnotationId]);
+
+  function handleStartPathDrawing(unitId: string) {
+    ann.cancel();
+    up.startPathDrawing(unitId);
+  }
+
+  function handleAnnDragOver(e: React.DragEvent, _index: number) {
+    e.preventDefault();
+  }
+
+  function handleAnnDrop(toIndex: number) {
+    if (dragAnnIdx.current !== -1 && dragAnnIdx.current !== toIndex) {
+      ann.reorderAnnotation(ann.annotations[dragAnnIdx.current].id, toIndex);
+    }
+    dragAnnIdx.current = -1;
+  }
+
+  function handleUnitDragOver(e: React.DragEvent, _index: number) {
+    e.preventDefault();
+  }
+
+  function handleUnitDrop(toIndex: number) {
+    if (dragUnitIdx.current !== -1 && dragUnitIdx.current !== toIndex) {
+      up.reorderUnit(up.units[dragUnitIdx.current].id, toIndex);
+    }
+    dragUnitIdx.current = -1;
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {total === 0 && (
+        <p className="text-[11px] text-muted-foreground/40 italic text-center py-4">
+          No shapes or units yet
+        </p>
+      )}
+
+      {ann.annotations.length > 0 && (
+        <>
+          <SectionHeader label="Shapes" count={ann.annotations.length} />
+          {ann.annotations.map((a, i) => (
+            <AnnItemRow
+              key={a.id}
+              ann={a}
+              index={i}
+              expanded={expandedAnnId === a.id}
+              onToggle={() => setExpandedAnnId(expandedAnnId === a.id ? null : a.id)}
+              onDelete={() => ann.deleteAnnotation(a.id)}
+              onRename={(label) => ann.renameAnnotation(a.id, label)}
+              onSetColor={(c) => ann.setAnnotationColor(a.id, c)}
+              onSetWidth={(w) => ann.setAnnotationWidth(a.id, w)}
+              onToggleGlow={() => ann.toggleGlow(a.id)}
+              onToggleDash={() => ann.toggleDash(a.id)}
+              onToggleFloat={() => ann.toggleAnnotationFloat(a.id)}
+              onDragStart={(idx) => { dragAnnIdx.current = idx; }}
+              onDragOver={handleAnnDragOver}
+              onDrop={handleAnnDrop}
+            />
+          ))}
+        </>
+      )}
+
+      {ann.annotations.length > 0 && up.units.length > 0 && (
+        <div className="border-t border-border/40 my-2" />
+      )}
+
+      {up.units.length > 0 && (
+        <>
+          <SectionHeader label="Units" count={up.units.length} />
+          {up.units.map((u, i) => (
+            <UnitItemRow
+              key={u.id}
+              unit={u}
+              path={up.paths.find((p) => p.id === u.pathId)}
+              index={i}
+              expanded={expandedUnitId === u.id}
+              onToggle={() => setExpandedUnitId(expandedUnitId === u.id ? null : u.id)}
+              pathDrawingUnitId={up.pathDrawingUnitId}
+              onUpdateUnit={up.updateUnit}
+              onDeleteUnit={up.deleteUnit}
+              onStartPathDrawing={handleStartPathDrawing}
+              onFinishPathDrawing={up.finishPathDrawing}
+              onCancelPathDrawing={up.cancelPathDrawing}
+              onDeletePath={up.deletePath}
+              onDragStart={(idx) => { dragUnitIdx.current = idx; }}
+              onDragOver={handleUnitDragOver}
+              onDrop={handleUnitDrop}
+            />
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ── Main component ─────────────────────────────────────────── */
 
 interface SavedItemsPanelProps {
@@ -367,22 +508,7 @@ interface SavedItemsPanelProps {
 export function SavedItemsPanel({ open, onToggle, showLabels }: SavedItemsPanelProps) {
   const ann = useAnnotationContext();
   const up = useUnitPlacementContext();
-  const [expandedAnnId, setExpandedAnnId] = useState<string | null>(null);
-  const [expandedUnitId, setExpandedUnitId] = useState<string | null>(null);
-
   const total = ann.annotations.length + up.units.length;
-
-  // Auto-expand when an annotation is selected externally (e.g. click on map)
-  useEffect(() => {
-    if (ann.selectedAnnotationId) {
-      setExpandedAnnId(ann.selectedAnnotationId);
-    }
-  }, [ann.selectedAnnotationId]);
-
-  function handleStartPathDrawing(unitId: string) {
-    ann.cancel();
-    up.startPathDrawing(unitId);
-  }
 
   return (
     <>
@@ -402,62 +528,7 @@ export function SavedItemsPanel({ open, onToggle, showLabels }: SavedItemsPanelP
 
       <CollapsePanel open={open} direction="down">
         <div className="glass-panel p-2 w-64 max-h-[calc(60vh-3rem)] overflow-y-auto mt-1">
-          {/* Empty state */}
-          {total === 0 && (
-            <p className="text-[11px] text-muted-foreground/40 italic text-center py-4">
-              No shapes or units yet
-            </p>
-          )}
-
-          {/* Shapes section */}
-          {ann.annotations.length > 0 && (
-            <>
-              <SectionHeader label="Shapes" count={ann.annotations.length} />
-              {ann.annotations.map((a) => (
-                <AnnItemRow
-                  key={a.id}
-                  ann={a}
-                  expanded={expandedAnnId === a.id}
-                  onToggle={() => setExpandedAnnId(expandedAnnId === a.id ? null : a.id)}
-                  onDelete={() => ann.deleteAnnotation(a.id)}
-                  onRename={(label) => ann.renameAnnotation(a.id, label)}
-                  onSetColor={(c) => ann.setAnnotationColor(a.id, c)}
-                  onSetWidth={(w) => ann.setAnnotationWidth(a.id, w)}
-                  onToggleGlow={() => ann.toggleGlow(a.id)}
-                  onToggleDash={() => ann.toggleDash(a.id)}
-                  onToggleFloat={() => ann.toggleAnnotationFloat(a.id)}
-                />
-              ))}
-            </>
-          )}
-
-          {/* Divider between sections */}
-          {ann.annotations.length > 0 && up.units.length > 0 && (
-            <div className="border-t border-border/40 my-2" />
-          )}
-
-          {/* Units section */}
-          {up.units.length > 0 && (
-            <>
-              <SectionHeader label="Units" count={up.units.length} />
-              {up.units.map((u) => (
-                <UnitItemRow
-                  key={u.id}
-                  unit={u}
-                  path={up.paths.find((p) => p.id === u.pathId)}
-                  expanded={expandedUnitId === u.id}
-                  onToggle={() => setExpandedUnitId(expandedUnitId === u.id ? null : u.id)}
-                  pathDrawingUnitId={up.pathDrawingUnitId}
-                  onUpdateUnit={up.updateUnit}
-                  onDeleteUnit={up.deleteUnit}
-                  onStartPathDrawing={handleStartPathDrawing}
-                  onFinishPathDrawing={up.finishPathDrawing}
-                  onCancelPathDrawing={up.cancelPathDrawing}
-                  onDeletePath={up.deletePath}
-                />
-              ))}
-            </>
-          )}
+          <SavedItemsContent />
         </div>
       </CollapsePanel>
     </>

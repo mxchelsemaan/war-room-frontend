@@ -29,8 +29,9 @@ export interface UseUnitPlacementResult {
   placeUnit: (lngLat: [number, number]) => void;
 
   setPendingColor: (color: string) => void;
-  updateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "glow" | "animating" | "loopMs">>) => void;
+  updateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "effect" | "bearing" | "target" | "groundCircle" | "animating" | "loopMs">>) => void;
   deleteUnit: (id: string) => void;
+  reorderUnit: (id: string, toIndex: number) => void;
 
   startPathDrawing: (unitId: string) => void;
   addWaypoint: (lngLat: [number, number]) => void;
@@ -78,7 +79,10 @@ export function useUnitPlacement(): UseUnitPlacementResult {
       unitType: type,
       color: pendingColorRef.current,
       label: `${UNIT_LABELS[type]} ${unitCounterRef.current}`,
-      glow: false,
+      effect: "none",
+      bearing: 0,
+      target: false,
+      groundCircle: false,
       position: lngLat,
       pathId: null,
       loopMs: DEFAULT_LOOP_MS,
@@ -88,7 +92,7 @@ export function useUnitPlacement(): UseUnitPlacementResult {
     setPlacementMode(null);
   }, []);
 
-  const updateUnit = useCallback((id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "glow" | "animating" | "loopMs">>) => {
+  const updateUnit = useCallback((id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "effect" | "bearing" | "target" | "groundCircle" | "animating" | "loopMs">>) => {
     setUnits(prev => prev.map(u => u.id === id ? { ...u, ...changes } : u));
   }, []);
 
@@ -99,6 +103,17 @@ export function useUnitPlacement(): UseUnitPlacementResult {
         setPaths(pp => pp.filter(p => p.id !== unit.pathId));
       }
       return prev.filter(u => u.id !== id);
+    });
+  }, []);
+
+  const reorderUnit = useCallback((id: string, toIndex: number) => {
+    setUnits(prev => {
+      const from = prev.findIndex(u => u.id === id);
+      if (from === -1) return prev;
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(toIndex, 0, item);
+      return next;
     });
   }, []);
 
@@ -177,7 +192,7 @@ export function useUnitPlacement(): UseUnitPlacementResult {
   return {
     units, paths, placementMode, pendingColor, pathDrawingUnitId, tempPathCoords,
     startPlacement, cancelPlacement, placeUnit,
-    setPendingColor, updateUnit, deleteUnit,
+    setPendingColor, updateUnit, deleteUnit, reorderUnit,
     startPathDrawing, addWaypoint, finishPathDrawing, cancelPathDrawing, deletePath,
   };
 }

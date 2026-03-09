@@ -34,6 +34,7 @@ interface AnnotationContextValue {
   toggleAnnotationFloat: (id: string) => void;
   setAnnotationColor: (id: string, color: string) => void;
   setAnnotationWidth: (id: string, width: number) => void;
+  reorderAnnotation: (id: string, toIndex: number) => void;
 }
 
 const AnnotationCtx = createContext<AnnotationContextValue | null>(null);
@@ -89,6 +90,17 @@ export function AnnotationProvider({ children }: { children: React.ReactNode }) 
     setAnnotations(prev => prev.map(a => a.id === id ? { ...a, width } : a));
   }, []);
 
+  const reorderAnnotation = useCallback((id: string, toIndex: number) => {
+    setAnnotations(prev => {
+      const from = prev.findIndex(a => a.id === id);
+      if (from === -1) return prev;
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(toIndex, 0, item);
+      return next;
+    });
+  }, []);
+
   const value = useMemo<AnnotationContextValue>(() => ({
     mode: drawing.mode,
     color: drawing.color,
@@ -119,6 +131,7 @@ export function AnnotationProvider({ children }: { children: React.ReactNode }) 
     toggleAnnotationFloat,
     setAnnotationColor,
     setAnnotationWidth,
+    reorderAnnotation,
   }), [
     drawing.mode, drawing.color, drawing.drawWidth, drawing.drawArrowStyle,
     drawing.drawGlow, drawing.drawDash, drawing.drawFloat, drawing.tempCoords,
@@ -127,7 +140,7 @@ export function AnnotationProvider({ children }: { children: React.ReactNode }) 
     drawing.handleClick, drawing.handleDblClick, drawing.cancel,
     annotations, selectedAnnotationId,
     deleteAnnotation, renameAnnotation, toggleGlow, toggleDash, toggleLabel,
-    toggleAnnotationFloat, setAnnotationColor, setAnnotationWidth,
+    toggleAnnotationFloat, setAnnotationColor, setAnnotationWidth, reorderAnnotation,
   ]);
 
   return (
