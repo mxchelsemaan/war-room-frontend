@@ -37,7 +37,7 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
   return (
     <div className="flex flex-col items-end gap-1">
       <CollapsePanel open={open}>
-        <div className="glass-panel p-1.5 rounded-xl shadow-xl mb-1 flex items-center gap-1">
+        <div className="glass-panel p-1.5 rounded-xl mb-1 flex items-center gap-1">
           {/* Left: zoom + home */}
           <div className="flex flex-col items-center gap-px">
             <Btn onClick={() => zoom(1)} title="Zoom in" label="In" showLabels={showLabels} large={isMobile}><ZoomIn className="size-3.5" /></Btn>

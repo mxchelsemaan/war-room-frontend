@@ -446,9 +446,7 @@ export function DrawingToolbar({
       {placementMode
         ? <Crosshair className="size-3.5" />
         : mode ? TYPE_ICON[mode] : <Pencil className="size-3.5" />}
-      {placementMode ? UNIT_FULL_LABELS[placementMode]
-        : pathDrawingUnitId ? "Drawing Path"
-        : mode ? MODE_LABEL[mode] : "Annotate"}
+      {"Annotate"}
       {totalCount > 0 && (
         <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground leading-none">
           {totalCount}

@@ -95,7 +95,7 @@ export function DatePicker({
       onClick={() => setMode(m)}
       className={`text-xs px-2.5 py-0.5 rounded transition-colors ${
         mode === m
-          ? "bg-card text-foreground shadow-sm"
+          ? "bg-card text-foreground"
           : "text-muted-foreground hover:text-foreground"
       }`}
     >

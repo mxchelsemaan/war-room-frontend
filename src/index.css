@@ -31,7 +31,7 @@
   border: 1px solid var(--border) !important;
   border-radius: 0.75rem !important;
   padding: 10px 12px 10px 12px !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: none !important;
   color: var(--foreground) !important;
   font-family: var(--font-geist-sans), system-ui, sans-serif !important;
   min-width: 160px;
@@ -141,7 +141,7 @@
 
 @layer utilities {
   .glass-panel {
-    @apply rounded-xl border border-border bg-card/90 shadow-xl backdrop-blur-sm;
+    @apply rounded-xl border border-border bg-card/90 backdrop-blur-sm;
   }
 }
 

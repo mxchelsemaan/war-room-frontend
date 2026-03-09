@@ -96,7 +96,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
                     {label}
                   </span>
                   <span className={`ml-auto h-4 w-7 rounded-full border border-border transition-colors ${layers[key] ? "bg-primary" : "bg-muted"}`}>
-                    <span className={`block h-4 w-4 rounded-full border border-border bg-card shadow transition-transform ${layers[key] ? "translate-x-3" : "translate-x-0"}`} />
+                    <span className={`block h-4 w-4 rounded-full border border-border bg-card transition-transform ${layers[key] ? "translate-x-3" : "translate-x-0"}`} />
                   </span>
                 </button>
               ))}
