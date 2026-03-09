@@ -33,8 +33,7 @@ export function natoSVG(type: NATOUnitType, color: string): string {
 }
 
 // Mini SVG for palette buttons (smaller viewBox subset)
-export function natoMiniSVG(type: NATOUnitType, color: string): string {
-  const bg = "#1a1a2e";
+export function natoMiniSVG(type: NATOUnitType, color: string, bg = "#1a1a2e"): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="22" viewBox="0 0 36 44">
     <rect x="2" y="8" width="32" height="26" rx="1.5" fill="${bg}"/>
     <rect x="2" y="8" width="32" height="26" rx="1.5" fill="none" stroke="${color}" stroke-width="2"/>

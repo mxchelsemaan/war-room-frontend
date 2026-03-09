@@ -303,7 +303,7 @@ export function UnitPalette({
                     : "hover:bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : pendingColor) }} />
+                <span dangerouslySetInnerHTML={{ __html: natoMiniSVG(type, placementMode === type ? "#60a5fa" : "#000000", placementMode === type ? "#1a1a2e" : "#ffffff") }} />
                 <span>{UNIT_SHORT_LABELS[type]}</span>
               </button>
             ))}

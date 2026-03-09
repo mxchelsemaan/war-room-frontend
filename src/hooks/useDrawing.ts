@@ -18,8 +18,8 @@ export interface Annotation {
 }
 
 export const DRAW_COLOR_PRESETS = [
-  "#ef4444", "#f97316", "#eab308", "#22c55e",
-  "#3b82f6", "#a855f7", "#ec4899", "#e2e8f0",
+  "#e2e8f0", "#000000", "#ef4444", "#f97316", "#eab308", "#22c55e",
+  "#3b82f6", "#a855f7", "#ec4899",
 ] as const;
 
 interface DrawingHookResult {
@@ -73,10 +73,16 @@ export function useDrawing(): DrawingHookResult {
   drawFloatRef.current = drawFloat;
   // Live ref updated synchronously — not derived from React state.
   const liveCoordsRef = useRef<[number, number][]>([]);
-  // Track last click time to detect double-clicks in handleClick itself.
-  const lastClickMsRef = useRef<number>(0);
+  // Pending single-click: commit point after this fires unless cancelled by a second click.
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The lngLat waiting to be committed by the pending timer.
+  const pendingCoordRef = useRef<[number, number] | null>(null);
 
   const finishDrawing = useCallback((m: AnnotationType) => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
     const coords = liveCoordsRef.current;
     if ((m === "line" || m === "arrow") && coords.length < 2) return;
     if (m === "area" && coords.length < 3) return;
@@ -97,14 +103,17 @@ export function useDrawing(): DrawingHookResult {
       arrowStyle: drawArrowStyleRef.current,
     });
     liveCoordsRef.current = [];
-    lastClickMsRef.current = 0;
     setMode(null);
     setTempCoords([]);
   }, []);
 
   const startDrawing = useCallback((m: AnnotationType) => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+    pendingCoordRef.current = null;
     liveCoordsRef.current = [];
-    lastClickMsRef.current = 0;
     setMode(m);
     setTempCoords([]);
   }, []);
@@ -136,28 +145,42 @@ export function useDrawing(): DrawingHookResult {
         arrowStyle: drawArrowStyleRef.current,
       });
       liveCoordsRef.current = [];
-      lastClickMsRef.current = 0;
       setMode(null);
       setTempCoords([]);
       return;
     }
 
-    const now = Date.now();
-    const isDbl = (now - lastClickMsRef.current) < 400;
-
-    if (isDbl) {
-      // Double-click detected via timing — finish without adding this point.
+    // Timer-debounce double-click detection:
+    // If a pending timer exists, this is the second click of a double-click — finish.
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+      // Commit the pending point (from click 1 of dblclick) so the last segment is included.
+      const pending = pendingCoordRef.current;
+      pendingCoordRef.current = null;
+      if (pending) {
+        liveCoordsRef.current = [...liveCoordsRef.current, pending];
+      }
       finishDrawing(m);
-    } else {
-      lastClickMsRef.current = now;
+      return;
+    }
+
+    // First click: wait 300ms before committing the point.
+    // If a second click arrives within that window, it cancels this timer (above).
+    pendingCoordRef.current = lngLat;
+    clickTimerRef.current = setTimeout(() => {
+      clickTimerRef.current = null;
+      pendingCoordRef.current = null;
+      if (!modeRef.current) return; // cancelled in the meantime
       const next: [number, number][] = [...liveCoordsRef.current, lngLat];
       liveCoordsRef.current = next;
       setTempCoords(next);
-    }
+    }, 300);
   }, [finishDrawing]);
 
-  // Fallback: fires when MapLibre emits dblclick without a preceding second click.
-  // If handleClick already finished drawing, mode is null and this is a no-op.
+  // Fired by MapLibre's native dblclick event — reliable fallback.
+  // The timer approach in handleClick already handles most cases, but if MapLibre
+  // fires dblclick without two preceding click events, this catches it.
   const handleDblClick = useCallback((_lngLat: [number, number]) => {
     const m = modeRef.current;
     if (!m || m === "pin") return;
@@ -165,8 +188,12 @@ export function useDrawing(): DrawingHookResult {
   }, [finishDrawing]);
 
   const cancel = useCallback(() => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+    pendingCoordRef.current = null;
     liveCoordsRef.current = [];
-    lastClickMsRef.current = 0;
     setMode(null);
     setTempCoords([]);
   }, []);

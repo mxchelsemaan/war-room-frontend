@@ -129,6 +129,7 @@ export function AtlasMap({
   const riverStep = useRef(0);
   const lastRiver = useRef(0);
   const lastGlow  = useRef(0);
+  const lastSky   = useRef(0);
 
   const layersRef = useRef(layers);
   const eventsRef = useRef(events);
@@ -191,6 +192,29 @@ export function AtlasMap({
         lastGlow.current = ts;
       }
 
+      // Sky cloud shimmer — very slow drift of atmosphere-blend + horizon brightness (~6fps)
+      if (layersRef.current.terrain && ts - lastSky.current > 160) {
+        // Two independent sine waves at different periods give irregular cloud-light variation
+        const s1 = Math.sin((ts / 18000) * Math.PI * 2);       // ~18 s cycle
+        const s2 = Math.sin((ts /  7300) * Math.PI * 2 + 1.4); //  ~7 s offset cycle
+        const drift = (s1 * 0.6 + s2 * 0.4) * 0.5 + 0.5;       // 0..1, weighted mix
+        // atmosphere-blend: 0.62 (light cloud) → 0.82 (thick overcast)
+        const atmo = 0.62 + drift * 0.20;
+        // horizon brightens slightly as light diffuses through cloud cover
+        const hBright = Math.round(200 + drift * 20);
+        const hColor = `rgb(${hBright},${Math.round(hBright * 0.97)},${Math.round(hBright * 0.94)})`;
+        m.setSky({
+          "sky-color":        "#8fa4b5",
+          "horizon-color":    hColor,
+          "fog-color":        "#c4ae88",
+          "fog-ground-blend": 0.38,
+          "horizon-fog-blend":0.55,
+          "sky-horizon-blend":0.42,
+          "atmosphere-blend": atmo,
+        });
+        lastSky.current = ts;
+      }
+
       animRef.current = requestAnimationFrame(frame);
     }
 
@@ -213,7 +237,16 @@ export function AtlasMap({
     if (layers.terrain) {
       map.setTerrain({ source: "terrain-dem", exaggeration: 5.0 });
       map.easeTo({ pitch: 65, duration: 600 });
-      map.setSky({ "atmosphere-blend": 0.5 });
+      // Initial sky — animation loop drifts atmosphere-blend for a cloudy shimmer
+      map.setSky({
+        "sky-color":        "#8fa4b5",
+        "horizon-color":    "#cad6de",
+        "fog-color":        "#c4ae88",
+        "fog-ground-blend": 0.38,
+        "horizon-fog-blend":0.55,
+        "sky-horizon-blend":0.42,
+        "atmosphere-blend": 0.72,
+      });
     } else {
       map.setTerrain(null);
       map.easeTo({ pitch: 0, duration: 600 });
@@ -935,6 +968,12 @@ export function AtlasMap({
           </Popup>
         )}
       </Map>
+
+      {/* ── Strategy-game vignette — dims distant areas, focuses on center ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse 55% 65% at 50% 50%, transparent 0%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.52) 80%, rgba(0,0,0,0.72) 100%)" }}
+      />
 
       {/* ── Float annotation overlay (SVG, screen-space) — renders per-annotation floated ones ── */}
       {mapLoaded && (
