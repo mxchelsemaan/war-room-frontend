@@ -71,17 +71,8 @@ export function useDrawing(): DrawingHookResult {
   drawFloatRef.current = drawFloat;
   // Live ref updated synchronously — not derived from React state.
   const liveCoordsRef = useRef<[number, number][]>([]);
-  // Pending single-click: commit point after this fires unless cancelled by a second click.
-  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // The lngLat waiting to be committed by the pending timer.
-  const pendingCoordRef = useRef<[number, number] | null>(null);
 
-  const finishDrawing = useCallback((m: AnnotationType) => {
-    if (clickTimerRef.current) {
-      clearTimeout(clickTimerRef.current);
-      clickTimerRef.current = null;
-    }
-    const coords = liveCoordsRef.current;
+  const finishDrawing = useCallback((coords: [number, number][], m: AnnotationType) => {
     if ((m === "line" || m === "arrow") && coords.length < 2) return;
     if (m === "area" && coords.length < 3) return;
     const finalCoords = m === "area" ? [...coords, coords[0]] : coords;
@@ -106,11 +97,6 @@ export function useDrawing(): DrawingHookResult {
   }, []);
 
   const startDrawing = useCallback((m: AnnotationType) => {
-    if (clickTimerRef.current) {
-      clearTimeout(clickTimerRef.current);
-      clickTimerRef.current = null;
-    }
-    pendingCoordRef.current = null;
     liveCoordsRef.current = [];
     setMode(m);
     setTempCoords([]);
@@ -123,6 +109,7 @@ export function useDrawing(): DrawingHookResult {
   const setDrawDash = useCallback((v: boolean) => setDrawDashState(v), []);
   const setDrawFloat = useCallback((v: boolean) => setDrawFloatState(v), []);
 
+  // click always adds a point — no timers, no debounce.
   const handleClick = useCallback((lngLat: [number, number]) => {
     const m = modeRef.current;
     if (!m) return;
@@ -148,49 +135,24 @@ export function useDrawing(): DrawingHookResult {
       return;
     }
 
-    // Timer-debounce double-click detection:
-    // If a pending timer exists, this is the second click of a double-click — finish.
-    if (clickTimerRef.current) {
-      clearTimeout(clickTimerRef.current);
-      clickTimerRef.current = null;
-      // Commit the pending point (from click 1 of dblclick) so the last segment is included.
-      const pending = pendingCoordRef.current;
-      pendingCoordRef.current = null;
-      if (pending) {
-        liveCoordsRef.current = [...liveCoordsRef.current, pending];
-      }
-      finishDrawing(m);
-      return;
-    }
+    const next: [number, number][] = [...liveCoordsRef.current, lngLat];
+    liveCoordsRef.current = next;
+    setTempCoords(next);
+  }, []);
 
-    // First click: wait 300ms before committing the point.
-    // If a second click arrives within that window, it cancels this timer (above).
-    pendingCoordRef.current = lngLat;
-    clickTimerRef.current = setTimeout(() => {
-      clickTimerRef.current = null;
-      pendingCoordRef.current = null;
-      if (!modeRef.current) return; // cancelled in the meantime
-      const next: [number, number][] = [...liveCoordsRef.current, lngLat];
-      liveCoordsRef.current = next;
-      setTempCoords(next);
-    }, 300);
-  }, [finishDrawing]);
-
-  // Fired by MapLibre's native dblclick event — reliable fallback.
-  // The timer approach in handleClick already handles most cases, but if MapLibre
-  // fires dblclick without two preceding click events, this catches it.
+  // dblclick finishes drawing. MapLibre fires two click events before dblclick,
+  // so the last point in liveCoordsRef was added by the second of those clicks —
+  // remove it before saving to give the correct vertex count.
   const handleDblClick = useCallback((_lngLat: [number, number]) => {
     const m = modeRef.current;
     if (!m || m === "pin") return;
-    finishDrawing(m);
+    const coords = liveCoordsRef.current;
+    const trimmed = coords.length > 0 ? coords.slice(0, -1) : coords;
+    liveCoordsRef.current = trimmed;
+    finishDrawing(trimmed, m);
   }, [finishDrawing]);
 
   const cancel = useCallback(() => {
-    if (clickTimerRef.current) {
-      clearTimeout(clickTimerRef.current);
-      clickTimerRef.current = null;
-    }
-    pendingCoordRef.current = null;
     liveCoordsRef.current = [];
     setMode(null);
     setTempCoords([]);
