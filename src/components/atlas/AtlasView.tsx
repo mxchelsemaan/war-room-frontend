@@ -188,7 +188,15 @@ function AtlasViewInner() {
               2026 Israeli Campaign in Lebanon — Live Monitor
             </p>
           </div>
-          <div className="absolute flex items-center gap-3" style={{ right: 56 + 16 }}>
+          <div
+            className="absolute flex items-center justify-center transition-all duration-200"
+            style={{
+              right: 0,
+              width: isPanelOpen('feed') ? 320 : 56,
+              top: 0,
+              bottom: 0,
+            }}
+          >
             <SettingsMenu dark={dark} onToggleTheme={toggleTheme} showLabels={showLabels} onToggleLabels={toggleLabels} />
           </div>
         </div>
@@ -237,7 +245,7 @@ function AtlasViewInner() {
               onToggle={() => togglePanel('briefing')}
             />
             {/* Top-center: briefing trigger */}
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+            <div className="absolute top-14 left-1/2 -translate-x-1/2 z-20">
               <FloatingTriggerBtn
                 onClick={() => togglePanel('briefing')}
                 aria-label={isPanelOpen('briefing') ? "Close briefing" : "Open briefing"}
