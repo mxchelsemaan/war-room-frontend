@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Pencil, MapPin, Spline, Pentagon, MoveRight, Sparkles, Trash2, Minus, Map as MapIcon, Layers, Crosshair, Route, Play, Pause, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
-import { ColorPickerButton, ColorPickerPopover } from "./ColorPickerPopover";
+import { ColorPickerButton } from "./ColorPickerPopover";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
+import { Slider } from "@/components/ui/slider";
 import { natoMiniSVG } from "@/lib/natoSymbols";
 import type { NATOUnitType, PlacedUnit, UnitPath } from "@/types/units";
 
@@ -504,31 +505,47 @@ export function DrawingToolbar({
           </div>
         </div>
 
-        {/* ── Control strip ── */}
+        {/* ── Color selector ── */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Color</span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {DRAW_COLOR_PRESETS.map((c) => (
+              <button
+                key={c}
+                onClick={() => setActiveColor(c)}
+                style={{
+                  background: c,
+                  outline: activeColor === c ? `2px solid ${c}` : undefined,
+                  outlineOffset: activeColor === c ? "2px" : undefined,
+                  opacity: activeColor === c ? 1 : 0.55,
+                }}
+                className="size-5 rounded-full transition-all hover:opacity-100 hover:scale-110"
+                title={c}
+              />
+            ))}
+            <ColorPickerButton color={activeColor} onChange={setActiveColor} />
+          </div>
+        </div>
+
+        {/* ── Width slider ── */}
+        {!isPinContext && (
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Width</span>
+              <span className="text-[11px] font-medium text-foreground tabular-nums">{activeWidth}px</span>
+            </div>
+            <Slider
+              min={1}
+              max={12}
+              step={1}
+              value={[activeWidth]}
+              onValueChange={([v]) => selectedAnn ? onSetAnnotationWidth(selectedAnn.id, v) : onSetWidth(v)}
+            />
+          </div>
+        )}
+
+        {/* ── Toggle strip ── */}
         <div className="flex items-stretch rounded-lg border border-border overflow-hidden">
-          {/* Color */}
-          <ColorPickerPopover color={activeColor} onChange={setActiveColor} side="left">
-            <button className="flex flex-1 flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-medium hover:bg-muted/40 transition-colors" title="Color">
-              <span className="size-3.5 rounded-full border border-white/20 shrink-0" style={{ background: activeColor }} />
-              <span className="text-muted-foreground">Color</span>
-            </button>
-          </ColorPickerPopover>
-
-          {/* Width — cycle on click, hidden for pins */}
-          {!isPinContext && (
-            <button
-              onClick={() => {
-                const next = activeWidth >= 8 ? 1 : activeWidth + 1;
-                selectedAnn ? onSetAnnotationWidth(selectedAnn.id, next) : onSetWidth(next);
-              }}
-              className="flex flex-1 flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-medium hover:bg-muted/40 transition-colors"
-              title="Width (click to cycle)"
-            >
-              <span className="font-bold text-sm leading-none text-foreground">{activeWidth}</span>
-              <span className="text-muted-foreground">Width</span>
-            </button>
-          )}
-
           {/* Float — hidden for pins */}
           {!isPinContext && (
             <ToggleChip

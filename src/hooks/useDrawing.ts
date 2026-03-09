@@ -18,7 +18,8 @@ export interface Annotation {
 }
 
 export const DRAW_COLOR_PRESETS = [
-  "#ef4444", "#3b82f6", "#22c55e", "#eab308", "#a855f7", "#e2e8f0",
+  "#ef4444", "#f97316", "#eab308", "#22c55e",
+  "#3b82f6", "#a855f7", "#ec4899", "#e2e8f0",
 ] as const;
 
 interface DrawingHookResult {
