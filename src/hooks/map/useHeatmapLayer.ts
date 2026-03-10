@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
+import type { HeatmapSettings } from "@/config/map";
+import { HEATMAP_COLOR_SCHEMES, HEATMAP_PRESETS, CROSSFADE } from "@/config/map";
 
 const HEATMAP_SOURCE = "events-heatmap";
 const HEATMAP_LAYER = "events-heatmap-layer";
@@ -17,23 +19,64 @@ export function severityToWeight(severity?: string): number {
   }
 }
 
+/** Combine severity weight with event_count for better heatmap weighting */
+function computeWeight(severity?: string, eventCount?: number): number {
+  const sev = severityToWeight(severity);
+  const count = Math.min(Math.max(eventCount ?? 1, 1), 10) / 10;
+  return sev * count;
+}
+
+/** Compute weight from casualties (killed + injured), clamped to [0.05, 1.0] */
+function computeCasualtyWeight(casualties?: { killed: number | null; injured: number | null; displaced: number | null }): number {
+  if (!casualties) return 0.05;
+  const total = (casualties.killed ?? 0) + (casualties.injured ?? 0);
+  return Math.max(0.05, Math.min(total / 50, 1.0));
+}
+
+/** Dispatch weight computation based on strategy */
+function computeWeightForStrategy(
+  strategy: "severity" | "casualties" | "density",
+  event: MapEvent,
+): number {
+  switch (strategy) {
+    case "severity":   return computeWeight(event.severity, event.event_count);
+    case "casualties": return computeCasualtyWeight(event.casualties);
+    case "density":    return 1.0;
+  }
+}
+
 export function useHeatmapLayer(
   mapRef: React.RefObject<MapRef | null>,
   events: MapEvent[],
   heatmapEnabled: boolean,
   mapLoaded: boolean,
+  settings?: HeatmapSettings,
+  terrainEnabled?: boolean,
+  crossfadeEnabled: boolean = false,
 ) {
-  const geoJson = useMemo<GeoJSON.FeatureCollection>(() => ({
-    type: "FeatureCollection",
-    features: events.map((e) => ({
-      type: "Feature" as const,
-      properties: { weight: severityToWeight(e.severity) },
-      geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
-    })),
-  }), [events]);
+  const preset = HEATMAP_PRESETS[settings?.preset ?? "all_events"] ?? HEATMAP_PRESETS.all_events;
+
+  const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
+    // Filter events by preset's event type filter
+    const filtered = preset.eventTypeFilter
+      ? events.filter((e) => preset.eventTypeFilter!.includes(e.event_type))
+      : events;
+
+    return {
+      type: "FeatureCollection",
+      features: filtered.map((e) => ({
+        type: "Feature" as const,
+        properties: { weight: computeWeightForStrategy(preset.weightStrategy, e) },
+        geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
+      })),
+    };
+  }, [events, preset]);
 
   const geoJsonRef = useRef(geoJson);
   geoJsonRef.current = geoJson;
+
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
 
   // ── Create / update source + layer ────────────────────────────────────
   useEffect(() => {
@@ -42,6 +85,12 @@ export function useHeatmapLayer(
     if (!map) return;
 
     const vis = heatmapEnabled ? "visible" : "none";
+    const s = settingsRef.current;
+    const scheme = HEATMAP_COLOR_SCHEMES[s?.colorScheme ?? "fire"] ?? HEATMAP_COLOR_SCHEMES.fire;
+    const drape = s?.drapeOnTerrain && terrainEnabled;
+    const radius = (s?.radius ?? 25) * (drape ? 1.2 : 1);
+    const intensity = s?.intensity ?? 1.5;
+    const opacity = (s?.opacity ?? 0.6) * (drape ? 0.7 : 1);
 
     if (!map.getSource(HEATMAP_SOURCE)) {
       map.addSource(HEATMAP_SOURCE, {
@@ -49,8 +98,12 @@ export function useHeatmapLayer(
         data: geoJson,
       });
 
-      // Insert below event-cluster-shadow so markers render on top
-      const beforeLayer = map.getLayer("event-cluster-shadow") ? "event-cluster-shadow" : undefined;
+      // Insert below event pins so markers render on top
+      const beforeLayer = map.getLayer("event-pulse") ? "event-pulse" : map.getLayer("event-pins") ? "event-pins" : undefined;
+
+      const opacityExpr = crossfadeEnabled
+        ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.HEATMAP_FULL, opacity, CROSSFADE.FADE_END, 0] as unknown as maplibregl.ExpressionSpecification
+        : ["interpolate", ["linear"], ["zoom"], 7, opacity, 14, opacity * 0.5] as unknown as maplibregl.ExpressionSpecification;
 
       map.addLayer({
         id: HEATMAP_LAYER,
@@ -61,34 +114,60 @@ export function useHeatmapLayer(
           "heatmap-weight": ["get", "weight"] as unknown as maplibregl.ExpressionSpecification,
           "heatmap-intensity": [
             "interpolate", ["linear"], ["zoom"],
-            7, 0.8,
-            12, 2,
+            7, intensity * 0.53,
+            12, intensity * 1.33,
           ] as unknown as maplibregl.ExpressionSpecification,
           "heatmap-radius": [
             "interpolate", ["linear"], ["zoom"],
-            7, 15,
-            12, 30,
+            7, radius * 0.6,
+            12, radius * 1.2,
           ] as unknown as maplibregl.ExpressionSpecification,
           "heatmap-color": [
             "interpolate", ["linear"], ["heatmap-density"],
-            0,   "rgba(0,0,0,0)",
-            0.15, "#1e3a5f",
-            0.35, "#7b2d8e",
-            0.55, "#dc2626",
-            0.75, "#f97316",
-            1,    "#fef9c3",
+            ...scheme.stops.flat(),
           ] as unknown as maplibregl.ExpressionSpecification,
-          "heatmap-opacity": [
-            "interpolate", ["linear"], ["zoom"],
-            7, 0.6,
-            14, 0.3,
-          ] as unknown as maplibregl.ExpressionSpecification,
+          "heatmap-opacity": opacityExpr,
         },
       } as maplibregl.LayerSpecification, beforeLayer);
     } else {
       (map.getSource(HEATMAP_SOURCE) as maplibregl.GeoJSONSource).setData(geoJson);
     }
   }, [geoJson, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Update paint properties when settings change ───────────────────────
+  useEffect(() => {
+    if (!mapLoaded || !settings) return;
+    const map = mapRef.current?.getMap();
+    if (!map || !map.getLayer(HEATMAP_LAYER)) return;
+
+    const scheme = HEATMAP_COLOR_SCHEMES[settings.colorScheme] ?? HEATMAP_COLOR_SCHEMES.fire;
+    const drape = settings.drapeOnTerrain && terrainEnabled;
+    const radius = settings.radius * (drape ? 1.2 : 1);
+    const opacity = settings.opacity * (drape ? 0.7 : 1);
+
+    // Also update the source data when preset changes (filtering/weighting)
+    const src = map.getSource(HEATMAP_SOURCE) as maplibregl.GeoJSONSource | undefined;
+    if (src) src.setData(geoJsonRef.current);
+
+    map.setPaintProperty(HEATMAP_LAYER, "heatmap-intensity", [
+      "interpolate", ["linear"], ["zoom"],
+      7, settings.intensity * 0.53,
+      12, settings.intensity * 1.33,
+    ]);
+    map.setPaintProperty(HEATMAP_LAYER, "heatmap-radius", [
+      "interpolate", ["linear"], ["zoom"],
+      7, radius * 0.6,
+      12, radius * 1.2,
+    ]);
+    const opacityExpr = crossfadeEnabled
+      ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.HEATMAP_FULL, opacity, CROSSFADE.FADE_END, 0]
+      : ["interpolate", ["linear"], ["zoom"], 7, opacity, 14, opacity * 0.5];
+    map.setPaintProperty(HEATMAP_LAYER, "heatmap-opacity", opacityExpr);
+    map.setPaintProperty(HEATMAP_LAYER, "heatmap-color", [
+      "interpolate", ["linear"], ["heatmap-density"],
+      ...scheme.stops.flat(),
+    ]);
+  }, [settings, terrainEnabled, crossfadeEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Visibility toggle ─────────────────────────────────────────────────
   useEffect(() => {

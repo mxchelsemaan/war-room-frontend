@@ -4,17 +4,13 @@ import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
-import { registerPinImages } from "@/lib/mapUtils";
+import { registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
 import { getEventTypeColor } from "@/config/eventTypes";
+import { CROSSFADE } from "@/config/map";
 
 const EVENT_COLOR_DEFAULT = "#64748b";
 
-// ── Event cluster layer IDs ──────────────────────────────────────────────────
-const EVENT_CLUSTER_LAYERS = [
-  "event-cluster-shadow", "event-cluster-glow", "event-clusters", "event-cluster-count",
-  "event-unclustered-pin",
-  "event-unclustered-badge-bg", "event-unclustered-badge",
-] as const;
+const EVENT_LAYERS = ["event-pulse", "event-pins"] as const;
 
 /** Build a MapLibre `match` expression that maps event_type → color dynamically */
 function eventTypeColorExpr(events: MapEvent[]): maplibregl.ExpressionSpecification {
@@ -32,9 +28,6 @@ function eventTypeColorExpr(events: MapEvent[]): maplibregl.ExpressionSpecificat
   return ["match", ["get", "event_type"], ...entries, EVENT_COLOR_DEFAULT] as unknown as maplibregl.ExpressionSpecification;
 }
 
-const CLUSTER_ACCENT = "#06b6d4"; // cyan-500
-const DARK_FILL = "#0f172a";      // slate-900
-
 export function useEventLayers(
   mapRef: React.RefObject<MapRef | null>,
   events: MapEvent[],
@@ -45,30 +38,42 @@ export function useEventLayers(
   pathDrawingUnitIdRef: React.RefObject<string | null>,
   setPopupEvent: (evt: MapEvent | null) => void,
   setPopupInfra: (infra: null) => void,
+  dark: boolean = true,
+  terrain: boolean = false,
+  crossfadeEnabled: boolean = false,
 ) {
+  const bgFill = dark ? PIN_BG_DARK : PIN_BG_LIGHT;
+  const textColor = dark ? "#ffffff" : "#1e293b";
+  const pinPrefix = terrain ? "stem-circle-" : "pin-circle-";
+  const pinAnchor = terrain ? "bottom" : "center";
+
   // ── Memoize GeoJSON data ──────────────────────────────────────────────
-  const clusterGeoJson = useMemo<GeoJSON.FeatureCollection>(() => ({
-    type: "FeatureCollection",
-    features: events.map((e) => ({
-      type: "Feature" as const,
-      properties: {
-        id: e.id,
-        event_type: e.event_type,
-        event_icon: e.event_icon,
-        event_label: e.event_label,
-        event_location_name: e.event_location.name,
-        event_location_lat: e.event_location.lat,
-        event_location_lng: e.event_location.lng,
-        event_count: e.event_count,
-        date: e.date,
-        summary: e.summary ?? "",
-        severity: e.severity ?? "",
-        sourceChannel: e.sourceChannel ?? "",
-        verificationStatus: e.verificationStatus ?? "",
-      },
-      geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
-    })),
-  }), [events]);
+  const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
+    const now = Date.now();
+    return {
+      type: "FeatureCollection",
+      features: events.map((e) => ({
+        type: "Feature" as const,
+        properties: {
+          id: e.id,
+          event_type: e.event_type,
+          event_icon: e.event_icon,
+          event_label: e.event_label,
+          event_location_name: e.event_location.name,
+          event_location_lat: e.event_location.lat,
+          event_location_lng: e.event_location.lng,
+          event_count: e.event_count,
+          date: e.date,
+          summary: e.summary ?? "",
+          severity: e.severity ?? "",
+          sourceChannel: e.sourceChannel ?? "",
+          verificationStatus: e.verificationStatus ?? "",
+          isRecent: now - Date.parse(e.date) < 86400000,
+        },
+        geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
+      })),
+    };
+  }, [events]);
 
   const uniqueEmojis = useMemo(() => [...new Set(events.map((e) => e.event_icon))], [events]);
   const pinColors = useMemo(() => {
@@ -78,174 +83,109 @@ export function useEventLayers(
     return [...colors];
   }, [events]);
 
-  // Memoize the color expression
   const colorExpr = useMemo(() => eventTypeColorExpr(events), [events]);
 
-  // Keep refs so visibility-only effects don't depend on data
-  const clusterGeoJsonRef = useRef(clusterGeoJson);
-  clusterGeoJsonRef.current = clusterGeoJson;
+  const geoJsonRef = useRef(geoJson);
+  geoJsonRef.current = geoJson;
 
-  // ── Clustered event markers: data update ──────────────────────────────
+  // ── Event pin layers: data update ──────────────────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    registerPinImages(map, uniqueEmojis, pinColors);
+    registerPinImages(map, uniqueEmojis, pinColors, bgFill);
 
     const vis = markersEnabled ? "visible" : "none";
 
-    if (!map.getSource("events-clustered")) {
-      map.addSource("events-clustered", {
+    const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
+      ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0, CROSSFADE.FADE_END, 1] as unknown as maplibregl.ExpressionSpecification
+      : 1;
+
+    if (!map.getSource("events-points")) {
+      map.addSource("events-points", {
         type: "geojson",
-        data: clusterGeoJson,
-        cluster: true,
-        clusterMaxZoom: 13,
-        clusterRadius: 50,
-        clusterProperties: { totalCount: ["+", ["get", "event_count"]] },
+        data: geoJson,
       });
 
-      // ── Cluster shadow ──
+      // ── Pulse circle layer (below pins) — only for recent events ──
       map.addLayer({
-        id: "event-cluster-shadow", type: "circle", source: "events-clustered",
-        filter: ["has", "point_count"],
-        layout: { visibility: vis },
-        paint: {
-          "circle-color": "#000000",
-          "circle-radius": ["step", ["get", "point_count"], 24, 10, 30, 50, 36],
-          "circle-blur": 0.7, "circle-opacity": 0.4, "circle-translate": [2, 2],
-        },
-      });
-
-      // ── Cluster glow (cyan) ──
-      map.addLayer({
-        id: "event-cluster-glow", type: "circle", source: "events-clustered",
-        filter: ["has", "point_count"],
-        layout: { visibility: vis },
-        paint: {
-          "circle-color": CLUSTER_ACCENT,
-          "circle-radius": ["step", ["get", "point_count"], 28, 10, 34, 50, 40],
-          "circle-blur": 0.5, "circle-opacity": 0.35,
-        },
-      });
-
-      // ── Cluster main circle ──
-      map.addLayer({
-        id: "event-clusters", type: "circle", source: "events-clustered",
-        filter: ["has", "point_count"],
-        layout: { visibility: vis },
-        paint: {
-          "circle-color": DARK_FILL,
-          "circle-radius": ["step", ["get", "point_count"], 20, 10, 26, 50, 32],
-          "circle-stroke-width": 2,
-          "circle-stroke-color": CLUSTER_ACCENT,
-        },
-      });
-
-      // ── Cluster count text ──
-      map.addLayer({
-        id: "event-cluster-count", type: "symbol", source: "events-clustered",
-        filter: ["has", "point_count"],
-        layout: {
-          visibility: vis,
-          "text-field": ["get", "point_count_abbreviated"],
-          "text-font": ["Noto Sans Bold"],
-          "text-size": 13,
-          "text-allow-overlap": true,
-        },
-        paint: {
-          "text-color": "#ffffff",
-          "text-halo-color": DARK_FILL,
-          "text-halo-width": 1,
-        },
-      });
-
-      // ── Unclustered pin marker ──
-      map.addLayer({
-        id: "event-unclustered-pin", type: "symbol", source: "events-clustered",
-        filter: ["!", ["has", "point_count"]],
-        layout: {
-          visibility: vis,
-          "icon-image": ["concat", "pin-", colorExpr, "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
-          "icon-size": 0.85,
-          "icon-anchor": "center",
-          "icon-allow-overlap": true,
-          "icon-ignore-placement": true,
-        },
-      });
-
-      // ── Unclustered badge background ──
-      map.addLayer({
-        id: "event-unclustered-badge-bg", type: "circle", source: "events-clustered",
-        filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "event_count"], 1]],
+        id: "event-pulse",
+        type: "circle",
+        source: "events-points",
+        filter: ["==", ["get", "isRecent"], true],
         layout: { visibility: vis },
         paint: {
           "circle-color": "#ef4444",
           "circle-radius": 8,
-          "circle-stroke-width": 1.5,
-          "circle-stroke-color": DARK_FILL,
-          "circle-translate": [12, -12],
+          "circle-opacity": 0.15,
+          "circle-blur": 0.8,
         },
       });
 
-      // ── Unclustered badge text ──
+      // ── Pin symbol layer ──
       map.addLayer({
-        id: "event-unclustered-badge", type: "symbol", source: "events-clustered",
-        filter: ["all", ["!", ["has", "point_count"]], [">", ["get", "event_count"], 1]],
+        id: "event-pins",
+        type: "symbol",
+        source: "events-points",
         layout: {
           visibility: vis,
-          "text-field": ["get", "event_count"],
-          "text-font": ["Noto Sans Bold"],
-          "text-size": 9,
-          "text-offset": [1.2, -1.2],
-          "text-allow-overlap": true, "text-ignore-placement": true,
+          "icon-image": ["concat", pinPrefix, bgFill, "-", colorExpr, "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
+          "icon-size": 0.85,
+          "icon-anchor": pinAnchor,
+          "icon-pitch-alignment": "viewport",
+          "icon-rotation-alignment": "viewport",
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
         },
         paint: {
-          "text-color": "#ffffff",
+          "icon-opacity": iconOpacity,
         },
       });
     } else {
-      (map.getSource("events-clustered") as maplibregl.GeoJSONSource).setData(clusterGeoJson);
-      // Update icon-image expression so new event types get correct colors
-      if (map.getLayer("event-unclustered-pin")) {
-        map.setLayoutProperty("event-unclustered-pin", "icon-image",
-          ["concat", "pin-", colorExpr, "-", ["get", "event_icon"]]);
+      (map.getSource("events-points") as maplibregl.GeoJSONSource).setData(geoJson);
+      // Update icon-image expression so new event types / terrain toggle get correct images
+      if (map.getLayer("event-pins")) {
+        map.setLayoutProperty("event-pins", "icon-image",
+          ["concat", pinPrefix, bgFill, "-", colorExpr, "-", ["get", "event_icon"]]);
+        map.setLayoutProperty("event-pins", "icon-anchor", pinAnchor);
       }
     }
-  }, [clusterGeoJson, uniqueEmojis, colorExpr, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [geoJson, uniqueEmojis, colorExpr, mapLoaded, bgFill, terrain]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Clustered event markers: visibility toggle ────────────────────────
+  // ── Update crossfade opacity when mode changes ─────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map || !map.getLayer("event-pins")) return;
+
+    const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
+      ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0, CROSSFADE.FADE_END, 1] as unknown as maplibregl.ExpressionSpecification
+      : 1;
+
+    map.setPaintProperty("event-pins", "icon-opacity", iconOpacity);
+  }, [crossfadeEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Visibility toggle ──────────────────────────────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
     const vis = markersEnabled ? "visible" : "none";
-    for (const layerId of EVENT_CLUSTER_LAYERS) {
+    for (const layerId of EVENT_LAYERS) {
       if (map.getLayer(layerId)) map.setLayoutProperty(layerId, "visibility", vis);
     }
   }, [markersEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Cluster click handlers ────────────────────────────────────────────
+  // ── Click handlers ─────────────────────────────────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    function onClusterClick(e: maplibregl.MapMouseEvent) {
-      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-clusters"] });
-      if (!features.length) return;
-      const clusterId = features[0].properties?.cluster_id;
-      if (clusterId == null) return;
-      const src = map!.getSource("events-clustered") as maplibregl.GeoJSONSource;
-      src.getClusterExpansionZoom(clusterId).then((zoom) => {
-        const geom = features[0].geometry as GeoJSON.Point;
-        map!.flyTo({ center: geom.coordinates as [number, number], zoom, duration: 500 });
-      });
-    }
-
-    function onUnclusteredClick(e: maplibregl.MapMouseEvent) {
+    function onPinClick(e: maplibregl.MapMouseEvent) {
       if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
-      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-unclustered-pin"] });
+      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-pins"] });
       if (!features.length) return;
       const p = features[0].properties!;
       const evt: MapEvent = {
@@ -276,20 +216,14 @@ export function useEventLayers(
       }
     }
 
-    map.on("click", "event-clusters", onClusterClick);
-    map.on("click", "event-unclustered-pin", onUnclusteredClick);
-    map.on("mouseenter", "event-clusters", onMouseEnter);
-    map.on("mouseleave", "event-clusters", onMouseLeave);
-    map.on("mouseenter", "event-unclustered-pin", onMouseEnter);
-    map.on("mouseleave", "event-unclustered-pin", onMouseLeave);
+    map.on("click", "event-pins", onPinClick);
+    map.on("mouseenter", "event-pins", onMouseEnter);
+    map.on("mouseleave", "event-pins", onMouseLeave);
 
     return () => {
-      map.off("click", "event-clusters", onClusterClick);
-      map.off("click", "event-unclustered-pin", onUnclusteredClick);
-      map.off("mouseenter", "event-clusters", onMouseEnter);
-      map.off("mouseleave", "event-clusters", onMouseLeave);
-      map.off("mouseenter", "event-unclustered-pin", onMouseEnter);
-      map.off("mouseleave", "event-unclustered-pin", onMouseLeave);
+      map.off("click", "event-pins", onPinClick);
+      map.off("mouseenter", "event-pins", onMouseEnter);
+      map.off("mouseleave", "event-pins", onMouseLeave);
     };
   }, [mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 }

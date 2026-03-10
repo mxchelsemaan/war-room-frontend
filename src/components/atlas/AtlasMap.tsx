@@ -9,12 +9,11 @@ import type { LayerVisibility } from "./MapLayerControls";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import type { PlacedUnit, UnitPath, NATOUnitType } from "@/types/units";
 import { UnitLayer } from "./UnitLayer";
-import { FlightLayer } from "./FlightLayer";
-import { ShipLayer } from "./ShipLayer";
-import { staticMarkers, STATIC_MARKER_COLORS } from "@/data/staticMarkers";
+import { STATIC_MARKER_COLORS } from "@/data/staticMarkers";
 import type { StaticMarker, StaticMarkerType } from "@/data/staticMarkers";
-import { GOVERNORATES } from "@/data/governorates";
+import { GOVERNORATES, SUBGOVERNORATES } from "@/data/governorates";
 import { DEFAULT_VIEW as _DEFAULT_VIEW, MAX_BOUNDS as _MAX_BOUNDS } from "@/config/map";
+import type { HeatmapSettings, MonitorMode } from "@/config/map";
 
 import { useKeyboardCamera } from "@/hooks/map/useKeyboardCamera";
 import { useTerrainLayer } from "@/hooks/map/useTerrainLayer";
@@ -23,6 +22,7 @@ import { useOverlayLayers } from "@/hooks/map/useOverlayLayers";
 import { useHeatmapLayer } from "@/hooks/map/useHeatmapLayer";
 import { useEventLayers } from "@/hooks/map/useEventLayers";
 import { useMapAnimation } from "@/hooks/map/useMapAnimation";
+import { useInfraLayers } from "@/hooks/map/useInfraLayers";
 
 try {
   maplibregl.setRTLTextPlugin(
@@ -41,7 +41,7 @@ const GOV_LABEL_STYLE: React.CSSProperties = {
   letterSpacing: "0.18em",
   fontSize: 13,
   fontWeight: 700,
-  fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
+  fontFamily: "'Geist Variable', system-ui, sans-serif",
   color: "#e2e8f0",
   opacity: 1,
   textShadow: "0 0 8px rgba(0,0,0,1), 0 0 16px rgba(0,0,0,0.9), 0 1px 4px rgba(0,0,0,0.9)",
@@ -63,36 +63,29 @@ const GovernorateLabels = React.memo(function GovernorateLabels({ visible }: { v
   );
 });
 
-const InfrastructureMarkers = React.memo(function InfrastructureMarkers({
-  visible, selectedTypes, terrain, onMarkerClick,
-}: {
-  visible: boolean;
-  selectedTypes: Set<StaticMarkerType>;
-  terrain: boolean;
-  onMarkerClick: (marker: StaticMarker) => void;
-}) {
-  const filtered = useMemo(
-    () => visible ? staticMarkers.filter(m => selectedTypes.has(m.type)) : [],
-    [visible, selectedTypes],
-  );
+// ── Subgovernorate (district) label style ────────────────────────────────────
+const SUBGOV_LABEL_STYLE: React.CSSProperties = {
+  pointerEvents: "none",
+  textTransform: "uppercase",
+  letterSpacing: "0.12em",
+  fontSize: 10,
+  fontWeight: 600,
+  fontFamily: "'Geist Variable', system-ui, sans-serif",
+  color: "#94a3b8",
+  opacity: 0.85,
+  textShadow: "0 0 6px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.8)",
+  whiteSpace: "nowrap",
+  userSelect: "none",
+};
+
+const SubgovernorateLabels = React.memo(function SubgovernorateLabels({ visible }: { visible: boolean }) {
   if (!visible) return null;
   return (
     <>
-      {filtered.map((marker) => (
-        <Marker key={marker.id} longitude={marker.lng} latitude={marker.lat}
-          anchor={terrain ? "bottom" : "center"}
-          pitchAlignment="viewport" rotationAlignment="viewport"
-          onClick={(e) => { e.originalEvent.stopPropagation(); onMarkerClick(marker); }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
-            <div style={{ width: 28, height: 28, background: "transparent", border: `2px solid ${STATIC_MARKER_COLORS[marker.type]}`,
-              borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
-              boxShadow: `0 0 8px ${STATIC_MARKER_COLORS[marker.type]}66` }}>
-              {marker.icon}
-            </div>
-            {terrain && (
-              <div style={{ width: 3, height: 70, background: `linear-gradient(to bottom, ${STATIC_MARKER_COLORS[marker.type]}cc, transparent)` }} />
-            )}
-          </div>
+      {SUBGOVERNORATES.map((sg) => (
+        <Marker key={sg.id} longitude={sg.lng} latitude={sg.lat} anchor="center"
+          pitchAlignment="viewport" rotationAlignment="viewport">
+          <div style={SUBGOV_LABEL_STYLE}>{sg.nameEn}</div>
         </Marker>
       ))}
     </>
@@ -122,6 +115,12 @@ interface AtlasMapProps {
   onAddPathWaypoint?: (lngLat: [number, number]) => void;
   onFinishPath?: () => void;
   onSelectAnnotation?: (id: string) => void;
+  heatmapSettings?: HeatmapSettings;
+  monitorMode?: MonitorMode;
+  rotatingUnitId?: string | null;
+  onStartRotation?: (unitId: string) => void;
+  onRotateUnitToward?: (lngLat: [number, number]) => void;
+  onStopRotation?: () => void;
 }
 
 export const AtlasMap = React.memo(function AtlasMap({
@@ -133,7 +132,11 @@ export const AtlasMap = React.memo(function AtlasMap({
   dark = true,
   placedUnits, unitPaths, placementMode, pathDrawingUnitId,
   onPlaceUnit, onAddPathWaypoint, onFinishPath,
+  heatmapSettings,
+  monitorMode = "auto",
+  rotatingUnitId, onStartRotation, onRotateUnitToward, onStopRotation,
 }: AtlasMapProps) {
+  const crossfadeEnabled = monitorMode === "auto";
   const internalMapRef = useRef<MapRef>(null);
   const mapRef = (externalMapRef ?? internalMapRef) as React.RefObject<MapRef>;
 
@@ -167,29 +170,101 @@ export const AtlasMap = React.memo(function AtlasMap({
   const onFinishPathRef = useRef(onFinishPath);
   onFinishPathRef.current = onFinishPath;
 
+  const rotatingUnitIdRef = useRef(rotatingUnitId ?? null);
+  rotatingUnitIdRef.current = rotatingUnitId ?? null;
+  const onRotateUnitTowardRef = useRef(onRotateUnitToward);
+  onRotateUnitTowardRef.current = onRotateUnitToward;
+  const onStopRotationRef = useRef(onStopRotation);
+  onStopRotationRef.current = onStopRotation;
+
   // ── Memoized style for <Map> ─────────────────────────────────────────
   const mapStyle = useMemo<React.CSSProperties>(
-    () => ({ width: "100%", height: "100%", cursor: (drawingMode || placementMode || pathDrawingUnitId) ? "crosshair" : undefined }),
-    [drawingMode, placementMode, pathDrawingUnitId],
+    () => ({ width: "100%", height: "100%", cursor: rotatingUnitId ? "crosshair" : (drawingMode || placementMode || pathDrawingUnitId) ? "crosshair" : undefined }),
+    [drawingMode, placementMode, pathDrawingUnitId, rotatingUnitId],
   );
-
-  const handleInfraClick = useMemo(() => (marker: StaticMarker) => {
-    setPopupEvent(null);
-    setPopupInfra(marker);
-  }, []);
 
   // ── Extracted hooks ──────────────────────────────────────────────────
   useMapAnimation(mapRef, layersRef, mapLoaded);
   useTerrainLayer(mapRef, layers.terrain, layers.hillshade, mapLoaded);
   useRiverLayers(mapRef, layers.rivers, mapLoaded);
   useOverlayLayers(mapRef, layers, mapLoaded);
-  useHeatmapLayer(mapRef, events, layers.heatmap, mapLoaded);
+  useHeatmapLayer(mapRef, events, layers.heatmap, mapLoaded, heatmapSettings, layers.terrain, crossfadeEnabled);
   useEventLayers(
     mapRef, events, layers.markers, mapLoaded,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     setPopupEvent, setPopupInfra as (v: null) => void,
+    dark, layers.terrain, crossfadeEnabled,
+  );
+  useInfraLayers(
+    mapRef, layers.infrastructure, selectedInfraTypes, mapLoaded,
+    drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
+    setPopupInfra, setPopupEvent as (v: null) => void,
+    dark, layers.terrain,
   );
   useKeyboardCamera(mapRef, layersRef);
+
+  // ── Mouse-direction rotation: mousemove updates bearing + aim line ───
+  useEffect(() => {
+    if (!mapLoaded || !rotatingUnitId) return;
+    const m = mapRef.current?.getMap();
+    if (!m) return;
+
+    const srcId = "unit-rotate-line-src";
+    const lyrId = "unit-rotate-line-lyr";
+
+    // Find the rotating unit's position
+    const unit = (placedUnits ?? []).find(u => u.id === rotatingUnitId);
+    const origin: [number, number] | null = unit ? unit.position : null;
+
+    // Create aim-line source + layer
+    const emptyLine: GeoJSON.Feature = {
+      type: "Feature",
+      geometry: { type: "LineString", coordinates: origin ? [origin, origin] : [] },
+      properties: {},
+    };
+    if (!m.getSource(srcId)) {
+      m.addSource(srcId, { type: "geojson", data: emptyLine });
+    }
+    if (!m.getLayer(lyrId)) {
+      m.addLayer({
+        id: lyrId,
+        type: "line",
+        source: srcId,
+        paint: {
+          "line-color": unit?.color ?? "#ffffff",
+          "line-width": 2,
+          "line-dasharray": [4, 3],
+          "line-opacity": 0.7,
+        },
+        layout: { "line-cap": "round" },
+      });
+    }
+
+    function onMouseMove(e: maplibregl.MapMouseEvent) {
+      onRotateUnitTowardRef.current?.([e.lngLat.lng, e.lngLat.lat]);
+      // Update aim line
+      if (origin) {
+        const src = m!.getSource(srcId) as maplibregl.GeoJSONSource | undefined;
+        src?.setData({
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: [origin, [e.lngLat.lng, e.lngLat.lat]] },
+          properties: {},
+        });
+      }
+    }
+    function onClick() {
+      onStopRotationRef.current?.();
+    }
+
+    m.on("mousemove", onMouseMove);
+    m.on("click", onClick);
+    return () => {
+      m.off("mousemove", onMouseMove);
+      m.off("click", onClick);
+      if (m.getLayer(lyrId)) m.removeLayer(lyrId);
+      if (m.getSource(srcId)) m.removeSource(srcId);
+    };
+  }, [mapLoaded, rotatingUnitId, placedUnits]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Disable doubleClickZoom while drawing or path drawing ────────────
   useEffect(() => {
@@ -216,9 +291,14 @@ export const AtlasMap = React.memo(function AtlasMap({
         mapStyle={dark ? "https://tiles.openfreemap.org/styles/dark" : "https://tiles.openfreemap.org/styles/bright"}
         dragRotate={true}
         touchZoomRotate={true}
+        keyboard={false}
         attributionControl={false}
         onLoad={() => setMapLoaded(true)}
         onClick={(e) => {
+          if (rotatingUnitIdRef.current) {
+            // Click confirms rotation — handled by the mousemove effect
+            return;
+          }
           if (drawingModeRef.current) {
             onMapClickRef.current([e.lngLat.lng, e.lngLat.lat]);
             return;
@@ -297,24 +377,16 @@ export const AtlasMap = React.memo(function AtlasMap({
             terrain={layers.terrain}
             units={placedUnits ?? []}
             paths={unitPaths ?? []}
+            onStartRotation={onStartRotation}
           />
         )}
 
-        {/* ── Animated flights ── */}
-        {mapLoaded && layers.flights && <FlightLayer terrain={layers.terrain} />}
-        {/* ── Animated ships ── */}
-        {mapLoaded && layers.ships && <ShipLayer terrain={layers.terrain} />}
-
         {/* ── Governorate labels ── */}
         <GovernorateLabels visible={layers.governorates} />
+        {/* ── Subgovernorate (district) labels ── */}
+        <SubgovernorateLabels visible={layers.subgovernorates} />
 
-        {/* ── Infrastructure markers ── */}
-        <InfrastructureMarkers
-          visible={layers.infrastructure}
-          selectedTypes={selectedInfraTypes}
-          terrain={layers.terrain}
-          onMarkerClick={handleInfraClick}
-        />
+        {/* ── Infrastructure markers (native symbol layer via useInfraLayers) ── */}
 
         {/* ── Event popup ── */}
         {popupEvent && (

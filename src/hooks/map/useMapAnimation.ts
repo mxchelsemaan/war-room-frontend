@@ -13,6 +13,7 @@ export function useMapAnimation(
   const lastRiver = useRef(0);
   const lastGlow  = useRef(0);
   const lastSky   = useRef(0);
+  const lastPulse = useRef(0);
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -42,6 +43,18 @@ export function useMapAnimation(
           if (m.getLayer("fl-glow-inner")) m.setPaintProperty("fl-glow-inner", "line-opacity", 0.149 + glowT * 0.204);
         }
         lastGlow.current = ts;
+      }
+
+      // Event pulse animation (~20fps)
+      if (ts - lastPulse.current > 50) {
+        const t = Math.sin((ts / 1500) * Math.PI) * 0.5 + 0.5;
+        const zoom = m.getZoom();
+        const zoomFade = zoom < 9 ? 1 : zoom > 10.5 ? 0 : 1 - (zoom - 9) / 1.5;
+        if (m.getLayer("event-pulse")) {
+          m.setPaintProperty("event-pulse", "circle-radius", 8 + t * 14);
+          m.setPaintProperty("event-pulse", "circle-opacity", (0.12 + t * 0.3) * zoomFade);
+        }
+        lastPulse.current = ts;
       }
 
       // Sky cloud shimmer

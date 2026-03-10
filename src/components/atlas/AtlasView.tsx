@@ -13,7 +13,8 @@ import { FloatingTriggerBtn } from "./FloatingPanel";
 import { YouTubeFloatingPanel } from "./YouTubeFloatingPanel";
 import { Sparkles, SlidersHorizontal, List } from "lucide-react";
 import { CameraControls } from "./CameraControls";
-import { DEFAULT_VIEW } from "@/config/map";
+import { DEFAULT_VIEW, HEATMAP_DEFAULTS } from "@/config/map";
+import type { HeatmapSettings, MonitorMode } from "@/config/map";
 import { MapLegend } from "./UnitLegend";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SettingsMenu } from "./SettingsMenu";
@@ -22,7 +23,6 @@ import { useSettings } from "@/hooks/useSettings";
 import { usePanelState } from "@/hooks/usePanelState";
 import { AnnotationProvider, useAnnotationContext } from "@/context/AnnotationContext";
 import { UnitPlacementProvider, useUnitPlacementContext } from "@/context/UnitPlacementContext";
-import type { NATOUnitType } from "@/types/units";
 import type { StaticMarkerType } from "@/data/staticMarkers";
 import { STATIC_MARKER_META } from "@/data/staticMarkers";
 import { useEvents } from "@/hooks/useEvents";
@@ -32,8 +32,11 @@ import type { FilterOption } from "./FilterSidebar";
 import type { MapEvent } from "@/data/index";
 import type { EnrichedEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { subDays, format } from "date-fns";
 
 function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
+  const today = format(new Date(), "yyyy-MM-dd");
+  const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
   return {
     selectedTypes: new Set(typeKeys ?? []),
     selectedInfraTypes: new Set(Object.keys(STATIC_MARKER_META) as StaticMarkerType[]),
@@ -41,8 +44,8 @@ function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
     selectedRegions: new Set<string>(),
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
-    dateFrom: "",
-    dateTo: "",
+    dateFrom: yesterday,
+    dateTo: today,
   };
 }
 
@@ -78,6 +81,7 @@ function toMapEvents(events: EnrichedEvent[]): MapEvent[] {
       severity: e.severity,
       sourceChannel: e.sourceChannel ?? undefined,
       verificationStatus: e.verificationStatus,
+      casualties: e.casualties,
     }));
 }
 
@@ -101,17 +105,13 @@ function AtlasViewInner() {
   const up = useUnitPlacementContext();
   const yt = useYoutubePlayer();
 
-  // Fetch live events from Supabase (paginated)
+  // Fetch live events from Supabase
   const {
     events: allEvents,
     eventTypes: liveEventTypes,
     totalCount,
     isLoading,
-    isLoadingMore,
     error,
-    hasMore,
-    canAutoLoad,
-    loadMore,
   } = useEvents(filters.dateFrom || undefined, filters.dateTo || undefined);
 
   // Extract dynamic filter options from all loaded events
@@ -175,6 +175,8 @@ function AtlasViewInner() {
     }
     _togglePanel(id);
   }, [_togglePanel, setPanelOpen, BOTTOM_PANELS]);
+  const [heatmapSettings, setHeatmapSettings] = useState<HeatmapSettings>({ ...HEATMAP_DEFAULTS });
+  const [monitorMode, setMonitorMode] = useState<MonitorMode>("auto");
   const [layers, setLayers] = useState<LayerVisibility>({
     terrain: false,
     hillshade: true,
@@ -186,11 +188,22 @@ function AtlasViewInner() {
     governorates: true,
     annotations: true,
     units: true,
-    flights: true,
-    ships: true,
-    heatmap: false,
+    heatmap: true,
     geoLabels: false,
+    subgovernorates: false,
   });
+
+  // Compute effective layer visibility based on monitor mode
+  const effectiveLayers = useMemo(() => {
+    switch (monitorMode) {
+      case "auto":
+        return { ...layers, markers: true, heatmap: true };
+      case "heatmap":
+        return { ...layers, markers: false, heatmap: true };
+      case "markers":
+        return { ...layers, markers: true, heatmap: false };
+    }
+  }, [layers, monitorMode]);
 
   const mapRef = useRef<MapRef | null>(null);
 
@@ -221,16 +234,6 @@ function AtlasViewInner() {
       bearing: DEFAULT_VIEW.bearing,
       duration: 900,
     });
-  }
-
-  function handleStartPlacement(type: NATOUnitType) {
-    ann.cancel();
-    up.startPlacement(type);
-  }
-
-  function handleStartPathDrawing(unitId: string) {
-    ann.cancel();
-    up.startPathDrawing(unitId);
   }
 
   useEffect(() => {
@@ -293,14 +296,14 @@ function AtlasViewInner() {
         >
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none">
             <h1
-              className="font-black text-[#c62828] uppercase tracking-widest leading-none"
-              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontSize: '1.5rem', letterSpacing: '0.2em' }}
+              className="text-[#c62828] uppercase leading-none underline decoration-2 underline-offset-[3px]"
+              style={{ fontFamily: "'Bebas Neue', system-ui, sans-serif", fontSize: '2rem', letterSpacing: '-0.01em' }}
             >
               The War Room
             </h1>
             <p
-              className="uppercase tracking-widest text-muted-foreground leading-none"
-              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontWeight: 500, fontSize: '0.65rem', letterSpacing: '0.25em' }}
+              className="uppercase text-muted-foreground leading-none"
+              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontWeight: 700, fontSize: '0.6rem', letterSpacing: '0.08em' }}
             >
               Israeli Operations in Lebanon — Live Monitor
             </p>
@@ -338,7 +341,8 @@ function AtlasViewInner() {
             <ErrorBoundary>
             <AtlasMap
               events={mapEvents}
-              layers={layers}
+              layers={effectiveLayers}
+              monitorMode={monitorMode}
               dark={dark}
               selectedInfraTypes={filters.selectedInfraTypes}
               annotations={ann.annotations}
@@ -359,6 +363,11 @@ function AtlasViewInner() {
               onPlaceUnit={up.placeUnit}
               onAddPathWaypoint={up.addWaypoint}
               onFinishPath={up.finishPathDrawing}
+              rotatingUnitId={up.rotatingUnitId}
+              onStartRotation={up.startRotation}
+              onRotateUnitToward={up.rotateUnitToward}
+              onStopRotation={up.stopRotation}
+              heatmapSettings={heatmapSettings}
             />
             </ErrorBoundary>
             <AISummaryCard
@@ -381,34 +390,31 @@ function AtlasViewInner() {
                 <span className="text-[13px] font-semibold">Debrief with Shifra</span>
               </FloatingTriggerBtn>
             </div>
-            {/* Bottom toolbar: annotate + legend + layers + camera */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-end gap-2">
+            {/* Right-middle: Annotate */}
+            <div className="absolute top-1/2 -translate-y-1/2 right-3 z-20">
               <DrawingToolbar
-                mode={ann.mode}
-                color={ann.color}
-                drawWidth={ann.drawWidth}
-                drawArrowStyle={ann.drawArrowStyle}
                 open={isPanelOpen('draw')}
                 onToggle={() => togglePanel('draw')}
-                onStartDrawing={ann.startDrawing}
-                onSetColor={ann.setColor}
-                onSetWidth={ann.setDrawWidth}
-                onSetArrowStyle={ann.setDrawArrowStyle}
-                drawGlow={ann.drawGlow}
-                drawDash={ann.drawDash}
-                drawFloat={ann.drawFloat}
-                onSetDrawGlow={ann.setDrawGlow}
-                onSetDrawDash={ann.setDrawDash}
-                onSetDrawFloat={ann.setDrawFloat}
-                onCancel={ann.cancel}
-                placementMode={up.placementMode}
-                pendingColor={up.pendingColor}
-                pathDrawingUnitId={up.pathDrawingUnitId}
-                onStartPlacement={handleStartPlacement}
-                onCancelPlacement={up.cancelPlacement}
-                onSetPendingColor={up.setPendingColor}
                 showLabels={showLabels}
               />
+            </div>
+            {/* Left-middle: Layers (mirrors DrawingToolbar on right) */}
+            <div className="absolute top-1/2 -translate-y-1/2 left-3 z-20">
+              <MapLayerControls
+                layers={layers}
+                onChange={setLayers}
+                open={isPanelOpen('layers')}
+                onToggle={() => togglePanel('layers')}
+                showLabels={showLabels}
+                bigger
+                heatmapSettings={heatmapSettings}
+                onHeatmapSettingsChange={setHeatmapSettings}
+                monitorMode={monitorMode}
+                onMonitorModeChange={setMonitorMode}
+              />
+            </div>
+            {/* Bottom-left: Legend */}
+            <div className="absolute bottom-4 left-3 z-30">
               <MapLegend
                 open={isPanelOpen('legend')}
                 onToggle={() => togglePanel('legend')}
@@ -417,13 +423,9 @@ function AtlasViewInner() {
                 showLabels={showLabels}
                 placedUnits={up.units}
               />
-              <MapLayerControls
-                layers={layers}
-                onChange={setLayers}
-                open={isPanelOpen('layers')}
-                onToggle={() => togglePanel('layers')}
-                showLabels={showLabels}
-              />
+            </div>
+            {/* Bottom-right: Camera */}
+            <div className="absolute bottom-4 right-3 z-30">
               <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={showLabels} open={isPanelOpen('camera')} onToggle={() => togglePanel('camera')} />
             </div>
             {!isLoading && mapEvents.length === 0 && (
@@ -446,10 +448,6 @@ function AtlasViewInner() {
             open={isPanelOpen('feed')}
             onOpenChange={(v) => setPanelOpen('feed', v)}
             isLoading={isLoading}
-            isLoadingMore={isLoadingMore}
-            hasMore={hasMore}
-            canAutoLoad={canAutoLoad}
-            onLoadMore={loadMore}
             error={error}
             yt={yt}
             youtubePopped={isPanelOpen('youtube')}
