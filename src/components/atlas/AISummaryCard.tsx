@@ -21,18 +21,17 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
   const updateIndicator = useCallback(() => {
     const el = tabRefs.current[activeTab];
     if (el) {
-      const parent = el.parentElement;
-      if (parent) {
-        setIndicator({
-          left: el.offsetLeft - parent.offsetLeft,
-          width: el.offsetWidth,
-        });
-      }
+      setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
     }
   }, [activeTab]);
 
   useEffect(() => {
     updateIndicator();
+    // Recalculate after panel open animation completes
+    if (open) {
+      const timer = setTimeout(updateIndicator, 320);
+      return () => clearTimeout(timer);
+    }
   }, [updateIndicator, open]);
 
   return (
@@ -70,9 +69,9 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
                 {tab}
               </button>
             ))}
-            {/* Sliding underline */}
+            {/* Sliding underline — sits on top of the border */}
             <div
-              className="absolute bottom-0 h-[2px] rounded-full bg-primary transition-all duration-300 ease-out"
+              className="absolute -bottom-px h-[2px] rounded-full bg-primary transition-all duration-300 ease-out"
               style={{ left: indicator.left, width: indicator.width }}
             />
           </div>

@@ -20,6 +20,7 @@ export function UnitPlacementProvider({ children }: { children: React.ReactNode 
     pendingColor: up.pendingColor,
     pathDrawingUnitId: up.pathDrawingUnitId,
     tempPathCoords: up.tempPathCoords,
+    rotatingUnitId: up.rotatingUnitId,
     startPlacement: up.startPlacement,
     cancelPlacement: up.cancelPlacement,
     placeUnit: up.placeUnit,
@@ -32,13 +33,17 @@ export function UnitPlacementProvider({ children }: { children: React.ReactNode 
     finishPathDrawing: up.finishPathDrawing,
     cancelPathDrawing: up.cancelPathDrawing,
     deletePath: up.deletePath,
+    startRotation: up.startRotation,
+    stopRotation: up.stopRotation,
+    rotateUnitToward: up.rotateUnitToward,
   }), [
     up.units, up.paths, up.placementMode, up.pendingColor,
-    up.pathDrawingUnitId, up.tempPathCoords,
+    up.pathDrawingUnitId, up.tempPathCoords, up.rotatingUnitId,
     up.startPlacement, up.cancelPlacement, up.placeUnit,
     up.setPendingColor, up.updateUnit, up.deleteUnit, up.reorderUnit,
     up.startPathDrawing, up.addWaypoint, up.finishPathDrawing,
     up.cancelPathDrawing, up.deletePath,
+    up.startRotation, up.stopRotation, up.rotateUnitToward,
   ]);
 
   return (

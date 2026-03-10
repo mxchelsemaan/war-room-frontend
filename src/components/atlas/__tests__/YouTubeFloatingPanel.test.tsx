@@ -1,16 +1,25 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { YouTubeFloatingPanel } from "../YouTubeFloatingPanel";
-import { YOUTUBE_CHANNELS } from "@/data/youtubeChannels";
+import type { YoutubeChannel } from "@/data/youtubeChannels";
 
 // Mock useIsMobile
 vi.mock("@/hooks/useIsMobile", () => ({
   useIsMobile: () => false,
 }));
 
+const MOCK_CHANNEL: YoutubeChannel = {
+  handle: "aljazeera",
+  active: true,
+  display_name: "Al Jazeera Arabic",
+  language: "arabic",
+  country: "QA",
+  video_id: "test123",
+};
+
 function makeMockYt() {
   const channelGroups = [
-    { name: "Al Jazeera Arabic", streams: [YOUTUBE_CHANNELS[0]] },
+    { name: "Al Jazeera Arabic", streams: [MOCK_CHANNEL] },
   ];
   return {
     channelGroups,
@@ -19,9 +28,9 @@ function makeMockYt() {
     setSelectedStream: vi.fn(),
     handleGroupChange: vi.fn(),
     group: channelGroups[0],
-    stream: YOUTUBE_CHANNELS[0],
+    stream: MOCK_CHANNEL,
     embedSrc: "https://www.youtube.com/embed/test?autoplay=0",
-    LANGUAGE_LABEL: { english: "English", arabic: "عربي", french: "Français" },
+    countryFlag: (code: string) => code,
   };
 }
 

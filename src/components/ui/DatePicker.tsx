@@ -111,7 +111,7 @@ export function DatePicker({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Mode toggle + clear */}
+      {/* Mode toggle */}
       <div className="flex items-center justify-between gap-2">
         {label && <div className="shrink-0">{label}</div>}
         <ToggleGroup
@@ -124,11 +124,6 @@ export function DatePicker({
           <ToggleGroupItem value="range" className="text-xs px-2.5 py-0.5 h-auto rounded data-[state=on]:bg-card data-[state=on]:text-foreground">Range</ToggleGroupItem>
           <ToggleGroupItem value="dynamic" className="text-xs px-2.5 py-0.5 h-auto rounded data-[state=on]:bg-card data-[state=on]:text-foreground">Quick</ToggleGroupItem>
         </ToggleGroup>
-        {(dateFrom || dateTo) && (
-          <Button variant="ghost" size="sm" className="h-auto px-1 py-0 text-xs text-muted-foreground hover:text-foreground" onClick={clearDates}>
-            Clear dates
-          </Button>
-        )}
       </div>
 
       {/* Selected date display */}

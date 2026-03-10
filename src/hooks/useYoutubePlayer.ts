@@ -1,22 +1,48 @@
-import { useMemo, useState, useCallback } from "react";
-import { YOUTUBE_CHANNELS } from "@/data/youtubeChannels";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { fetchYoutubeChannels, type YoutubeChannel } from "@/data/youtubeChannels";
 
-const LANGUAGE_LABEL: Record<string, string> = {
-  english: "English",
-  arabic:  "عربي",
-  french:  "Français",
-};
+/** Convert ISO 3166-1 alpha-2 country code to flag emoji */
+function countryFlag(code: string): string {
+  const upper = code.toUpperCase();
+  if (upper.length !== 2) return "";
+  return String.fromCodePoint(
+    ...upper.split("").map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+  );
+}
+
+const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 export function useYoutubePlayer() {
-  const channelGroups = useMemo(() => {
-    const map = new Map<string, typeof YOUTUBE_CHANNELS>();
-    for (const ch of YOUTUBE_CHANNELS) {
-      const bucket = map.get(ch.display_name) ?? [];
-      bucket.push(ch);
-      map.set(ch.display_name, bucket);
-    }
-    return Array.from(map.entries()).map(([name, streams]) => ({ name, streams }));
+  const [channels, setChannels] = useState<YoutubeChannel[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    const load = async () => {
+      const data = await fetchYoutubeChannels();
+      if (active) setChannels(data);
+    };
+
+    load();
+    const interval = setInterval(load, REFRESH_INTERVAL);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, []);
+
+  const channelGroups = useMemo(() => {
+    const sorted = [...channels].sort((a, b) => {
+      const countryCmp = a.country.localeCompare(b.country);
+      if (countryCmp !== 0) return countryCmp;
+      return a.display_name.localeCompare(b.display_name);
+    });
+    return sorted.map((ch) => ({
+      name: `${countryFlag(ch.country)} ${ch.display_name}`,
+      streams: [ch],
+    }));
+  }, [channels]);
 
   const [selectedGroup, setSelectedGroup] = useState(-1);
   const [selectedStream, setSelectedStream] = useState(0);
@@ -28,7 +54,7 @@ export function useYoutubePlayer() {
 
   const group = channelGroups[selectedGroup];
   const stream = group?.streams[selectedStream];
-  const embedSrc = stream ? `https://www.youtube.com/embed/${stream.video_id}?autoplay=0` : null;
+  const embedSrc = stream ? `https://www.youtube.com/embed/${stream.video_id}?autoplay=0&cc_load_policy=1&cc_lang_pref=en` : null;
 
   return {
     channelGroups,
@@ -39,6 +65,6 @@ export function useYoutubePlayer() {
     group,
     stream,
     embedSrc,
-    LANGUAGE_LABEL,
+    countryFlag,
   };
 }

@@ -12,26 +12,27 @@ import { ChevronUp } from "lucide-react";
 
 interface CollapsePanelProps {
   open: boolean;
-  /** "down" (default) expands toward bottom. "up" flips via scaleY. "left" slides horizontally. */
-  direction?: "down" | "up" | "left";
+  /** "down" (default) expands toward bottom. "up" flips via scaleY. "left"/"right" slides horizontally. */
+  direction?: "down" | "up" | "left" | "right";
   className?: string;
   children: React.ReactNode;
 }
 
 export function CollapsePanel({ open, direction = "down", className, children }: CollapsePanelProps) {
   const isUp = direction === "up";
-  const isLeft = direction === "left";
+  const isHorizontal = direction === "left" || direction === "right";
 
-  if (isLeft) {
+  if (isHorizontal) {
     return (
       <div
         className={cn(
           "grid transition-[grid-template-columns] duration-200 ease-out",
+          direction === "left" && "ml-auto",
           open ? "grid-cols-[1fr]" : "grid-cols-[0fr]",
           className
         )}
       >
-        <div className={cn("overflow-hidden", !open && "pointer-events-none")}>
+        <div className={cn("overflow-hidden min-w-0", !open && "pointer-events-none")}>
           {children}
         </div>
       </div>
@@ -65,8 +66,7 @@ interface FloatingTriggerBtnProps {
 }
 
 export function FloatingTriggerBtn({ onClick, children, className, showLabels = true, open, "aria-label": ariaLabel }: FloatingTriggerBtnProps) {
-  // Force label visible when panel is open
-  const labelVisible = showLabels || open;
+  const labelVisible = showLabels;
   return (
     <Button
       variant="ghost"

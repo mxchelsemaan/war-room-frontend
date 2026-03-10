@@ -89,7 +89,7 @@ export function YouTubeFloatingPanel({ open, onClose, yt }: YouTubeFloatingPanel
 
   if (isMobile || !open) return null;
 
-  const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc, LANGUAGE_LABEL } = yt;
+  const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc, countryFlag } = yt;
 
   return (
     <div
@@ -119,7 +119,7 @@ export function YouTubeFloatingPanel({ open, onClose, yt }: YouTubeFloatingPanel
             <SelectTrigger className="flex-1 text-xs h-7 border-none bg-transparent shadow-none px-0 gap-1">
               <SelectValue placeholder="Select channel…" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[70]">
               {channelGroups.map((g, i) => (
                 <SelectItem key={g.name} value={String(i)}>
                   <span className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export function YouTubeFloatingPanel({ open, onClose, yt }: YouTubeFloatingPanel
                   onClick={() => setSelectedStream(i)}
                   className="text-xs"
                 >
-                  {LANGUAGE_LABEL[s.language] ?? s.language}
+                  {countryFlag(s.country)}
                 </Button>
               ))}
             </div>

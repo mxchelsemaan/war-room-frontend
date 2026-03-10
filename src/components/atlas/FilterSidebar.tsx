@@ -96,6 +96,7 @@ export function FilterSidebar({
       open={open}
       onOpenChange={setOpen}
       side="left"
+      width="w-80"
       header={
         <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
           {(open || isMobile) && (
@@ -123,6 +124,23 @@ export function FilterSidebar({
       }
     >
       <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+      {/* Date filter — first */}
+      <div className="p-3 border-b border-border">
+        <DatePicker
+          dateFrom={filters.dateFrom}
+          dateTo={filters.dateTo}
+          onChange={(from, to) => onFiltersChange({ ...filters, dateFrom: from, dateTo: to })}
+          numberOfMonths={1}
+          presetColumns={2}
+          label={
+            <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Date
+            </span>
+          }
+          dateLabel={dateLabel}
+        />
+      </div>
+
       {/* Event type filter — full width, searchable */}
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
@@ -191,23 +209,6 @@ export function FilterSidebar({
             allLabel="All infra"
           />
         </div>
-      </div>
-
-      {/* Date filter — own row */}
-      <div className="p-3 border-b border-border">
-        <DatePicker
-          dateFrom={filters.dateFrom}
-          dateTo={filters.dateTo}
-          onChange={(from, to) => onFiltersChange({ ...filters, dateFrom: from, dateTo: to })}
-          numberOfMonths={1}
-          presetColumns={2}
-          label={
-            <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Date
-            </span>
-          }
-          dateLabel={dateLabel}
-        />
       </div>
 
       {/* Counter + clear */}
@@ -316,6 +317,8 @@ function MultiSelectDropdown({
     onChange(new Set());
   }
 
+  const interactingRef = useRef(false);
+
   const handleBlur = (e: React.FocusEvent) => {
     // relatedTarget is the element receiving focus.
     // If it's inside our container, keep dropdown open (e.g. checkbox click).
@@ -324,12 +327,16 @@ function MultiSelectDropdown({
     const related = e.relatedTarget as Node | null;
     if (related && containerRef.current?.contains(related)) return;
     requestAnimationFrame(() => {
+      if (interactingRef.current) { interactingRef.current = false; return; }
       if (!containerRef.current?.contains(document.activeElement)) {
         setIsOpen(false);
         setSearch("");
       }
     });
   };
+
+  /** Mark as interacting to prevent blur from closing dropdown */
+  const keepOpen = () => { interactingRef.current = true; };
 
   const selectedCount = selected.size;
   const totalCount = options.length;
@@ -436,7 +443,7 @@ function MultiSelectDropdown({
                   <div className="flex items-center justify-between border-b border-border px-2.5 py-1">
                     <button
                       type="button"
-                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseDown={(e) => { e.preventDefault(); keepOpen(); }}
                       onClick={cycleSort}
                       className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
                     >
@@ -455,7 +462,7 @@ function MultiSelectDropdown({
                 {filtered.map((o) => (
                   <label
                     key={o.key}
-                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseDown={(e) => { e.preventDefault(); keepOpen(); }}
                     className="flex items-center gap-2 px-2.5 py-1.5 cursor-pointer hover:bg-muted/50 transition-colors"
                   >
                     <Checkbox

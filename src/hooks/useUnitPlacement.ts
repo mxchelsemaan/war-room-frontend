@@ -23,6 +23,7 @@ export interface UseUnitPlacementResult {
   pendingColor: string;
   pathDrawingUnitId: string | null;
   tempPathCoords: [number, number][];
+  rotatingUnitId: string | null;
 
   startPlacement: (type: NATOUnitType) => void;
   cancelPlacement: () => void;
@@ -38,6 +39,10 @@ export interface UseUnitPlacementResult {
   finishPathDrawing: () => void;
   cancelPathDrawing: () => void;
   deletePath: (unitId: string) => void;
+
+  startRotation: (unitId: string) => void;
+  stopRotation: () => void;
+  rotateUnitToward: (lngLat: [number, number]) => void;
 }
 
 export function useUnitPlacement(): UseUnitPlacementResult {
@@ -47,6 +52,7 @@ export function useUnitPlacement(): UseUnitPlacementResult {
   const [pendingColor, setPendingColor] = useState<string>(DRAW_COLOR_PRESETS[0]);
   const [pathDrawingUnitId, setPathDrawingUnitId] = useState<string | null>(null);
   const [tempPathCoords, setTempPathCoords] = useState<[number, number][]>([]);
+  const [rotatingUnitId, setRotatingUnitId] = useState<string | null>(null);
 
   const placementModeRef = useRef(placementMode);
   placementModeRef.current = placementMode;
@@ -158,6 +164,38 @@ export function useUnitPlacement(): UseUnitPlacementResult {
     setTempPathCoords([]);
   }, []);
 
+  const rotatingUnitIdRef = useRef(rotatingUnitId);
+  rotatingUnitIdRef.current = rotatingUnitId;
+
+  const startRotation = useCallback((unitId: string) => {
+    setRotatingUnitId(unitId);
+    setPlacementMode(null);
+    setPathDrawingUnitId(null);
+    setTempPathCoords([]);
+  }, []);
+
+  const stopRotation = useCallback(() => {
+    setRotatingUnitId(null);
+  }, []);
+
+  /** Calculate bearing from unit position to cursor lngLat and update */
+  const rotateUnitToward = useCallback((lngLat: [number, number]) => {
+    const unitId = rotatingUnitIdRef.current;
+    if (!unitId) return;
+    const unit = unitsRef.current.find(u => u.id === unitId);
+    if (!unit) return;
+
+    const [lng1, lat1] = unit.position;
+    const [lng2, lat2] = lngLat;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const lat1r = lat1 * Math.PI / 180;
+    const lat2r = lat2 * Math.PI / 180;
+    const y = Math.sin(dLng) * Math.cos(lat2r);
+    const x = Math.cos(lat1r) * Math.sin(lat2r) - Math.sin(lat1r) * Math.cos(lat2r) * Math.cos(dLng);
+    const bearing = ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+    setUnits(prev => prev.map(u => u.id === unitId ? { ...u, bearing: Math.round(bearing) } : u));
+  }, []);
+
   const deletePath = useCallback((unitId: string) => {
     setUnits(prev => {
       const unit = prev.find(u => u.id === unitId);
@@ -172,6 +210,10 @@ export function useUnitPlacement(): UseUnitPlacementResult {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== "Escape") return;
+      if (rotatingUnitIdRef.current) {
+        setRotatingUnitId(null);
+        return;
+      }
       if (placementModeRef.current) {
         setPlacementMode(null);
       } else if (pathDrawingUnitIdRef.current) {
@@ -190,9 +232,10 @@ export function useUnitPlacement(): UseUnitPlacementResult {
   }, [finishPathDrawing]);
 
   return {
-    units, paths, placementMode, pendingColor, pathDrawingUnitId, tempPathCoords,
+    units, paths, placementMode, pendingColor, pathDrawingUnitId, tempPathCoords, rotatingUnitId,
     startPlacement, cancelPlacement, placeUnit,
     setPendingColor, updateUnit, deleteUnit, reorderUnit,
     startPathDrawing, addWaypoint, finishPathDrawing, cancelPathDrawing, deletePath,
+    startRotation, stopRotation, rotateUnitToward,
   };
 }

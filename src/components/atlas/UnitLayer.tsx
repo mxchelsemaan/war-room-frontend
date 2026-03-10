@@ -146,10 +146,11 @@ function unitKey(u: PlacedUnit): string {
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export function UnitLayer({ terrain = false, units, paths }: {
+export function UnitLayer({ terrain = false, units, paths, onStartRotation }: {
   terrain?: boolean;
   units: PlacedUnit[];
   paths: UnitPath[];
+  onStartRotation?: (unitId: string) => void;
 }) {
   const { current: mapRef } = useMap();
   const startRef = useRef<number | null>(null);
@@ -159,6 +160,8 @@ export function UnitLayer({ terrain = false, units, paths }: {
   const animRef = useRef<TrackedAnimUnit[]>([]);
   const unitsRef = useRef(units);
   unitsRef.current = units;
+  const onStartRotationRef = useRef(onStartRotation);
+  onStartRotationRef.current = onStartRotation;
 
   // Main structural effect — handles creation/removal of markers & layers
   useEffect(() => {
@@ -249,6 +252,15 @@ export function UnitLayer({ terrain = false, units, paths }: {
       } else {
         // New unit — create marker
         const { outer, refs } = makeUnitEl(unit);
+
+        // Right-click to enter rotation mode
+        const unitId = unit.id;
+        outer.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onStartRotationRef.current?.(unitId);
+        });
+
         const marker = new maplibregl.Marker({
           element: outer,
           anchor: "center",

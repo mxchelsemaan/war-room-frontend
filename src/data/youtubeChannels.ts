@@ -1,15 +1,32 @@
+import { supabase } from "@/lib/supabase";
+
 export interface YoutubeChannel {
   handle: string;
   active: boolean;
   display_name: string;
-  language: "english" | "arabic" | "french";
+  language: string;
+  country: string;
   video_id: string;
 }
 
-/** Refresh video IDs with: node scripts/get-yt-live-ids.mjs */
-export const YOUTUBE_CHANNELS: YoutubeChannel[] = [
-  { display_name: "Al Jazeera Arabic",  handle: "aljazeera",       language: "arabic",  active: true, video_id: "bNyUyrR0PHo" },
-  { display_name: "Al Jazeera English", handle: "AlJazeeraEnglish", language: "english", active: true, video_id: "gCNeDWCI0vo" },
-  { display_name: "Al Jadeed",          handle: "aljadeed",         language: "arabic",  active: true, video_id: "V7byUF8j-W0" },
-  { display_name: "MTV Lebanon",        handle: "MTVLebanonNews",   language: "arabic",  active: true, video_id: "vuJ3toOYBRM" },
-];
+/**
+ * Fetch active YouTube channels from Supabase.
+ * Falls back to empty array if Supabase is not configured.
+ */
+export async function fetchYoutubeChannels(): Promise<YoutubeChannel[]> {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .schema("config")
+    .from("youtube_channels")
+    .select("handle, display_name, language, country, video_id, active")
+    .eq("active", true)
+    .not("video_id", "is", null);
+
+  if (error) {
+    console.error("Failed to fetch YouTube channels:", error.message);
+    return [];
+  }
+
+  return (data ?? []) as YoutubeChannel[];
+}

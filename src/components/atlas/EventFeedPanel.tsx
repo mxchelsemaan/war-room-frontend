@@ -90,11 +90,6 @@ interface EventFeedPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isLoading?: boolean;
-  isLoadingMore?: boolean;
-  hasMore?: boolean;
-  /** When true, scroll-to-bottom auto-loads the next page */
-  canAutoLoad?: boolean;
-  onLoadMore?: () => void;
   error?: string | null;
   yt: ReturnType<typeof useYoutubePlayer>;
   /** Whether YouTube is currently in the floating PiP panel */
@@ -120,28 +115,10 @@ function groupByDate(events: EnrichedEvent[]): { date: string; items: EnrichedEv
 
 export function EventFeedPanel({
   events, activeDay, open, onOpenChange,
-  isLoading, isLoadingMore, hasMore, canAutoLoad, onLoadMore, error,
+  isLoading, error,
   yt, youtubePopped, onPopOutYouTube, onDockYouTube,
 }: EventFeedPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-
-  // Infinite scroll: auto-load when sentinel enters viewport (only while canAutoLoad)
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel || !onLoadMore) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && hasMore && canAutoLoad && !isLoadingMore && !isLoading) {
-          onLoadMore();
-        }
-      },
-      { root: scrollRef.current, threshold: 0.1 },
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasMore, canAutoLoad, isLoadingMore, isLoading, onLoadMore]);
   const groups = useMemo(() => groupByDate(events), [events]);
   const isMobile = useIsMobile();
 
@@ -150,7 +127,7 @@ export function EventFeedPanel({
   }
 
   const [ytCollapsed, setYtCollapsed] = useState(false);
-  const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc, LANGUAGE_LABEL: langLabel } = yt;
+  const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc } = yt;
   // Show inline YouTube player when a channel is selected and not popped out
   const showInlineYt = !youtubePopped && selectedGroup !== -1 && !isMobile;
 
@@ -167,6 +144,7 @@ export function EventFeedPanel({
       open={open}
       onOpenChange={onOpenChange}
       side="right"
+      width="w-80"
       header={
         <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
           <Button
@@ -208,27 +186,31 @@ export function EventFeedPanel({
           <div className="shrink-0 border-b border-border">
             {/* Header bar */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/40">
-              <LiveDot />
-              <span className="text-xs font-semibold truncate flex-1">{group!.name}</span>
-              {group!.streams.length > 1 && group!.streams.map((s, i) => (
-                <button
-                  key={s.handle}
-                  onClick={() => setSelectedStream(i)}
-                  className={`text-2xs px-1.5 py-0.5 rounded ${selectedStream === i ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  {langLabel[s.language] ?? s.language}
-                </button>
-              ))}
-              <Button variant="ghost" size="icon-sm" onClick={() => setYtCollapsed(v => !v)} aria-label={ytCollapsed ? "Expand player" : "Collapse player"}>
-                <ChevronDown className={`size-3 transition-transform ${ytCollapsed ? "rotate-180" : ""}`} />
-              </Button>
+              <Select
+                value={String(selectedGroup)}
+                onValueChange={(v) => handleGroupChange(Number(v))}
+              >
+                <SelectTrigger className="flex-1 text-xs h-6 border-none bg-transparent shadow-none px-0 gap-1 font-semibold [&>svg:last-child]:hidden">
+                  <span className="flex items-center gap-2">
+                    <LiveDot />
+                    <SelectValue />
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {channelGroups.map((g, i) => (
+                    <SelectItem key={g.name} value={String(i)}>
+                      {g.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {!isMobile && onPopOutYouTube && (
                 <Button variant="ghost" size="icon-sm" onClick={onPopOutYouTube} aria-label="Pop out to floating player" title="Pop out">
                   <PictureInPicture2 className="size-3" />
                 </Button>
               )}
-              <Button variant="ghost" size="icon-sm" onClick={() => yt.handleGroupChange(-1)} aria-label="Close player">
-                <X className="size-3" />
+              <Button variant="ghost" size="icon-sm" onClick={() => setYtCollapsed(v => !v)} aria-label={ytCollapsed ? "Expand player" : "Collapse player"}>
+                <ChevronDown className={`size-3 transition-transform ${ytCollapsed ? "" : "rotate-180"}`} />
               </Button>
             </div>
             {/* Video embed — collapsible */}
@@ -325,34 +307,6 @@ export function EventFeedPanel({
               </div>
             );
           })}
-          {/* Infinite scroll sentinel + load more fallback */}
-          {!isLoading && hasMore && (
-            <>
-              <div ref={sentinelRef} className="h-1" />
-              {canAutoLoad && isLoadingMore && (
-                <div className="flex items-center justify-center py-3">
-                  <Loader2 className="size-4 animate-spin text-muted-foreground" />
-                </div>
-              )}
-              {!canAutoLoad && (
-                <div className="flex items-center justify-center py-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onLoadMore}
-                    disabled={isLoadingMore}
-                    className="text-xs"
-                  >
-                    {isLoadingMore ? (
-                      <><Loader2 className="size-3 animate-spin mr-1.5" /> Loading…</>
-                    ) : (
-                      "Load more events"
-                    )}
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
         </div>
       </div>
     </SidePanel>

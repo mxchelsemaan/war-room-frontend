@@ -22,6 +22,7 @@ export interface MapEvent {
   severity?: string;
   sourceChannel?: string;
   verificationStatus?: string;
+  casualties?: { killed: number | null; injured: number | null; displaced: number | null };
 }
 
 export interface EventType {

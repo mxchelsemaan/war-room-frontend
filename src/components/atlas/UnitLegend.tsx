@@ -15,27 +15,19 @@ interface MapLegendProps {
   placedUnits?: PlacedUnit[];
 }
 
-const SHIP_TYPE_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  cargo:  { bg: "#14532d", color: "#4ade80", label: "Cargo"  },
-  tanker: { bg: "#451a03", color: "#fbbf24", label: "Tanker" },
-  patrol: { bg: "#1e3a5f", color: "#60a5fa", label: "Patrol" },
-  naval:  { bg: "#3f0f0f", color: "#f87171", label: "Naval"  },
-};
-
 export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, placedUnits = [] }: MapLegendProps) {
   const hasContent =
     layers.markers ||
     layers.infrastructure ||
     layers.units ||
-    layers.flights ||
-    layers.ships ||
     layers.frontLines ||
     layers.territory;
 
   return (
     <div className="relative flex flex-col items-center gap-1">
+      <div className="absolute bottom-full left-0 mb-1 w-56">
       <CollapsePanel open={open} direction="up">
-        <div className="glass-panel p-3 w-56 max-h-[calc(100vh-14rem)] overflow-y-auto space-y-3">
+        <div className="glass-panel p-3 max-h-[calc(100vh-14rem)] overflow-y-auto space-y-3">
 
           {!hasContent && (
             <p className="text-xs text-muted-foreground italic">No active layers.</p>
@@ -97,42 +89,6 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
             </Section>
           )}
 
-          {/* ── Flights ────────────────────────────────────────────────────── */}
-          {layers.flights && (
-            <Section title="Flights">
-              <Row left={<span className="text-xs font-mono leading-none">↙</span>} label="Arrival" />
-              <Row left={<span className="text-xs font-mono leading-none">↗</span>} label="Departure" />
-              <Row
-                left={
-                  <svg width="24" height="4" viewBox="0 0 24 4" className="shrink-0">
-                    <line x1="0" y1="2" x2="24" y2="2" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 3"/>
-                  </svg>
-                }
-                label="Route"
-              />
-            </Section>
-          )}
-
-          {/* ── Ships ──────────────────────────────────────────────────────── */}
-          {layers.ships && (
-            <Section title="Ships">
-              {Object.entries(SHIP_TYPE_STYLES).map(([type, s]) => (
-                <Row
-                  key={type}
-                  left={
-                    <span
-                      className="inline-block text-[7px] font-bold font-mono px-[3px] py-px rounded-sm leading-[1.4] whitespace-nowrap"
-                      style={{ background: s.bg, color: s.color }}
-                    >
-                      {s.label.toUpperCase()}
-                    </span>
-                  }
-                  label={s.label}
-                />
-              ))}
-            </Section>
-          )}
-
           {/* ── Front lines ────────────────────────────────────────────────── */}
           {layers.frontLines && (
             <Section title="Front Lines">
@@ -174,6 +130,7 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
 
         </div>
       </CollapsePanel>
+      </div>
       <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close legend" : "Open legend"} showLabels={showLabels} open={open}>
         <Shield className="size-3.5" />
         Legend

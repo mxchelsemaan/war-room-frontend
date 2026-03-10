@@ -3,7 +3,15 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-export const supabase =
-  supabaseUrl && supabaseKey
-    ? createClient(supabaseUrl, supabaseKey)
-    : null;
+function tryCreateClient() {
+  try {
+    if (supabaseUrl && supabaseKey) {
+      return createClient(supabaseUrl, supabaseKey);
+    }
+  } catch {
+    // Ignore — env vars may be encrypted or invalid during local dev
+  }
+  return null;
+}
+
+export const supabase = tryCreateClient();

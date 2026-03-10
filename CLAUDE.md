@@ -100,22 +100,22 @@ npm run test
 - Tests live in `__tests__/` next to source files
 - Existing tests: `TimelineScrubber.test.tsx`, `src/data/__tests__/overlays.test.ts`
 
-### Visual / E2E — Playwright (MCP)
+### Visual / E2E — Puppeteer (MCP)
 
-Use the `mcp__playwright__*` tools to take screenshots and verify UI:
+Use the `mcp__puppeteer__*` tools to take screenshots and verify UI:
 
 ```
-# Start dev server first, then use playwright MCP:
-mcp__playwright__browser_navigate  →  http://localhost:5173
-mcp__playwright__browser_take_screenshot
-mcp__playwright__browser_snapshot   # accessibility tree
+# Start dev server first, then use puppeteer MCP:
+mcp__puppeteer__browser_navigate  →  http://localhost:5173
+mcp__puppeteer__browser_screenshot
+mcp__puppeteer__browser_snapshot   # accessibility tree
 ```
 
-The MCP server manages browsers.
+**NEVER use Playwright MCP** — always use Puppeteer MCP for all browser testing.
 
 ## Workflow
 
-- **ALWAYS verify locally first**: use Playwright MCP to screenshot `http://localhost:5173` and show the user before committing
+- **ALWAYS verify locally first**: use Puppeteer MCP to screenshot `http://localhost:5173` and show the user before committing
 - **NEVER push to `main` until the user has seen and approved the local screenshot**
 - After approval: commit, push to main (DO auto-deploys to `https://war-room-frontend-snd4r.ondigitalocean.app/`)
 

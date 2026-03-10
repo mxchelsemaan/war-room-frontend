@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { LayerVisibility } from "@/components/atlas/MapLayerControls";
 import { frontLines, territoryZones } from "@/data/overlays";
-import { GOVERNORATE_GEOJSON } from "@/data/governorates";
+import { GOVERNORATE_GEOJSON, SUBGOVERNORATE_GEOJSON } from "@/data/governorates";
 import { GEO_LABELS_GEOJSON } from "@/data/geoLabels";
 import { FACTION_COLORS } from "@/config/map";
 import { ensureLayers } from "@/lib/mapUtils";
@@ -28,6 +28,19 @@ export function useOverlayLayers(
         paint: { "line-color": "#1a1a2e", "line-width": 2.5, "line-opacity": 0.9 } },
     ], layers.governorates);
   }, [layers.governorates, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Sub-governorate (district) polygons ──────────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    ensureLayers(map, "subgov-src", { type: "geojson", data: SUBGOVERNORATE_GEOJSON }, [
+      { id: "subgov-fill", type: "fill", source: "subgov-src",
+        paint: { "fill-color": ["get", "color"], "fill-opacity": 0.18 } },
+      { id: "subgov-border", type: "line", source: "subgov-src",
+        paint: { "line-color": "#1a1a2e", "line-width": 1.2, "line-opacity": 0.5, "line-dasharray": [4, 2] } },
+    ], layers.subgovernorates);
+  }, [layers.subgovernorates, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Territory zones ───────────────────────────────────────────────────
   useEffect(() => {

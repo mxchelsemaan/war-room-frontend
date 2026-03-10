@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "dev": "dotenvx run -- vite",
+    "build": "dotenvx run -- tsc -b && dotenvx run -- vite build",
+    "preview": "dotenvx run -- vite preview",
     "lint": "eslint",
     "test": "vitest",
     "migrate": "node scripts/migrate.mjs"

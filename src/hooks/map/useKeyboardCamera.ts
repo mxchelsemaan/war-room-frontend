@@ -8,15 +8,11 @@ export function useKeyboardCamera(
 ) {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      const el = e.target as HTMLElement;
+      const tag = el?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el?.isContentEditable) return;
       const map = mapRef.current?.getMap();
       if (!map) return;
-
-      if (e.key === "n" || e.key === "N") {
-        map.easeTo({ bearing: 0, pitch: layersRef.current.terrain ? 65 : 0, duration: 500 });
-        return;
-      }
 
       const fine = e.shiftKey;
       switch (e.key) {

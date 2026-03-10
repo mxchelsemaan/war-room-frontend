@@ -1,7 +1,5 @@
 import { useEffect } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
-import { LEBANON_RIVERS } from "@/data/overlays";
-import { ensureLayers } from "@/lib/mapUtils";
 
 // River shimmer — animated dasharray sequence
 export const RIVER_DASH_SEQ = [
@@ -16,39 +14,7 @@ export function useRiverLayers(
   riversEnabled: boolean,
   mapLoaded: boolean,
 ) {
-  // ── GeoJSON rivers (fallback at zoom <9) ──────────────────────────────
-  useEffect(() => {
-    if (!mapLoaded) return;
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    ensureLayers(map, "river-geojson", { type: "geojson", data: LEBANON_RIVERS }, [
-      { id: "river-geo-glow", type: "line", source: "river-geojson", maxzoom: 9,
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#0c3d6b", "line-width": 6, "line-opacity": 0.5, "line-blur": 3 } },
-      { id: "river-geo-main", type: "line", source: "river-geojson", maxzoom: 9,
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#38bdf8", "line-width": 2, "line-opacity": 0.75 } },
-      { id: "river-geo-flow", type: "line", source: "river-geojson", maxzoom: 9,
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#bae6fd", "line-width": 1, "line-opacity": 0.55, "line-dasharray": RIVER_DASH_SEQ[0] } },
-      { id: "river-geo-label", type: "symbol", source: "river-geojson", maxzoom: 9,
-        layout: {
-          "symbol-placement": "line",
-          "text-field": ["get", "name"],
-          "text-font": ["Noto Sans Regular"],
-          "text-size": 10,
-          "text-max-angle": 30,
-          "text-letter-spacing": 0.08,
-          "text-offset": [0, -1],
-          "symbol-spacing": 300,
-          "text-allow-overlap": true,
-          "text-ignore-placement": true,
-        },
-        paint: { "text-color": "#7dd3fc", "text-halo-color": "#060e1a", "text-halo-width": 1.5, "text-opacity": 0.9 } },
-    ], riversEnabled);
-  }, [riversEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Vector-tile rivers (zoom 9+) ──────────────────────────────────────
+  // ── Vector-tile rivers ──────────────────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
