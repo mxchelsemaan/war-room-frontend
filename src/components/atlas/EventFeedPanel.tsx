@@ -107,94 +107,6 @@ function getCountryPill(country: string | null): { code: string; flag: string } 
   return null;
 }
 
-/* ── Channel dropdown ─────────────────────────────────────────────────────── */
-
-import type { ChannelGroup } from "@/hooks/useYoutubePlayer";
-
-function ChannelDropdown({ channelGroups, selectedGroup, onSelect }: {
-  channelGroups: ChannelGroup[];
-  selectedGroup: number;
-  onSelect: (idx: number) => void;
-}) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Close on outside click
-  useEffect(() => {
-    if (!dropdownOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setDropdownOpen(false);
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [dropdownOpen]);
-
-  const liveChannels = channelGroups.filter((g) => g.isLive);
-  const liveCount = liveChannels.length;
-
-  // Build summary label: "Al Jazeera, BBC, and N others live"
-  const summaryLabel = useMemo(() => {
-    if (liveCount === 0) return `${channelGroups.length} channels`;
-    const names = liveChannels.slice(0, 2).map((g) => g.streams[0].display_name);
-    const rest = liveCount - names.length;
-    if (rest > 0) return `${names.join(", ")} +${rest} more live`;
-    return `${names.join(" & ")} live`;
-  }, [liveChannels, liveCount, channelGroups.length]);
-
-  const selected = channelGroups[selectedGroup];
-
-  return (
-    <div ref={ref} className="shrink-0 border-b border-border relative">
-      <button
-        onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors hover:bg-muted/40"
-      >
-        {selected ? (
-          <>
-            <StatusDot isLive={selected.isLive} />
-            <span className="flex-1 text-left truncate font-semibold">{selected.name}</span>
-          </>
-        ) : (
-          <>
-            {liveCount > 0 && <StatusDot isLive={true} />}
-            <span className="flex-1 text-left truncate text-muted-foreground">{summaryLabel}</span>
-          </>
-        )}
-        {dropdownOpen ? <ChevronUp className="size-3 text-muted-foreground shrink-0" /> : <ChevronDown className="size-3 text-muted-foreground shrink-0" />}
-      </button>
-      {dropdownOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 bg-background border border-border rounded-b-lg shadow-lg max-h-52 overflow-y-auto">
-          {/* Deselect option */}
-          {selectedGroup !== -1 && (
-            <button
-              onClick={() => { onSelect(-1); setDropdownOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/40 transition-colors"
-            >
-              <X className="size-3" />
-              <span>Close player</span>
-            </button>
-          )}
-          {channelGroups.map((g, i) => {
-            const active = selectedGroup === i;
-            return (
-              <button
-                key={g.handle}
-                onClick={() => { onSelect(i); setDropdownOpen(false); }}
-                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-muted/40 ${
-                  active ? "bg-muted/60 font-semibold" : ""
-                } ${!g.isLive ? "opacity-50" : ""}`}
-              >
-                <span className="text-sm leading-none shrink-0">{g.name.split(" ")[0]}</span>
-                <span className="flex-1 text-left truncate">{g.streams[0].display_name}</span>
-                <StatusDot isLive={g.isLive} />
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
 
 interface EventFeedPanelProps {
   events: EnrichedEvent[];
@@ -202,7 +114,10 @@ interface EventFeedPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isLoading?: boolean;
+  isLoadingMore?: boolean;
   error?: string | null;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
   yt: ReturnType<typeof useYoutubePlayer>;
   /** Whether YouTube is currently in the floating PiP panel */
   youtubePopped?: boolean;
@@ -228,7 +143,8 @@ function groupByDate(events: EnrichedEvent[]): { date: string; items: EnrichedEv
 
 export function EventFeedPanel({
   events, activeDay, open, onOpenChange,
-  isLoading, error,
+  isLoading, isLoadingMore, error,
+  hasMore, onLoadMore,
   yt, youtubePopped, onPopOutYouTube, onDockYouTube,
   onFlyToEvent,
 }: EventFeedPanelProps) {
@@ -251,9 +167,21 @@ export function EventFeedPanel({
   }
 
   const [ytCollapsed, setYtCollapsed] = useState(false);
+  const [ytDropdownOpen, setYtDropdownOpen] = useState(false);
+  const ytDropdownRef = useRef<HTMLDivElement>(null);
   const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc } = yt;
   // Show inline YouTube player when a channel is selected and not popped out
   const showInlineYt = !youtubePopped && selectedGroup !== -1 && !isMobile;
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!ytDropdownOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (ytDropdownRef.current && !ytDropdownRef.current.contains(e.target as Node)) setYtDropdownOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [ytDropdownOpen]);
 
   useEffect(() => {
     if (!activeDay || !scrollRef.current) return;
@@ -322,24 +250,78 @@ export function EventFeedPanel({
       }
     >
       <div className="flex flex-col flex-1 min-h-0">
-        {/* Inline YouTube player — stacked above events */}
-        {showInlineYt && embedSrc && stream && (
-          <div className="shrink-0 border-b border-border">
-            {/* Header bar */}
+        {/* YouTube channel selector + inline player */}
+        {!youtubePopped && !isMobile && channelGroups.length > 0 && (
+          <div ref={ytDropdownRef} className="shrink-0 border-b border-border relative">
+            {/* Header bar — shows selected channel or summary */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/40">
-              <StatusDot isLive={group?.isLive ?? false} />
-              <span className="flex-1 text-xs font-semibold truncate">{group?.name}</span>
-              {!isMobile && onPopOutYouTube && (
+              {group ? (
+                <>
+                  <StatusDot isLive={group.isLive} />
+                  <span className="flex-1 text-xs font-semibold truncate">{group.name}</span>
+                </>
+              ) : (
+                <>
+                  {channelGroups.some(g => g.isLive) && <StatusDot isLive={true} />}
+                  <span className="flex-1 text-xs text-muted-foreground truncate">
+                    {(() => {
+                      const liveChannels = channelGroups.filter(g => g.isLive);
+                      if (liveChannels.length === 0) return `${channelGroups.length} channels`;
+                      const names = liveChannels.slice(0, 2).map(g => g.streams[0].display_name);
+                      const rest = liveChannels.length - names.length;
+                      return rest > 0 ? `${names.join(", ")} +${rest} more live` : `${names.join(" & ")} live`;
+                    })()}
+                  </span>
+                </>
+              )}
+              {showInlineYt && !isMobile && onPopOutYouTube && (
                 <Button variant="ghost" size="icon-sm" onClick={onPopOutYouTube} aria-label="Pop out to floating player" title="Pop out">
                   <PictureInPicture2 className="size-3" />
                 </Button>
               )}
-              <Button variant="ghost" size="icon-sm" onClick={() => setYtCollapsed(v => !v)} aria-label={ytCollapsed ? "Expand player" : "Collapse player"}>
-                <ChevronDown className={`size-3 transition-transform ${ytCollapsed ? "" : "rotate-180"}`} />
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setYtDropdownOpen(v => !v)}
+                aria-label={ytDropdownOpen ? "Close channel list" : "Open channel list"}
+              >
+                {ytDropdownOpen ? <ChevronUp className="size-3 text-muted-foreground" /> : <ChevronDown className="size-3 text-muted-foreground" />}
               </Button>
             </div>
-            {/* Video embed — collapsible */}
-            {!ytCollapsed && (
+
+            {/* Dropdown list */}
+            {ytDropdownOpen && (
+              <div className="absolute left-0 right-0 top-full z-50 bg-background border border-border rounded-b-lg shadow-lg max-h-52 overflow-y-auto">
+                {selectedGroup !== -1 && (
+                  <button
+                    onClick={() => { handleGroupChange(-1); setYtDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/40 transition-colors"
+                  >
+                    <X className="size-3" />
+                    <span>Close player</span>
+                  </button>
+                )}
+                {channelGroups.map((g, i) => {
+                  const active = selectedGroup === i;
+                  return (
+                    <button
+                      key={g.handle}
+                      onClick={() => { handleGroupChange(i); setYtDropdownOpen(false); }}
+                      className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-muted/40 ${
+                        active ? "bg-muted/60 font-semibold" : ""
+                      } ${!g.isLive ? "opacity-50" : ""}`}
+                    >
+                      <span className="text-sm leading-none shrink-0">{g.name.split(" ")[0]}</span>
+                      <span className="flex-1 text-left truncate">{g.streams[0].display_name}</span>
+                      <StatusDot isLive={g.isLive} />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Video embed — collapsible, only when channel selected */}
+            {showInlineYt && embedSrc && stream && !ytCollapsed && (
               <div className="aspect-video bg-black">
                 <iframe
                   key={embedSrc}
@@ -352,15 +334,6 @@ export function EventFeedPanel({
               </div>
             )}
           </div>
-        )}
-
-        {/* Channel dropdown — show when not popped out, on desktop */}
-        {!youtubePopped && !isMobile && channelGroups.length > 0 && (
-          <ChannelDropdown
-            channelGroups={channelGroups}
-            selectedGroup={selectedGroup}
-            onSelect={handleGroupChange}
-          />
         )}
 
         {/* Popped-out indicator — click to dock back */}
@@ -418,6 +391,15 @@ export function EventFeedPanel({
               </div>
             );
           })}
+          {/* Infinite scroll sentinel */}
+          {!isLoading && hasMore && onLoadMore && (
+            <InfiniteScrollSentinel onIntersect={onLoadMore} />
+          )}
+          {isLoadingMore && (
+            <div className="flex items-center justify-center h-12">
+              <Loader2 className="size-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
         </div>
       </div>
     </SidePanel>
@@ -435,7 +417,7 @@ function StatusDot({ isLive }: { isLive: boolean }) {
   }
   return (
     <span className="relative flex h-2 w-2 shrink-0">
-      <span className="relative inline-flex h-2 w-2 rounded-full bg-slate-500" />
+      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
     </span>
   );
 }
@@ -724,4 +706,30 @@ function EventRow({
       )}
     </div>
   );
+}
+
+/** Sentinel element that triggers `onIntersect` when scrolled into view */
+function InfiniteScrollSentinel({ onIntersect }: { onIntersect: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const onIntersectRef = useRef(onIntersect);
+  onIntersectRef.current = onIntersect;
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          onIntersectRef.current();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return <div ref={ref} className="h-1" />;
 }
