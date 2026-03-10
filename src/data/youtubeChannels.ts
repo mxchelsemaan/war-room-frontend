@@ -6,7 +6,7 @@ export interface YoutubeChannel {
   display_name: string;
   language: string;
   country: string;
-  video_id: string;
+  video_id: string | null;
 }
 
 /**
@@ -20,8 +20,7 @@ export async function fetchYoutubeChannels(): Promise<YoutubeChannel[]> {
     .schema("config")
     .from("youtube_channels")
     .select("handle, display_name, language, country, video_id, active")
-    .eq("active", true)
-    .not("video_id", "is", null);
+    .eq("active", true);
 
   if (error) {
     console.error("Failed to fetch YouTube channels:", error.message);

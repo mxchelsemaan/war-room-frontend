@@ -19,7 +19,7 @@ const MOCK_CHANNEL: YoutubeChannel = {
 
 function makeMockYt() {
   const channelGroups = [
-    { name: "Al Jazeera Arabic", streams: [MOCK_CHANNEL] },
+    { name: "Al Jazeera Arabic", handle: "aljazeera", country: "QA", streams: [MOCK_CHANNEL], isLive: true },
   ];
   return {
     channelGroups,
@@ -31,6 +31,8 @@ function makeMockYt() {
     stream: MOCK_CHANNEL,
     embedSrc: "https://www.youtube.com/embed/test?autoplay=0",
     countryFlag: (code: string) => code,
+    statusMap: { aljazeera: { isLive: true, videoId: "test123" } },
+    liveLoading: false,
   };
 }
 

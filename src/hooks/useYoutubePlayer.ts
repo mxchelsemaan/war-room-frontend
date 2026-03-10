@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchYoutubeChannels, type YoutubeChannel } from "@/data/youtubeChannels";
+import { useLiveStatus, type LiveStatusMap } from "@/hooks/useLiveStatus";
 
 /** Convert ISO 3166-1 alpha-2 country code to flag emoji */
 function countryFlag(code: string): string {
@@ -11,6 +12,14 @@ function countryFlag(code: string): string {
 }
 
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+export interface ChannelGroup {
+  name: string;
+  handle: string;
+  country: string;
+  streams: YoutubeChannel[];
+  isLive: boolean;
+}
 
 export function useYoutubePlayer() {
   const [channels, setChannels] = useState<YoutubeChannel[]>([]);
@@ -32,7 +41,9 @@ export function useYoutubePlayer() {
     };
   }, []);
 
-  const channelGroups = useMemo(() => {
+  const { statusMap, loading: liveLoading } = useLiveStatus(channels);
+
+  const channelGroups: ChannelGroup[] = useMemo(() => {
     const sorted = [...channels].sort((a, b) => {
       const countryCmp = a.country.localeCompare(b.country);
       if (countryCmp !== 0) return countryCmp;
@@ -40,9 +51,12 @@ export function useYoutubePlayer() {
     });
     return sorted.map((ch) => ({
       name: `${countryFlag(ch.country)} ${ch.display_name}`,
+      handle: ch.handle,
+      country: ch.country,
       streams: [ch],
+      isLive: statusMap[ch.handle]?.isLive ?? false,
     }));
-  }, [channels]);
+  }, [channels, statusMap]);
 
   const [selectedGroup, setSelectedGroup] = useState(-1);
   const [selectedStream, setSelectedStream] = useState(0);
@@ -54,7 +68,14 @@ export function useYoutubePlayer() {
 
   const group = channelGroups[selectedGroup];
   const stream = group?.streams[selectedStream];
-  const embedSrc = stream ? `https://www.youtube.com/embed/${stream.video_id}?autoplay=0&cc_load_policy=1&cc_lang_pref=en` : null;
+
+  // Prefer dynamically discovered videoId from live status, fall back to stored
+  const videoId = stream
+    ? (statusMap[stream.handle]?.videoId ?? stream.video_id)
+    : null;
+  const embedSrc = videoId
+    ? `https://www.youtube.com/embed/${videoId}?autoplay=0&cc_load_policy=1&cc_lang_pref=en`
+    : null;
 
   return {
     channelGroups,
@@ -66,5 +87,7 @@ export function useYoutubePlayer() {
     stream,
     embedSrc,
     countryFlag,
+    statusMap,
+    liveLoading,
   };
 }

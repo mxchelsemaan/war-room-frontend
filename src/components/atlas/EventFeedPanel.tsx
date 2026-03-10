@@ -6,7 +6,6 @@ import type { EnrichedEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
@@ -163,7 +162,7 @@ export function EventFeedPanel({
   }
 
   const [ytCollapsed, setYtCollapsed] = useState(false);
-  const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc } = yt;
+  const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc, statusMap } = yt;
   // Show inline YouTube player when a channel is selected and not popped out
   const showInlineYt = !youtubePopped && selectedGroup !== -1 && !isMobile;
 
@@ -239,24 +238,8 @@ export function EventFeedPanel({
           <div className="shrink-0 border-b border-border">
             {/* Header bar */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/40">
-              <Select
-                value={String(selectedGroup)}
-                onValueChange={(v) => handleGroupChange(Number(v))}
-              >
-                <SelectTrigger className="flex-1 text-xs h-6 border-none bg-transparent shadow-none px-0 gap-1 font-semibold [&>svg:last-child]:hidden">
-                  <span className="flex items-center gap-2">
-                    <LiveDot />
-                    <SelectValue />
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  {channelGroups.map((g, i) => (
-                    <SelectItem key={g.name} value={String(i)}>
-                      {g.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <StatusDot isLive={group?.isLive ?? false} />
+              <span className="flex-1 text-xs font-semibold truncate">{group?.name}</span>
               {!isMobile && onPopOutYouTube && (
                 <Button variant="ghost" size="icon-sm" onClick={onPopOutYouTube} aria-label="Pop out to floating player" title="Pop out">
                   <PictureInPicture2 className="size-3" />
@@ -282,34 +265,38 @@ export function EventFeedPanel({
           </div>
         )}
 
-        {/* Channel selector — show when no channel selected and not popped out */}
-        {!youtubePopped && selectedGroup === -1 && !isMobile && channelGroups.length > 0 && (
-          <div className="shrink-0 border-b border-border px-3 py-2">
-            <Select
-              value=""
-              onValueChange={(v) => handleGroupChange(Number(v))}
-            >
-              <SelectTrigger className="w-full text-xs h-7">
-                <SelectValue placeholder="Watch live TV…" />
-              </SelectTrigger>
-              <SelectContent>
-                {channelGroups.map((g, i) => (
-                  <SelectItem key={g.name} value={String(i)}>
-                    <span className="flex items-center gap-2">
-                      <LiveDot />
-                      {g.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Channel list — show when not popped out, on desktop */}
+        {!youtubePopped && !isMobile && channelGroups.length > 0 && (
+          <div className="shrink-0 border-b border-border">
+            <div className="px-3 py-1.5">
+              <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Channels</span>
+            </div>
+            <div className="max-h-40 overflow-y-auto">
+              {channelGroups.map((g, i) => {
+                const live = g.isLive;
+                const selected = selectedGroup === i;
+                return (
+                  <button
+                    key={g.handle}
+                    onClick={() => handleGroupChange(i)}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-muted/40 ${
+                      selected ? "bg-muted/60 font-semibold" : ""
+                    } ${!live ? "opacity-50" : ""}`}
+                  >
+                    <span className="text-sm leading-none shrink-0">{g.name.split(" ")[0]}</span>
+                    <span className="flex-1 text-left truncate">{g.streams[0].display_name}</span>
+                    <StatusDot isLive={live} />
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
         {/* Popped-out indicator — click to dock back */}
         {youtubePopped && !isMobile && (
           <div className="shrink-0 border-b border-border px-3 py-1.5 flex items-center gap-2 bg-muted/30">
-            <LiveDot />
+            <StatusDot isLive={group?.isLive ?? false} />
             <span className="text-2xs text-muted-foreground flex-1 truncate">
               {group ? group.name : "YouTube"} — floating
             </span>
@@ -367,11 +354,18 @@ export function EventFeedPanel({
   );
 }
 
-function LiveDot() {
+function StatusDot({ isLive }: { isLive: boolean }) {
+  if (isLive) {
+    return (
+      <span className="relative flex h-2 w-2 shrink-0">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+      </span>
+    );
+  }
   return (
     <span className="relative flex h-2 w-2 shrink-0">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-      <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+      <span className="relative inline-flex h-2 w-2 rounded-full bg-slate-500" />
     </span>
   );
 }
