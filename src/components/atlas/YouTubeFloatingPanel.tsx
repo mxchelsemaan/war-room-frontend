@@ -15,7 +15,7 @@ function StatusDot({ isLive }: { isLive: boolean }) {
   }
   return (
     <span className="relative flex h-2 w-2 shrink-0">
-      <span className="relative inline-flex h-2 w-2 rounded-full bg-slate-500" />
+      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
     </span>
   );
 }
