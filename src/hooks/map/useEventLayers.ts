@@ -110,7 +110,6 @@ export function useEventLayers(
       });
 
       // ── Pulse ring symbol layer (below pins) — only for recent events ──
-      // Uses a symbol layer instead of circle so it elevates with 3D terrain
       map.addLayer({
         id: "event-pulse",
         type: "symbol",
