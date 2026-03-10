@@ -117,9 +117,9 @@ export function useEventLayers(
         layout: { visibility: vis },
         paint: {
           "circle-color": "#ef4444",
-          "circle-radius": 8,
-          "circle-opacity": 0.15,
-          "circle-blur": 0.8,
+          "circle-radius": 10,
+          "circle-opacity": 0.1,
+          "circle-blur": 0.6,
         },
       });
 
@@ -131,7 +131,7 @@ export function useEventLayers(
         layout: {
           visibility: vis,
           "icon-image": ["concat", pinPrefix, bgFill, "-", colorExpr, "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
-          "icon-size": 0.5,
+          "icon-size": 0.4,
           "icon-anchor": pinAnchor,
           "icon-pitch-alignment": "viewport",
           "icon-rotation-alignment": "viewport",

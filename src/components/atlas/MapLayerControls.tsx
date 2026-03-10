@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Layers, Mountain, Waves, Landmark, Map, Navigation, Pencil, Radar, Settings2 } from "lucide-react";
+import { Layers, Mountain, Waves, Landmark, Map, Navigation, Pencil, Settings2 } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Switch } from "@/components/ui/switch";
@@ -212,8 +212,6 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
             </p>
             <div className="px-2 py-1.5 space-y-2">
               <div className="flex items-center gap-2 text-xs">
-                <Radar className="size-3.5 text-primary" />
-                <span className="text-foreground">Event Monitor</span>
                 {showHeatmapConfig && heatmapSettings && onHeatmapSettingsChange && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setHeatmapConfigOpen(!heatmapConfigOpen); }}

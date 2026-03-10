@@ -45,14 +45,14 @@ export function useMapAnimation(
         lastGlow.current = ts;
       }
 
-      // Event pulse animation (~20fps)
-      if (ts - lastPulse.current > 50) {
-        const t = Math.sin((ts / 1500) * Math.PI) * 0.5 + 0.5;
+      // Event pulse animation (~15fps, slow breathe)
+      if (ts - lastPulse.current > 66) {
+        const t = Math.sin((ts / 2800) * Math.PI) * 0.5 + 0.5;
         const zoom = m.getZoom();
         const zoomFade = zoom < 9 ? 1 : zoom > 10.5 ? 0 : 1 - (zoom - 9) / 1.5;
         if (m.getLayer("event-pulse")) {
-          m.setPaintProperty("event-pulse", "circle-radius", 8 + t * 14);
-          m.setPaintProperty("event-pulse", "circle-opacity", (0.12 + t * 0.3) * zoomFade);
+          m.setPaintProperty("event-pulse", "circle-radius", 10 + t * 6);
+          m.setPaintProperty("event-pulse", "circle-opacity", (0.06 + t * 0.14) * zoomFade);
         }
         lastPulse.current = ts;
       }
