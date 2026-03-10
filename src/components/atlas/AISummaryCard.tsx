@@ -33,6 +33,7 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0 gap-0">
           {/* Tab bar */}
           <div className="flex items-end border-b border-border px-4 pt-1">
+            <div className="flex-1" />
             <TabsList variant="line" className="h-auto p-0 bg-transparent gap-1">
               <TabsTrigger value="Copilot" className={tabTriggerClass}>
                 <Bot className="size-3" />
@@ -43,8 +44,8 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
                 Overall
               </TabsTrigger>
             </TabsList>
-            <div className="ml-auto mb-1">
-              <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Close daily briefing">
+            <div className="flex-1 flex justify-end">
+              <Button variant="ghost" size="icon-sm" onClick={onToggle} className="mb-1" aria-label="Close daily briefing">
                 <X className="size-4" />
               </Button>
             </div>
