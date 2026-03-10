@@ -263,7 +263,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
           </div>
         </CollapsePanel>
       </div>
-      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close layers" : "Open layers"} showLabels={showLabels} open={open} panelSide="right" className={bigger ? "px-4 py-3.5 md:px-3.5 md:py-3" : undefined}>
+      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close layers" : "Open layers"} showLabels={showLabels} open={open} className={bigger ? "px-4 py-3.5 md:px-3.5 md:py-3" : undefined}>
         <Layers className={bigger ? "size-4" : "size-3.5"} />
         Layers
       </FloatingTriggerBtn>
