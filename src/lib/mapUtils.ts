@@ -80,6 +80,34 @@ export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
   }
 }
 
+// ── Cluster badge image ──────────────────────────────────────────────────────
+
+let _clusterBadgeRegistered = false;
+
+/** Register a dark semi-transparent circle used as background for cluster count badges */
+export function registerClusterBadgeImage(map: maplibregl.Map) {
+  if (_clusterBadgeRegistered || map.hasImage("cluster-badge")) {
+    _clusterBadgeRegistered = true;
+    return;
+  }
+  const size = 48;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  // Dark semi-transparent circle
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(15,23,42,0.85)";
+  ctx.fill();
+  // Subtle white border
+  ctx.strokeStyle = "rgba(255,255,255,0.3)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  map.addImage("cluster-badge", { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
+  _clusterBadgeRegistered = true;
+}
+
 // ── Generic map pin image system ─────────────────────────────────────────────
 
 const _registeredPins = new Set<string>();

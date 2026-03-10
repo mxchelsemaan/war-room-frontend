@@ -22,7 +22,10 @@ import { useOverlayLayers } from "@/hooks/map/useOverlayLayers";
 import { useHeatmapLayer } from "@/hooks/map/useHeatmapLayer";
 import { useEventLayers } from "@/hooks/map/useEventLayers";
 import { useMapAnimation } from "@/hooks/map/useMapAnimation";
+import { useClusterLayer } from "@/hooks/map/useClusterLayer";
 import { useInfraLayers } from "@/hooks/map/useInfraLayers";
+import { ClusterPopup } from "./ClusterPopup";
+import type { ClusterPopupData } from "./ClusterPopup";
 
 try {
   maplibregl.setRTLTextPlugin(
@@ -151,6 +154,7 @@ export const AtlasMap = React.memo(function AtlasMap({
   const [popupEvent, setPopupEvent] = useState<MapEvent | null>(null);
   const [popupInfra, setPopupInfra] = useState<StaticMarker | null>(null);
   const [popupAnnotation, setPopupAnnotation] = useState<{ annotation: Annotation; lngLat: [number, number] } | null>(null);
+  const [clusterPopup, setClusterPopup] = useState<ClusterPopupData | null>(null);
 
   const drawingModeRef = useRef(drawingMode);
   drawingModeRef.current = drawingMode;
@@ -206,6 +210,12 @@ export const AtlasMap = React.memo(function AtlasMap({
   useRiverLayers(mapRef, layers.rivers, mapReadyKey);
   useOverlayLayers(mapRef, layers, mapReadyKey);
   useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, heatmapSettings, layers.terrain, crossfadeEnabled);
+  useClusterLayer(
+    mapRef, events, layers.heatmap, mapReadyKey,
+    setClusterPopup,
+    drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
+    crossfadeEnabled,
+  );
   useEventLayers(
     mapRef, events, layers.markers, mapReadyKey,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
@@ -331,7 +341,7 @@ export const AtlasMap = React.memo(function AtlasMap({
           const m = mapRef.current?.getMap();
           if (m) {
             // Check if tap hit an event pin or infra pin (handled by layer-specific listeners)
-            const pinLayers = ["event-pins", "infra-pin"].filter(id => m.getLayer(id));
+            const pinLayers = ["event-pins", "infra-pin", "cluster-count"].filter(id => m.getLayer(id));
             const pinHit = pinLayers.length > 0 && m.queryRenderedFeatures(e.point, { layers: pinLayers }).length > 0;
 
             const allAnnotationLayers = [
@@ -366,6 +376,7 @@ export const AtlasMap = React.memo(function AtlasMap({
               setPopupEvent(null);
               setPopupInfra(null);
               setPopupAnnotation(null);
+              setClusterPopup(null);
             }
           }
         }}
@@ -498,6 +509,17 @@ export const AtlasMap = React.memo(function AtlasMap({
               </button>
             </div>
           </Popup>
+        )}
+        {/* ── Cluster popup ── */}
+        {clusterPopup && (
+          <ClusterPopup
+            data={clusterPopup}
+            onClose={() => setClusterPopup(null)}
+            onSelectEvent={(evt) => {
+              setClusterPopup(null);
+              setPopupEvent(evt);
+            }}
+          />
         )}
       </Map>
 

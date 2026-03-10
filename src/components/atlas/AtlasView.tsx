@@ -37,7 +37,7 @@ import type { FilterOption } from "./FilterSidebar";
 import type { MapEvent } from "@/data/index";
 import type { EnrichedEvent, MapMarkerEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { subHours } from "date-fns";
+import { subDays } from "date-fns";
 
 function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
   return {
@@ -47,7 +47,7 @@ function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
     selectedRegions: new Set<string>(),
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
-    dateFrom: subHours(new Date(), 48).toISOString(),
+    dateFrom: subDays(new Date(), 7).toISOString(),
     dateTo: new Date().toISOString(),
   };
 }

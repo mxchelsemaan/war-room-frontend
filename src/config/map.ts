@@ -47,6 +47,8 @@ export const CROSSFADE = {
   FADE_END: 10.5,     // crossfade ends, markers 100% above this
 } as const;
 
+export const DEFAULT_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
 export type MonitorMode = "auto" | "heatmap" | "markers";
 
 // ── Heatmap configuration ────────────────────────────────────────────────────
@@ -101,9 +103,9 @@ export interface HeatmapSettings {
 
 export const HEATMAP_DEFAULTS: HeatmapSettings = {
   preset: "all_events",
-  radius: 25,
-  intensity: 1.5,
-  opacity: 0.6,
+  radius: 40,
+  intensity: 2.5,
+  opacity: 0.85,
   colorScheme: "fire",
   drapeOnTerrain: false,
 } as const;

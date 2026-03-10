@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { isLebanonRelated } from "@/lib/filterUtils";
+import { DEFAULT_LOOKBACK_MS } from "@/config/map";
 import type { EventRow, EnrichedEvent, EventTypeMeta } from "@/types/events";
 
 /** Lebanon theater countries — LB, IL, SY, PS */
@@ -71,7 +72,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
     });
   }, []);
 
-  // Initial load: recent events (last 12 hours)
+  // Initial load: recent events (last 7 days)
   const fetchRecent = useCallback(async () => {
     if (!supabase) {
       setError("Supabase not configured");
@@ -80,7 +81,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
     }
 
     try {
-      const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      const since = new Date(Date.now() - DEFAULT_LOOKBACK_MS).toISOString();
       const { data, error: rpcErr } = await supabase.rpc("get_recent_events", {
         p_since: since,
         p_countries: THEATER_COUNTRIES,
