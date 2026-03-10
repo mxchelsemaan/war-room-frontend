@@ -2,15 +2,11 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-RUN npm install -g @dotenvx/dotenvx
-
 COPY package*.json ./
 RUN npm ci
 
 COPY . .
-ARG DOTENVX_PRIVATE_KEY_PRODUCTION
-ENV DOTENVX_PRIVATE_KEY_PRODUCTION=$DOTENVX_PRIVATE_KEY_PRODUCTION
-RUN dotenvx run -f .env.production -- npm run build
+RUN npm run build
 
 # ── Stage 2: Serve ────────────────────────────────────────────────────────────
 FROM nginx:alpine
