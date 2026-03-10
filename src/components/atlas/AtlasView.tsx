@@ -95,8 +95,9 @@ export function AtlasView() {
 
 function AtlasViewInner() {
   const { dark, toggle: toggleTheme } = useTheme();
-  const { showLabels, toggleLabels } = useSettings();
+  const { showLabels: _showLabels, toggleLabels } = useSettings();
   const isMobile = useIsMobile();
+  const showLabels = isMobile ? false : _showLabels;
   const [filters, setFilters] = useState<AtlasFilters>(() => buildDefaultFilters());
 
   const ann = useAnnotationContext();
@@ -163,7 +164,7 @@ function AtlasViewInner() {
   }, [filteredEvents]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
-  const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(["filter", "feed"]);
+  const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(isMobile ? [] : ["filter", "feed"]);
 
   // Bottom toolbar panels are mutually exclusive
   const BOTTOM_PANELS: Set<string> = useMemo(() => new Set(["layers", "draw", "legend", "camera"]), []);

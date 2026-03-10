@@ -311,17 +311,23 @@ export const AtlasMap = React.memo(function AtlasMap({
           }
           const m = mapRef.current?.getMap();
           if (m) {
+            // Check if tap hit an event pin or infra pin (handled by layer-specific listeners)
+            const pinLayers = ["event-pins", "infra-pin"].filter(id => m.getLayer(id));
+            const pinHit = pinLayers.length > 0 && m.queryRenderedFeatures(e.point, { layers: pinLayers }).length > 0;
+
             const allAnnotationLayers = [
               "draw-line-main", "draw-line-dashed",
               "draw-arrow-main", "draw-arrow-dashed",
               "draw-arrow-head-fill", "draw-arrow-jagged-fill",
               "draw-area-fill", "draw-area-edge", "draw-area-edge-dashed",
             ].filter(id => m.getLayer(id));
+            let annotationHit = false;
             if (allAnnotationLayers.length > 0) {
               const features = m.queryRenderedFeatures(e.point, {
                 layers: allAnnotationLayers,
               });
               if (features.length > 0) {
+                annotationHit = true;
                 const id = features[0].properties?.id as string | undefined;
                 const ann = annotationsRef.current.find(a => a.id === id);
                 if (ann) {
@@ -334,6 +340,13 @@ export const AtlasMap = React.memo(function AtlasMap({
                   }
                 }
               }
+            }
+
+            // Tapped empty space — dismiss all popups
+            if (!pinHit && !annotationHit) {
+              setPopupEvent(null);
+              setPopupInfra(null);
+              setPopupAnnotation(null);
             }
           }
         }}
@@ -389,7 +402,7 @@ export const AtlasMap = React.memo(function AtlasMap({
         {/* ── Event popup ── */}
         {popupEvent && (
           <Popup longitude={popupEvent.event_location.lng} latitude={popupEvent.event_location.lat}
-            anchor="bottom" offset={22} onClose={() => setPopupEvent(null)} closeOnClick={true}
+            anchor="bottom" offset={22} onClose={() => setPopupEvent(null)} closeOnClick={false}
             maxWidth="280px">
             <div className="flex flex-col gap-1.5 pr-3">
               <div className="flex items-center gap-2">
@@ -428,7 +441,7 @@ export const AtlasMap = React.memo(function AtlasMap({
         {/* ── Infrastructure popup ── */}
         {popupInfra && (
           <Popup longitude={popupInfra.lng} latitude={popupInfra.lat}
-            anchor="bottom" offset={18} onClose={() => setPopupInfra(null)} closeOnClick={true}>
+            anchor="bottom" offset={18} onClose={() => setPopupInfra(null)} closeOnClick={false}>
             <div className="flex flex-col gap-1 pr-3">
               <div className="text-xl text-center">{popupInfra.icon}</div>
               <div className="font-semibold text-sm text-foreground">{popupInfra.label}</div>
@@ -448,7 +461,7 @@ export const AtlasMap = React.memo(function AtlasMap({
             latitude={popupAnnotation.lngLat[1]}
             anchor="bottom" offset={14}
             onClose={() => setPopupAnnotation(null)}
-            closeOnClick={true}
+            closeOnClick={false}
           >
             <div className="flex flex-col gap-1.5 pr-3">
               <div className="flex items-center gap-2">
