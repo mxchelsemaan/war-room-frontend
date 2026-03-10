@@ -1,8 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const YOUTUBE_API_KEY = Deno.env.get("YOUTUBE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+async function getYoutubeApiKey(supabase: ReturnType<typeof createClient>): Promise<string | null> {
+  const { data, error } = await supabase.rpc('read_secret', { secret_name: 'YOUTUBE_API_KEY' });
+  if (error) {
+    console.error('Failed to read YOUTUBE_API_KEY from vault:', error.message);
+    return Deno.env.get('YOUTUBE_API_KEY') ?? null;
+  }
+  return data?.[0]?.decrypted_secret ?? Deno.env.get('YOUTUBE_API_KEY') ?? null;
+}
 
 interface Channel {
   handle: string;
@@ -18,11 +26,12 @@ interface Channel {
  */
 async function batchCheckVideos(
   videoIds: string[],
+  apiKey: string,
 ): Promise<Record<string, boolean>> {
   const ids = videoIds.filter(Boolean).join(",");
   if (!ids) return {};
 
-  const url = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${ids}&key=${YOUTUBE_API_KEY}`;
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${ids}&key=${apiKey}`;
   const res = await fetch(url);
   if (!res.ok) {
     console.error("videos.list failed:", res.status, await res.text());
@@ -45,8 +54,9 @@ async function batchCheckVideos(
  */
 async function searchLiveStream(
   channelId: string,
+  apiKey: string,
 ): Promise<string | null> {
-  const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=live&type=video&maxResults=1&key=${YOUTUBE_API_KEY}`;
+  const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=live&type=video&maxResults=1&key=${apiKey}`;
   const res = await fetch(url);
   if (!res.ok) {
     console.error("search.list failed:", res.status, await res.text());
@@ -58,14 +68,15 @@ async function searchLiveStream(
 }
 
 Deno.serve(async (_req) => {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  const YOUTUBE_API_KEY = await getYoutubeApiKey(supabase);
   if (!YOUTUBE_API_KEY) {
     return new Response(
-      JSON.stringify({ error: "YOUTUBE_API_KEY not set" }),
+      JSON.stringify({ error: "YOUTUBE_API_KEY not found in vault or env" }),
       { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   // Fetch active channels
   const { data: channels, error: fetchError } = await supabase
@@ -97,7 +108,7 @@ Deno.serve(async (_req) => {
     if (ch.live_video_id) allVideoIds.add(ch.live_video_id);
   }
 
-  const liveMap = await batchCheckVideos([...allVideoIds]);
+  const liveMap = await batchCheckVideos([...allVideoIds], YOUTUBE_API_KEY);
 
   // Build updates
   type Update = {
@@ -160,7 +171,7 @@ Deno.serve(async (_req) => {
       continue;
     }
 
-    const foundId = await searchLiveStream(ch.channel_id!);
+    const foundId = await searchLiveStream(ch.channel_id!, YOUTUBE_API_KEY);
     if (foundId) {
       updates.push({
         handle: ch.handle,
