@@ -8,6 +8,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ChevronUp } from "lucide-react";
 
 interface CollapsePanelProps {
   open: boolean;
@@ -58,10 +59,14 @@ interface FloatingTriggerBtnProps {
   children: React.ReactNode;
   className?: string;
   showLabels?: boolean;
+  /** When true, forces label visible and shows a chevron indicator */
+  open?: boolean;
   "aria-label"?: string;
 }
 
-export function FloatingTriggerBtn({ onClick, children, className, showLabels = true, "aria-label": ariaLabel }: FloatingTriggerBtnProps) {
+export function FloatingTriggerBtn({ onClick, children, className, showLabels = true, open, "aria-label": ariaLabel }: FloatingTriggerBtnProps) {
+  // Force label visible when panel is open
+  const labelVisible = showLabels || open;
   return (
     <Button
       variant="ghost"
@@ -72,21 +77,29 @@ export function FloatingTriggerBtn({ onClick, children, className, showLabels = 
         className
       )}
       style={{
-        gap: showLabels ? "0.375rem" : "0",
-        transition: "gap 200ms ease-out, background-color 150ms",
+        gap: "0.375rem",
+        transition: "background-color 150ms",
       }}
     >
       {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) return child;
+        if (React.isValidElement(child)) return <span className="shrink-0">{child}</span>;
         return (
           <span
             className="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-out"
-            style={{ maxWidth: showLabels ? "8rem" : "0", opacity: showLabels ? 1 : 0 }}
+            style={{ maxWidth: labelVisible ? "8rem" : "0", opacity: labelVisible ? 1 : 0 }}
           >
             {child}
           </span>
         );
       })}
+      {open !== undefined && (
+        <ChevronUp
+          className={cn(
+            "size-3 shrink-0 transition-transform duration-200 text-muted-foreground",
+            !open && "rotate-180"
+          )}
+        />
+      )}
     </Button>
   );
 }

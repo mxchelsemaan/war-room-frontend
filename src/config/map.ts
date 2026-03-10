@@ -38,3 +38,13 @@ export const FACTION_COLORS = {
 } as const;
 
 export const NATO_SYMBOL_BG = "#1a1a2e";
+
+/** Event feed pagination — tweak these to control initial load & auto-scroll behaviour */
+export const FEED_CONFIG = {
+  /** Events fetched on the first request */
+  initialPageSize: 2000,
+  /** Events per subsequent page */
+  pageSize: 30,
+  /** How many pages auto-load on scroll before showing "Load more" button */
+  autoLoadPages: 3,
+} as const;

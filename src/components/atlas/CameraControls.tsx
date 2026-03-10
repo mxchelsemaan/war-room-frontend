@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Compass, ZoomIn, ZoomOut, LocateFixed, Video } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
@@ -10,10 +9,11 @@ interface CameraControlsProps {
   terrainActive: boolean;
   onResetView: () => void;
   showLabels?: boolean;
+  open: boolean;
+  onToggle: () => void;
 }
 
-export function CameraControls({ mapRef, terrainActive, onResetView, showLabels = false }: CameraControlsProps) {
-  const [open, setOpen] = useState(false);
+export function CameraControls({ mapRef, terrainActive, onResetView, showLabels = false, open, onToggle }: CameraControlsProps) {
   const isMobile = useIsMobile();
 
   function adjust(bearing?: number, pitch?: number) {
@@ -38,22 +38,13 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
   const btnSize = isMobile ? "size-11" : showLabels ? "size-9 pb-0.5" : "size-7";
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      <CollapsePanel open={open}>
-        <div className="glass-panel p-1.5 rounded-xl mb-1 flex items-center gap-1">
-          {/* Left: zoom + home */}
-          <div className="flex flex-col items-center gap-px">
-            <Btn size={btnSize} onClick={() => zoom(1)} title="Zoom in" label="In" showLabels={showLabels}><ZoomIn className="size-3.5" /></Btn>
-            <Btn size={btnSize} onClick={() => zoom(-1)} title="Zoom out" label="Out" showLabels={showLabels}><ZoomOut className="size-3.5" /></Btn>
-            <Btn size={btnSize} onClick={onResetView} title="Home — Beirut" label="Center" showLabels={showLabels} className="text-amber-400 hover:text-amber-300">
-              <LocateFixed className="size-3.5" />
-            </Btn>
-          </div>
-
-          {/* Right: compass rose — desktop only (terrain disabled on mobile) */}
+    <div className="relative flex flex-col items-center gap-1">
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 w-max">
+        <CollapsePanel open={open} direction="up">
+          <div className="glass-panel p-1.5 rounded-xl flex flex-col items-center gap-1">
+          {/* Top: compass rose — desktop only (terrain disabled on mobile) */}
           {!isMobile && (
             <>
-              <div className="w-px self-stretch bg-white/10 mx-0.5" />
               <div className="flex flex-col items-center gap-px">
                 <Btn size={btnSize} onClick={() => adjust(undefined, -10)} title="Tilt up" label="Up" showLabels={showLabels}>
                   <ArrowUp className="size-3.5" />
@@ -69,12 +60,23 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
                   <ArrowDown className="size-3.5" />
                 </Btn>
               </div>
+              <div className="h-px self-stretch bg-white/10 my-0.5" />
             </>
           )}
-        </div>
-      </CollapsePanel>
 
-      <FloatingTriggerBtn onClick={() => setOpen((v) => !v)} aria-label={open ? "Close camera" : "Camera controls"} showLabels={showLabels}>
+          {/* Bottom: zoom in / out / center */}
+          <div className="flex items-center gap-px">
+            <Btn size={btnSize} onClick={() => zoom(1)} title="Zoom in" label="In" showLabels={showLabels}><ZoomIn className="size-3.5" /></Btn>
+            <Btn size={btnSize} onClick={() => zoom(-1)} title="Zoom out" label="Out" showLabels={showLabels}><ZoomOut className="size-3.5" /></Btn>
+            <Btn size={btnSize} onClick={onResetView} title="Home — Beirut" label="Center" showLabels={showLabels} className="text-amber-400 hover:text-amber-300">
+              <LocateFixed className="size-3.5" />
+            </Btn>
+          </div>
+          </div>
+        </CollapsePanel>
+      </div>
+
+      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close camera" : "Camera controls"} showLabels={showLabels} open={open}>
         <Video className="size-3.5" />
         Camera
       </FloatingTriggerBtn>
@@ -102,7 +104,7 @@ function Btn({ onClick, title, label, showLabels, size, children, className = ""
     >
       {children}
       {showLabels && label && (
-        <span className="text-[8px] leading-none font-medium tracking-wide opacity-60">{label}</span>
+        <span className="text-[10px] leading-none font-medium tracking-wide opacity-60">{label}</span>
       )}
     </Button>
   );

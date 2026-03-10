@@ -26,7 +26,7 @@ interface UnitRowProps {
   unit: PlacedUnit;
   path: UnitPath | undefined;
   pathDrawingUnitId: string | null;
-  onUpdateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "glow" | "animating" | "loopMs">>) => void;
+  onUpdateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "effect" | "bearing" | "target" | "groundCircle" | "animating" | "loopMs">>) => void;
   onDeleteUnit: (id: string) => void;
   onStartPathDrawing: (unitId: string) => void;
   onFinishPathDrawing: () => void;
@@ -129,12 +129,12 @@ function UnitRow({
       {/* Action strip */}
       <div className="flex items-stretch border-t border-border/30">
         <ToggleChip
-          active={unit.glow}
-          onClick={() => onUpdateUnit(unit.id, { glow: !unit.glow })}
+          active={unit.effect === "glow"}
+          onClick={() => onUpdateUnit(unit.id, { effect: unit.effect === "glow" ? "none" : "glow" })}
           activeClass="text-yellow-300 bg-yellow-400/10"
           icon={<Sparkles className="size-3" />}
           label="Glow"
-          title={unit.glow ? "Remove glow" : "Add pulsing glow"}
+          title={unit.effect === "glow" ? "Remove glow" : "Add pulsing glow"}
         />
 
         {/* Path chip: drawing in progress vs has path vs no path */}
@@ -216,7 +216,7 @@ interface UnitPaletteProps {
   onStartPlacement: (type: NATOUnitType) => void;
   onCancelPlacement: () => void;
   onSetPendingColor: (color: string) => void;
-  onUpdateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "glow" | "animating" | "loopMs">>) => void;
+  onUpdateUnit: (id: string, changes: Partial<Pick<PlacedUnit, "label" | "color" | "effect" | "bearing" | "target" | "groundCircle" | "animating" | "loopMs">>) => void;
   onDeleteUnit: (id: string) => void;
   onStartPathDrawing: (unitId: string) => void;
   onFinishPathDrawing: () => void;

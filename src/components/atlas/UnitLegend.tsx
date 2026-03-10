@@ -40,7 +40,7 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
       </FloatingTriggerBtn>
 
       <CollapsePanel open={open} direction="up">
-        <div className="glass-panel p-3 w-48 max-h-[calc(50vh-3rem)] overflow-y-auto space-y-3">
+        <div className="glass-panel p-3 w-56 max-h-[calc(100vh-8rem)] overflow-y-auto space-y-3">
 
           {!hasContent && (
             <p className="text-xs text-muted-foreground italic">No active layers.</p>

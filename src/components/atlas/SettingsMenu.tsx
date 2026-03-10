@@ -23,7 +23,7 @@ export function SettingsMenu({ dark, onToggleTheme, showLabels, onToggleLabels }
           <Settings className="size-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="z-[80] w-52 p-2">
+      <PopoverContent align="end" className="z-[80] w-52 border-border/50 p-2">
         <button
           onClick={onToggleTheme}
           className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-muted"

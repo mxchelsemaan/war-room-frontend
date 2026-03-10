@@ -73,10 +73,10 @@ export function TimelineScrubber({ dates, activeDay, onChange, open, onToggle }:
   const step = Math.max(1, Math.ceil(dates.length / maxLabels));
 
   return (
-    <div className="absolute bottom-4 left-0 right-0 z-20 pointer-events-none flex justify-center px-3 md:px-0">
+    <div className="absolute bottom-6 left-0 right-0 z-20 pointer-events-none flex justify-center px-3 md:px-0">
       <div className={`pointer-events-auto flex flex-col items-center gap-0 w-full max-w-[calc(100vw-1.5rem)] md:max-w-[40rem]`}>
 
-        {/* Expanded panel — slides up from above the pill */}
+        {/* Expanded panel — slides up from above the button */}
         <CollapsePanel open={open} className="w-full">
           <div className="w-full">
             <div className="glass-panel mb-1.5 p-3">
@@ -161,12 +161,10 @@ export function TimelineScrubber({ dates, activeDay, onChange, open, onToggle }:
           </div>
         </CollapsePanel>
 
-        {/* Pill — always visible */}
-        <div className="glass-panel flex items-center gap-2 px-2 py-1.5">
-          <Button variant="default" size="icon-sm" className="rounded-full shrink-0" onClick={togglePlay} aria-label={playing ? "Pause" : "Play"}>
-            {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5 translate-x-px" />}
-          </Button>
-        </div>
+        {/* Play button — no wrapper, just the button */}
+        <Button variant="default" size="icon" className="size-10 rounded-full shrink-0" onClick={togglePlay} aria-label={playing ? "Pause" : "Play"}>
+          {playing ? <Pause className="size-4" /> : <Play className="size-4 translate-x-px" />}
+        </Button>
 
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-export type PanelId = "filter" | "feed" | "layers" | "legend" | "draw" | "briefing" | "timeline" | "items";
+export type PanelId = "filter" | "feed" | "layers" | "legend" | "draw" | "briefing" | "timeline" | "items" | "camera" | "youtube";
 
 export function usePanelState(initial: PanelId[] = []) {
   const [openPanels, setOpenPanels] = useState<Set<PanelId>>(() => new Set(initial));
