@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Bot, Globe, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface AISummaryCardProps {
   open: boolean;
@@ -9,10 +8,32 @@ interface AISummaryCardProps {
   date?: string;
 }
 
-export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: AISummaryCardProps) {
-  const [activeTab, setActiveTab] = useState<string>("Copilot");
+const TABS = ["Copilot", "Overall"] as const;
+type Tab = (typeof TABS)[number];
 
-  const tabTriggerClass = "flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium rounded-none border-transparent bg-transparent! shadow-none! text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent! data-[state=active]:border-transparent! after:bg-primary!";
+export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: AISummaryCardProps) {
+  const [activeTab, setActiveTab] = useState<Tab>("Copilot");
+
+  // Sliding underline indicator
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
+  const updateIndicator = useCallback(() => {
+    const el = tabRefs.current[activeTab];
+    if (el) {
+      const parent = el.parentElement;
+      if (parent) {
+        setIndicator({
+          left: el.offsetLeft - parent.offsetLeft,
+          width: el.offsetWidth,
+        });
+      }
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    updateIndicator();
+  }, [updateIndicator, open]);
 
   return (
     <>
@@ -30,29 +51,46 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
           open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
         }`}
       >
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0 gap-0">
-          {/* Tab bar */}
-          <div className="flex items-end border-b border-border px-4 pt-1">
-            <div className="flex-1" />
-            <TabsList variant="line" className="h-auto p-0 bg-transparent gap-1">
-              <TabsTrigger value="Copilot" className={tabTriggerClass}>
-                <Bot className="size-3" />
-                Copilot
-              </TabsTrigger>
-              <TabsTrigger value="Overall" className={tabTriggerClass}>
-                <Globe className="size-3" />
-                Overall
-              </TabsTrigger>
-            </TabsList>
-            <div className="flex-1 flex justify-end">
-              <Button variant="ghost" size="icon-sm" onClick={onToggle} className="mb-1" aria-label="Close daily briefing">
-                <X className="size-4" />
-              </Button>
-            </div>
+        {/* Tab bar */}
+        <div className="flex items-end border-b border-border px-4 pt-1">
+          <div className="flex-1" />
+          <div className="relative flex gap-1">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                ref={(el) => { tabRefs.current[tab] = el; }}
+                onClick={() => setActiveTab(tab)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium transition-colors duration-200 ${
+                  activeTab === tab
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab === "Copilot" ? <Bot className="size-3" /> : <Globe className="size-3" />}
+                {tab}
+              </button>
+            ))}
+            {/* Sliding underline */}
+            <div
+              className="absolute bottom-0 h-[2px] rounded-full bg-primary transition-all duration-300 ease-out"
+              style={{ left: indicator.left, width: indicator.width }}
+            />
           </div>
+          <div className="flex-1 flex justify-end">
+            <Button variant="ghost" size="icon-sm" onClick={onToggle} className="mb-1" aria-label="Close daily briefing">
+              <X className="size-4" />
+            </Button>
+          </div>
+        </div>
 
-          {/* Overall tab */}
-          <TabsContent value="Overall" className="flex-1 overflow-y-auto px-5 py-5 mt-0">
+        {/* Tab content with crossfade */}
+        <div className="relative flex-1 min-h-0">
+          {/* Overall */}
+          <div
+            className={`absolute inset-0 overflow-y-auto px-5 py-5 transition-opacity duration-200 ease-out ${
+              activeTab === "Overall" ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          >
             <div className="mx-auto max-w-2xl flex flex-col gap-4">
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
@@ -72,10 +110,14 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
                 ))}
               </ul>
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Copilot tab — chat interface (coming soon) */}
-          <TabsContent value="Copilot" className="flex-1 flex flex-col overflow-hidden mt-0">
+          {/* Copilot */}
+          <div
+            className={`absolute inset-0 flex flex-col transition-opacity duration-200 ease-out ${
+              activeTab === "Copilot" ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          >
             <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-8">
               <Bot className="size-10 text-muted-foreground/30" />
               <p className="text-sm font-medium text-muted-foreground/50">Ask Shifra anything about the latest intelligence.</p>
@@ -91,15 +133,15 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
                 <Send className="size-4" />
               </Button>
             </div>
-          </TabsContent>
-
-          {/* Disclaimer */}
-          <div className="shrink-0 border-t border-border px-5 py-2.5">
-            <p className="text-2xs leading-relaxed text-destructive/80 max-w-2xl mx-auto">
-              ⚠ AI-generated. May contain inaccuracies — verify against primary sources before operational use.
-            </p>
           </div>
-        </Tabs>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="shrink-0 border-t border-border px-5 py-2.5">
+          <p className="text-2xs leading-relaxed text-destructive/80 max-w-2xl mx-auto">
+            ⚠ AI-generated. May contain inaccuracies — verify against primary sources before operational use.
+          </p>
+        </div>
       </div>
     </>
   );
