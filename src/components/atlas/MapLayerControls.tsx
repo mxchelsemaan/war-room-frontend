@@ -205,7 +205,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
     <div className="relative flex flex-col items-center gap-1">
       <div className={`absolute top-1/2 -translate-y-1/2 left-full ml-2 w-56${open ? "" : " pointer-events-none"}`}>
         <CollapsePanel open={open} direction="right">
-          <div className="glass-panel p-2 max-h-[calc(100vh-14rem)] overflow-y-auto">
+          <div className="glass-panel p-2 max-h-[calc(100vh-14rem)] overflow-y-auto" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
           {/* Intelligence — Event Monitor */}
           <div>
             <p className="px-2 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">

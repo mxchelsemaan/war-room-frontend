@@ -163,7 +163,7 @@ function AtlasViewInner() {
   }, [filteredEvents]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
-  const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen } = usePanelState(["filter", "feed"]);
+  const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(["filter", "feed"]);
 
   // Bottom toolbar panels are mutually exclusive
   const BOTTOM_PANELS: Set<string> = useMemo(() => new Set(["layers", "draw", "legend", "camera"]), []);
@@ -344,7 +344,7 @@ function AtlasViewInner() {
           eventTypeCounts={eventTypeCounts}
         />
         <div className="flex flex-1 min-h-0 min-w-0">
-          <div className="relative flex-1 min-h-0 min-w-0">
+          <div className="relative flex-1 min-h-0 min-w-0" onMouseDown={closeFloatingPanels}>
             <ErrorBoundary>
             <AtlasMap
               events={mapEvents}

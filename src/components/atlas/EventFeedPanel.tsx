@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { format, isToday, parseISO } from "date-fns";
-import { ChevronRight, ChevronDown, Loader2, PictureInPicture2, X, Play, Maximize2, LocateFixed } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Loader2, PictureInPicture2, X, Play, Maximize2, LocateFixed } from "lucide-react";
 import type { EnrichedEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { Badge } from "@/components/ui/badge";
@@ -105,6 +105,95 @@ function getCountryPill(country: string | null): { code: string; flag: string } 
     return { code: upper, flag };
   }
   return null;
+}
+
+/* ── Channel dropdown ─────────────────────────────────────────────────────── */
+
+import type { ChannelGroup } from "@/hooks/useYoutubePlayer";
+
+function ChannelDropdown({ channelGroups, selectedGroup, onSelect }: {
+  channelGroups: ChannelGroup[];
+  selectedGroup: number;
+  onSelect: (idx: number) => void;
+}) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setDropdownOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [dropdownOpen]);
+
+  const liveChannels = channelGroups.filter((g) => g.isLive);
+  const liveCount = liveChannels.length;
+
+  // Build summary label: "Al Jazeera, BBC, and N others live"
+  const summaryLabel = useMemo(() => {
+    if (liveCount === 0) return `${channelGroups.length} channels`;
+    const names = liveChannels.slice(0, 2).map((g) => g.streams[0].display_name);
+    const rest = liveCount - names.length;
+    if (rest > 0) return `${names.join(", ")} +${rest} more live`;
+    return `${names.join(" & ")} live`;
+  }, [liveChannels, liveCount, channelGroups.length]);
+
+  const selected = channelGroups[selectedGroup];
+
+  return (
+    <div ref={ref} className="shrink-0 border-b border-border relative">
+      <button
+        onClick={() => setDropdownOpen(!dropdownOpen)}
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors hover:bg-muted/40"
+      >
+        {selected ? (
+          <>
+            <StatusDot isLive={selected.isLive} />
+            <span className="flex-1 text-left truncate font-semibold">{selected.name}</span>
+          </>
+        ) : (
+          <>
+            {liveCount > 0 && <StatusDot isLive={true} />}
+            <span className="flex-1 text-left truncate text-muted-foreground">{summaryLabel}</span>
+          </>
+        )}
+        {dropdownOpen ? <ChevronUp className="size-3 text-muted-foreground shrink-0" /> : <ChevronDown className="size-3 text-muted-foreground shrink-0" />}
+      </button>
+      {dropdownOpen && (
+        <div className="absolute left-0 right-0 top-full z-50 bg-background border border-border rounded-b-lg shadow-lg max-h-52 overflow-y-auto">
+          {/* Deselect option */}
+          {selectedGroup !== -1 && (
+            <button
+              onClick={() => { onSelect(-1); setDropdownOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/40 transition-colors"
+            >
+              <X className="size-3" />
+              <span>Close player</span>
+            </button>
+          )}
+          {channelGroups.map((g, i) => {
+            const active = selectedGroup === i;
+            return (
+              <button
+                key={g.handle}
+                onClick={() => { onSelect(i); setDropdownOpen(false); }}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-muted/40 ${
+                  active ? "bg-muted/60 font-semibold" : ""
+                } ${!g.isLive ? "opacity-50" : ""}`}
+              >
+                <span className="text-sm leading-none shrink-0">{g.name.split(" ")[0]}</span>
+                <span className="flex-1 text-left truncate">{g.streams[0].display_name}</span>
+                <StatusDot isLive={g.isLive} />
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 interface EventFeedPanelProps {
@@ -265,32 +354,13 @@ export function EventFeedPanel({
           </div>
         )}
 
-        {/* Channel list — show when not popped out, on desktop */}
+        {/* Channel dropdown — show when not popped out, on desktop */}
         {!youtubePopped && !isMobile && channelGroups.length > 0 && (
-          <div className="shrink-0 border-b border-border">
-            <div className="px-3 py-1.5">
-              <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Channels</span>
-            </div>
-            <div className="max-h-40 overflow-y-auto">
-              {channelGroups.map((g, i) => {
-                const live = g.isLive;
-                const selected = selectedGroup === i;
-                return (
-                  <button
-                    key={g.handle}
-                    onClick={() => handleGroupChange(i)}
-                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-muted/40 ${
-                      selected ? "bg-muted/60 font-semibold" : ""
-                    } ${!live ? "opacity-50" : ""}`}
-                  >
-                    <span className="text-sm leading-none shrink-0">{g.name.split(" ")[0]}</span>
-                    <span className="flex-1 text-left truncate">{g.streams[0].display_name}</span>
-                    <StatusDot isLive={live} />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <ChannelDropdown
+            channelGroups={channelGroups}
+            selectedGroup={selectedGroup}
+            onSelect={handleGroupChange}
+          />
         )}
 
         {/* Popped-out indicator — click to dock back */}

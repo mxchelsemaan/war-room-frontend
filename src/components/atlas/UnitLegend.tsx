@@ -27,7 +27,7 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
     <div className="relative flex flex-col items-center gap-1">
       <div className={`absolute bottom-full left-0 mb-1 w-56${open ? "" : " pointer-events-none"}`}>
       <CollapsePanel open={open} direction="up">
-        <div className="glass-panel p-3 max-h-[calc(100vh-14rem)] overflow-y-auto space-y-3">
+        <div className="glass-panel p-3 max-h-[calc(100vh-14rem)] overflow-y-auto space-y-3" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
 
           {!hasContent && (
             <p className="text-xs text-muted-foreground italic">No active layers.</p>

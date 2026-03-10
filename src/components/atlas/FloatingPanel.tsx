@@ -72,6 +72,7 @@ export function FloatingTriggerBtn({ onClick, children, className, showLabels = 
     <Button
       variant="ghost"
       onClick={onClick}
+      onMouseDown={(e) => e.stopPropagation()}
       aria-label={ariaLabel}
       className={cn(
         "glass-panel flex items-center px-3 py-3 md:px-2.5 md:py-2.5 min-h-[44px] md:min-h-0 text-xs font-semibold hover:bg-muted h-auto rounded-md",
