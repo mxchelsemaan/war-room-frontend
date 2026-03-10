@@ -40,8 +40,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env files — .env and .env.production are encrypted via dotenvx (safe to commit)
-# .env.keys holds private decryption keys — NEVER commit
+# env files
+.env
+.env.*
 .env.keys
 
 # claude

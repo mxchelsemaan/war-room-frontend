@@ -9,7 +9,7 @@ function tryCreateClient() {
       return createClient(supabaseUrl, supabaseKey);
     }
   } catch {
-    // Ignore — env vars may be encrypted or invalid during local dev
+    // Ignore — env vars may be missing or invalid
   }
   return null;
 }
