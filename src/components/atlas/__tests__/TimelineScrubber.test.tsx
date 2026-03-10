@@ -1,13 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { TimelineScrubber } from "../TimelineScrubber";
+import type { TimelineDateEntry } from "@/types/events";
 
-const DATES = [
-  "2024-10-01",
-  "2024-10-02",
-  "2024-10-03",
-  "2024-10-04",
-  "2024-10-05",
+const DATES: TimelineDateEntry[] = [
+  { day: "2024-10-01", count: 5 },
+  { day: "2024-10-02", count: 12 },
+  { day: "2024-10-03", count: 3 },
+  { day: "2024-10-04", count: 8 },
+  { day: "2024-10-05", count: 1 },
 ];
 
 function renderScrubber(props: Partial<React.ComponentProps<typeof TimelineScrubber>> = {}) {
@@ -46,10 +47,10 @@ describe("TimelineScrubber", () => {
     fireEvent.click(screen.getByLabelText("Play"));
 
     act(() => { vi.advanceTimersByTime(900); });
-    expect(onChange).toHaveBeenCalledWith(DATES[1]);
+    expect(onChange).toHaveBeenCalledWith(DATES[1].day);
 
     act(() => { vi.advanceTimersByTime(900); });
-    expect(onChange).toHaveBeenCalledWith(DATES[2]);
+    expect(onChange).toHaveBeenCalledWith(DATES[2].day);
   });
 
   it("switches to Pause button while playing", () => {
@@ -77,7 +78,7 @@ describe("TimelineScrubber", () => {
     renderScrubber({ onChange });
     const tickBtn = screen.getByText("3 Oct");
     fireEvent.click(tickBtn);
-    expect(onChange).toHaveBeenCalledWith(DATES[2]);
+    expect(onChange).toHaveBeenCalledWith(DATES[2].day);
   });
 
   it("'Clear' button calls onChange with null", () => {
@@ -106,7 +107,7 @@ describe("TimelineScrubber", () => {
     fireEvent.click(screen.getByLabelText("Play"));
 
     act(() => { vi.advanceTimersByTime(900); });
-    const calls = onChange.mock.calls.filter((c) => c[0] !== DATES[0]);
+    const calls = onChange.mock.calls.filter((c) => c[0] !== DATES[0].day);
     expect(calls.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -125,7 +126,7 @@ describe("TimelineScrubber", () => {
     act(() => { vi.advanceTimersByTime(900); });
     act(() => { vi.advanceTimersByTime(900); });
     const calls = onChange.mock.calls.map((c) => c[0]);
-    expect(calls).toContain(DATES[0]);
+    expect(calls).toContain(DATES[0].day);
   });
 
   it("collapse button hides slider and tick labels", () => {
@@ -139,5 +140,19 @@ describe("TimelineScrubber", () => {
   it("play/pause controls remain visible", () => {
     renderScrubber({ open: false });
     expect(screen.getByLabelText("Play")).toBeInTheDocument();
+  });
+
+  it("calls onPrefetchDay for upcoming days during playback", () => {
+    const onChange = vi.fn();
+    const onPrefetchDay = vi.fn();
+    renderScrubber({ onChange, onPrefetchDay });
+
+    fireEvent.click(screen.getByLabelText("Play"));
+
+    act(() => { vi.advanceTimersByTime(900); });
+    // Should prefetch days 2, 3, 4 (indices ahead of current=1)
+    expect(onPrefetchDay).toHaveBeenCalledWith(DATES[2].day);
+    expect(onPrefetchDay).toHaveBeenCalledWith(DATES[3].day);
+    expect(onPrefetchDay).toHaveBeenCalledWith(DATES[4].day);
   });
 });

@@ -71,3 +71,18 @@ export interface EventTypeMeta {
   icon: string;
   color: string;
 }
+
+/** Timeline date entry with event count (from materialized view) */
+export interface TimelineDateEntry {
+  day: string;
+  count: number;
+}
+
+/** Aggregated filter facets from materialized view */
+export interface FilterFacets {
+  by_type: Record<string, number>;
+  by_severity: Record<string, number>;
+  by_region: Record<string, number>;
+  by_source_type: Record<string, number>;
+  total: number;
+}

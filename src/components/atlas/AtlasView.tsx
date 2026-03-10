@@ -25,7 +25,9 @@ import { AnnotationProvider, useAnnotationContext } from "@/context/AnnotationCo
 import { UnitPlacementProvider, useUnitPlacementContext } from "@/context/UnitPlacementContext";
 import type { StaticMarkerType } from "@/data/staticMarkers";
 import { STATIC_MARKER_META } from "@/data/staticMarkers";
-import { useEvents } from "@/hooks/useEvents";
+import { useRecentEvents } from "@/hooks/useRecentEvents";
+import { useTimelineDates } from "@/hooks/useTimelineDates";
+import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import type { FilterOption } from "./FilterSidebar";
@@ -104,19 +106,44 @@ function AtlasViewInner() {
   const up = useUnitPlacementContext();
   const yt = useYoutubePlayer();
 
-  // Fetch live events from Supabase
+  // Fetch live events from Supabase — tiered loading
   const {
     events: allEvents,
     eventTypes: liveEventTypes,
     totalCount,
     isLoading,
     error,
-  } = useEvents(filters.dateFrom || undefined, filters.dateTo || undefined);
+    fetchDateRange,
+    fetchDay,
+  } = useRecentEvents();
 
-  // Extract dynamic filter options from all loaded events
-  const regionOptions = useMemo(() => extractOptions(allEvents, (e) => e.location.region), [allEvents]);
+  // Timeline dates from materialized view
+  const { dates: timelineDateEntries } = useTimelineDates(
+    filters.dateFrom || undefined,
+    filters.dateTo || undefined,
+  );
+
+  // Filter facets from materialized view
+  const { facets } = useFilterFacets(
+    filters.dateFrom || undefined,
+    filters.dateTo || undefined,
+  );
+
+  // Derive filter options from facets (mat view) — fast, no full iteration
+  const regionOptions = useMemo<FilterOption[]>(() =>
+    Object.entries(facets.by_region).map(([key, count]) => ({
+      key, label: toLabel(key), count,
+    })).sort((a, b) => a.label.localeCompare(b.label)),
+  [facets.by_region]);
+
+  const sourceTypeOptions = useMemo<FilterOption[]>(() =>
+    Object.entries(facets.by_source_type).map(([key, count]) => ({
+      key, label: toLabel(key), count,
+    })).sort((a, b) => a.label.localeCompare(b.label)),
+  [facets.by_source_type]);
+
+  // Weapon systems still extracted client-side (not in mat view)
   const weaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
-  const sourceTypeOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceType), [allEvents]);
 
   // Initialize selected types + attacker defaults when live data arrives
   const typesInitialized = useRef(false);
@@ -131,9 +158,20 @@ function AtlasViewInner() {
   }, [liveEventTypes]);
 
 
-  // Count events per event type — applies all filters EXCEPT event type so
-  // each type shows how many events would appear if toggled on
+  // Event type counts — use facets from mat view when no secondary filters active,
+  // fall back to client-side iteration when secondary filters narrow the data
   const eventTypeCounts = useMemo(() => {
+    const hasSecondaryFilters =
+      filters.selectedSeverities.size > 0 ||
+      filters.selectedRegions.size > 0 ||
+      filters.selectedWeaponSystems.size > 0 ||
+      filters.selectedSourceTypes.size > 0;
+
+    if (!hasSecondaryFilters && Object.keys(facets.by_type).length > 0) {
+      return new Map(Object.entries(facets.by_type));
+    }
+
+    // Fallback: iterate loaded events with secondary filters applied
     const counts = new Map<string, number>();
     for (const e of allEvents) {
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(e.severity)) continue;
@@ -143,7 +181,7 @@ function AtlasViewInner() {
       counts.set(e.eventType, (counts.get(e.eventType) ?? 0) + 1);
     }
     return counts;
-  }, [allEvents, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
+  }, [allEvents, facets.by_type, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
 
   // Client-side filter by all selected filters
   const filteredEvents = useMemo(() => {
@@ -157,11 +195,16 @@ function AtlasViewInner() {
     });
   }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
 
+  // Timeline dates from materialized view (or fallback to client-side)
   const timelineDates = useMemo(() => {
-    const seen = new Set<string>();
-    filteredEvents.forEach((e) => seen.add(e.date));
-    return Array.from(seen).sort();
-  }, [filteredEvents]);
+    if (timelineDateEntries.length > 0) return timelineDateEntries;
+    // Fallback: derive from loaded events
+    const counts = new Map<string, number>();
+    filteredEvents.forEach((e) => counts.set(e.date, (counts.get(e.date) ?? 0) + 1));
+    return Array.from(counts.entries())
+      .map(([day, count]) => ({ day, count }))
+      .sort((a, b) => a.day.localeCompare(b.day));
+  }, [timelineDateEntries, filteredEvents]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(isMobile ? [] : ["filter", "feed"]);
@@ -244,9 +287,13 @@ function AtlasViewInner() {
     });
   }, []);
 
+  // When date range changes, fetch that range and reset timeline
   useEffect(() => {
     setTimelineDay(null);
-  }, [filters.dateFrom, filters.dateTo]);
+    if (filters.dateFrom && filters.dateTo) {
+      fetchDateRange(filters.dateFrom.slice(0, 10), filters.dateTo.slice(0, 10));
+    }
+  }, [filters.dateFrom, filters.dateTo, fetchDateRange]);
 
   // Disable 3D terrain on mobile
   useEffect(() => {
@@ -333,7 +380,7 @@ function AtlasViewInner() {
           eventTypes={liveEventTypes}
           filters={filters}
           filteredCount={filteredEvents.length}
-          totalCount={totalCount}
+          totalCount={facets.total > 0 ? facets.total : totalCount}
           onFiltersChange={setFilters}
           onClear={handleClearFilters}
           open={isPanelOpen('filter')}
