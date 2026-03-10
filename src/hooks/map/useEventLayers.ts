@@ -100,7 +100,7 @@ export function useEventLayers(
     const vis = markersEnabled ? "visible" : "none";
 
     const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
-      ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0, CROSSFADE.FADE_END, 1] as unknown as maplibregl.ExpressionSpecification
+      ? ["case", ["get", "isRecent"], 1, ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0, CROSSFADE.FADE_END, 1]] as unknown as maplibregl.ExpressionSpecification
       : 1;
 
     if (!map.getSource("events-points")) {
@@ -168,7 +168,7 @@ export function useEventLayers(
     if (!map || !map.getLayer("event-pins")) return;
 
     const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
-      ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0, CROSSFADE.FADE_END, 1] as unknown as maplibregl.ExpressionSpecification
+      ? ["case", ["get", "isRecent"], 1, ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0, CROSSFADE.FADE_END, 1]] as unknown as maplibregl.ExpressionSpecification
       : 1;
 
     map.setPaintProperty("event-pins", "icon-opacity", iconOpacity);
