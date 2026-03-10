@@ -26,13 +26,16 @@ import { UnitPlacementProvider, useUnitPlacementContext } from "@/context/UnitPl
 import type { StaticMarkerType } from "@/data/staticMarkers";
 import { STATIC_MARKER_META } from "@/data/staticMarkers";
 import { useRecentEvents } from "@/hooks/useRecentEvents";
+import { useMapMarkers } from "@/hooks/useMapMarkers";
+import { useFeedEvents } from "@/hooks/useFeedEvents";
+import type { FeedFilters } from "@/hooks/useFeedEvents";
 import { useTimelineDates } from "@/hooks/useTimelineDates";
 import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import type { FilterOption } from "./FilterSidebar";
 import type { MapEvent } from "@/data/index";
-import type { EnrichedEvent } from "@/types/events";
+import type { EnrichedEvent, MapMarkerEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { subHours } from "date-fns";
 
@@ -65,24 +68,18 @@ function extractOptions(events: EnrichedEvent[], getter: (e: EnrichedEvent) => s
   return Array.from(seen).sort().map((v) => ({ key: v, label: toLabel(v) }));
 }
 
-/** Convert EnrichedEvent[] to MapEvent[] (only events with coordinates) */
-function toMapEvents(events: EnrichedEvent[]): MapEvent[] {
-  return events
-    .filter((e) => e.location.lat != null && e.location.lng != null)
-    .map((e) => ({
-      id: e.id,
-      event_type: e.eventType,
-      event_icon: getEventTypeMeta(e.eventType).icon,
-      event_label: getEventTypeMeta(e.eventType).label,
-      event_location: { name: e.location.name, lat: e.location.lat!, lng: e.location.lng! },
-      event_count: 1,
-      date: e.date,
-      summary: e.summary,
-      severity: e.severity,
-      sourceChannel: e.sourceChannel ?? undefined,
-      verificationStatus: e.verificationStatus,
-      casualties: e.casualties,
-    }));
+/** Convert MapMarkerEvent[] to MapEvent[] for the map layers */
+function markersToMapEvents(markers: MapMarkerEvent[]): MapEvent[] {
+  return markers.map((m) => ({
+    id: m.id,
+    event_type: m.event_type,
+    event_icon: m.event_icon,
+    event_label: m.event_label,
+    event_location: m.event_location,
+    event_count: m.event_count,
+    date: m.date,
+    severity: m.severity,
+  }));
 }
 
 export function AtlasView() {
@@ -111,11 +108,21 @@ function AtlasViewInner() {
     events: allEvents,
     eventTypes: liveEventTypes,
     totalCount,
-    isLoading,
-    error,
+    isLoading: eventsLoading,
+    error: eventsError,
     fetchDateRange,
     fetchDay,
   } = useRecentEvents();
+
+  // Priority 1+2+3: Slim map markers with Realtime + stale eviction
+  const {
+    markers: mapMarkers,
+    isLoading: markersLoading,
+    error: markersError,
+  } = useMapMarkers();
+
+  const isLoading = eventsLoading || markersLoading;
+  const error = eventsError || markersError;
 
   // Timeline dates from materialized view
   const { dates: timelineDateEntries } = useTimelineDates(
@@ -144,6 +151,23 @@ function AtlasViewInner() {
 
   // Weapon systems still extracted client-side (not in mat view)
   const weaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
+
+  // Priority 4: Server-side feed pagination
+  const feedFilters = useMemo<FeedFilters>(() => ({
+    types: filters.selectedTypes.size > 0 ? Array.from(filters.selectedTypes) : undefined,
+    severities: filters.selectedSeverities.size > 0 ? Array.from(filters.selectedSeverities) : undefined,
+    regions: filters.selectedRegions.size > 0 ? Array.from(filters.selectedRegions) : undefined,
+    sourceTypes: filters.selectedSourceTypes.size > 0 ? Array.from(filters.selectedSourceTypes) : undefined,
+  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes]);
+
+  const {
+    events: feedEvents,
+    loadMore: feedLoadMore,
+    hasMore: feedHasMore,
+    isLoading: feedLoading,
+    isLoadingMore: feedLoadingMore,
+    error: feedError,
+  } = useFeedEvents(feedFilters);
 
   // Initialize selected types + attacker defaults when live data arrives
   const typesInitialized = useRef(false);
@@ -307,7 +331,23 @@ function AtlasViewInner() {
     return filteredEvents.filter((e) => e.date === timelineDay);
   }, [filteredEvents, timelineDay]);
 
-  const mapEvents = useMemo(() => toMapEvents(displayEvents), [displayEvents]);
+  // Map uses slim markers (Priority 1), filtered by current type/severity selection
+  const filteredMarkers = useMemo(() => {
+    return mapMarkers.filter((m) => {
+      if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(m.event_type)) return false;
+      if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(m.severity)) return false;
+      if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(m.locationRegion ?? "")) return false;
+      if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(m.sourceType)) return false;
+      return true;
+    });
+  }, [mapMarkers, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes]);
+
+  const displayMarkers = useMemo(() => {
+    if (!timelineDay) return filteredMarkers;
+    return filteredMarkers.filter((m) => m.date === timelineDay);
+  }, [filteredMarkers, timelineDay]);
+
+  const mapEvents = useMemo(() => markersToMapEvents(displayMarkers), [displayMarkers]);
 
   return (
     <div className="flex flex-col h-full w-full min-h-0 min-w-0">
@@ -498,12 +538,15 @@ function AtlasViewInner() {
             {/* Timeline scrubber removed for now */}
           </div>
           <EventFeedPanel
-            events={displayEvents}
+            events={feedEvents}
             activeDay={timelineDay}
             open={isPanelOpen('feed')}
             onOpenChange={(v) => setPanelOpen('feed', v)}
-            isLoading={isLoading}
-            error={error}
+            isLoading={feedLoading}
+            isLoadingMore={feedLoadingMore}
+            error={feedError}
+            hasMore={feedHasMore}
+            onLoadMore={feedLoadMore}
             yt={yt}
             youtubePopped={isPanelOpen('youtube')}
             onPopOutYouTube={handlePopOutYouTube}
