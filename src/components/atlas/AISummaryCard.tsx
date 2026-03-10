@@ -10,9 +10,9 @@ interface AISummaryCardProps {
 }
 
 export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: AISummaryCardProps) {
-  const [activeTab, setActiveTab] = useState<string>("Overall");
+  const [activeTab, setActiveTab] = useState<string>("Copilot");
 
-  const tabTriggerClass = "flex items-center gap-1.5 px-5 py-1.5 text-xs font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-primary/10 data-[state=active]:text-primary";
+  const tabTriggerClass = "flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium rounded-none border-transparent bg-transparent! shadow-none! text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent! data-[state=active]:border-transparent! after:bg-primary!";
 
   return (
     <>
@@ -32,19 +32,18 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
       >
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0 gap-0">
           {/* Tab bar */}
-          <div className="flex items-center border-b border-border px-4 pt-3 pb-2">
-            <div className="flex-1" />
-            <TabsList className="h-auto p-0 bg-transparent gap-2">
-              <TabsTrigger value="Overall" className={tabTriggerClass}>
-                <Globe className="size-3" />
-                Overall
-              </TabsTrigger>
+          <div className="flex items-end border-b border-border px-4 pt-1">
+            <TabsList variant="line" className="h-auto p-0 bg-transparent gap-1">
               <TabsTrigger value="Copilot" className={tabTriggerClass}>
                 <Bot className="size-3" />
                 Copilot
               </TabsTrigger>
+              <TabsTrigger value="Overall" className={tabTriggerClass}>
+                <Globe className="size-3" />
+                Overall
+              </TabsTrigger>
             </TabsList>
-            <div className="flex-1 flex justify-end">
+            <div className="ml-auto mb-1">
               <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Close daily briefing">
                 <X className="size-4" />
               </Button>
