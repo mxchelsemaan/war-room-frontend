@@ -237,8 +237,8 @@ function AtlasViewInner() {
   const handleFlyToEvent = useCallback((lat: number, lng: number) => {
     mapRef.current?.getMap().flyTo({
       center: [lng, lat],
-      zoom: 14,
-      duration: 2500,
+      zoom: 11,
+      duration: 4000,
       easing: (t: number) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
     });
   }, []);

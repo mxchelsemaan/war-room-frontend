@@ -46,6 +46,14 @@ const SEVERITY_COLORS: Record<string, string> = {
   minor:    "bg-slate-400",
 };
 
+/** Event types classified as "news" (statements, political, updates) — everything else is "events" */
+const NEWS_TYPES = new Set([
+  "military_statement", "political_statement", "diplomatic_meeting",
+  "government_formation", "legislation", "judicial_proceedings",
+  "trade_disruption", "economic_crisis", "civil_defense_update",
+  "civil_defense_warning", "all_clear", "humanitarian",
+]);
+
 
 /** Map country name → [ISO 2-letter code, flag emoji] */
 const COUNTRY_META: Record<string, [code: string, flag: string]> = {
@@ -137,8 +145,18 @@ export function EventFeedPanel({
   onFlyToEvent,
 }: EventFeedPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const groups = useMemo(() => groupByDate(events), [events]);
   const isMobile = useIsMobile();
+  const [showEvents, setShowEvents] = useState(true);
+  const [showNews, setShowNews] = useState(true);
+
+  const filteredEvents = useMemo(() => {
+    if (showEvents && showNews) return events;
+    return events.filter((e) => {
+      const isNews = NEWS_TYPES.has(e.eventType);
+      return isNews ? showNews : showEvents;
+    });
+  }, [events, showEvents, showNews]);
+  const groups = useMemo(() => groupByDate(filteredEvents), [filteredEvents]);
 
   function handleToggle() {
     onOpenChange(!open);
@@ -181,6 +199,26 @@ export function EventFeedPanel({
           {(open || isMobile) && (
             <>
               <span className="text-sm font-semibold">Live Feeds</span>
+              <div className="flex items-center gap-2 ml-auto">
+                <label className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showEvents}
+                    onChange={(e) => setShowEvents(e.target.checked)}
+                    className="size-3 accent-red-500 cursor-pointer"
+                  />
+                  <span className="text-2xs text-muted-foreground">Events</span>
+                </label>
+                <label className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showNews}
+                    onChange={(e) => setShowNews(e.target.checked)}
+                    className="size-3 accent-purple-500 cursor-pointer"
+                  />
+                  <span className="text-2xs text-muted-foreground">News</span>
+                </label>
+              </div>
             </>
           )}
         </div>
