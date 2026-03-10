@@ -86,3 +86,31 @@ export interface FilterFacets {
   by_source_type: Record<string, number>;
   total: number;
 }
+
+/** Slim row from get_map_markers / get_new_markers_since RPCs */
+export interface MapMarkerRow {
+  id: string;
+  event_type: string;
+  severity: string | null;
+  lat: number;
+  lng: number;
+  date: string;            // ISO timestamptz
+  source_type: string;
+  location_name: string | null;
+  location_region: string | null;
+  enriched_at: string;
+}
+
+/** Display-ready marker for the map (converted from MapMarkerRow) */
+export interface MapMarkerEvent {
+  id: string;
+  event_type: string;
+  event_icon: string;
+  event_label: string;
+  event_location: { name: string; lat: number; lng: number };
+  event_count: number;
+  date: string;            // yyyy-MM-dd
+  severity: string;
+  sourceType: string;
+  locationRegion: string | null;
+}

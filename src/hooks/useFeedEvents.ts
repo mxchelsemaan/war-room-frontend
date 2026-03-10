@@ -1,0 +1,147 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { transformRow } from "@/lib/transformEvent";
+import { isLebanonRelated } from "@/lib/filterUtils";
+import type { EventRow, EnrichedEvent } from "@/types/events";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+
+const THEATER_COUNTRIES = ["LB", "IL", "SY", "PS"];
+const PAGE_SIZE = 30;
+
+export interface FeedFilters {
+  types?: string[];
+  severities?: string[];
+  regions?: string[];
+  sourceTypes?: string[];
+}
+
+export interface UseFeedEventsReturn {
+  events: EnrichedEvent[];
+  loadMore: () => void;
+  hasMore: boolean;
+  isLoading: boolean;
+  isLoadingMore: boolean;
+  error: string | null;
+}
+
+export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
+  const [events, setEvents] = useState<EnrichedEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const cursorRef = useRef<string | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
+  // Serialize filters for dependency tracking
+  const filterKey = useMemo(
+    () => JSON.stringify(filters),
+    [filters],
+  );
+
+  const fetchPage = useCallback(async (cursor: string | null, isInitial: boolean) => {
+    if (!supabase) {
+      setError("Supabase not configured");
+      setIsLoading(false);
+      return;
+    }
+
+    if (isInitial) setIsLoading(true);
+    else setIsLoadingMore(true);
+
+    try {
+      const params: Record<string, unknown> = {
+        p_countries: THEATER_COUNTRIES,
+        p_limit: PAGE_SIZE,
+      };
+      if (filters.types?.length) params.p_types = filters.types;
+      if (filters.severities?.length) params.p_severities = filters.severities;
+      if (filters.regions?.length) params.p_regions = filters.regions;
+      if (filters.sourceTypes?.length) params.p_source_types = filters.sourceTypes;
+      if (cursor) params.p_cursor = cursor;
+
+      const { data, error: rpcErr } = await supabase.rpc("get_feed_events", params);
+
+      if (rpcErr) throw rpcErr;
+
+      const rows = (data ?? []) as EventRow[];
+      const filtered = rows.filter(isLebanonRelated);
+      const enriched = filtered.map(transformRow);
+
+      if (isInitial) {
+        setEvents(enriched);
+      } else {
+        setEvents((prev) => [...prev, ...enriched]);
+      }
+
+      setHasMore(rows.length === PAGE_SIZE);
+
+      // Update cursor to the last event's dateTime for next page
+      if (enriched.length > 0) {
+        const last = enriched[enriched.length - 1];
+        cursorRef.current = last.dateTime ?? last.date;
+      }
+
+      setError(null);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch feed");
+    } finally {
+      if (isInitial) setIsLoading(false);
+      else setIsLoadingMore(false);
+    }
+  }, [filters]);
+
+  // Reset and fetch first page when filters change
+  useEffect(() => {
+    cursorRef.current = null;
+    setHasMore(true);
+    fetchPage(null, true);
+  }, [filterKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Realtime: prepend new events to feed
+  useEffect(() => {
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel("feed-realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "events" },
+        (payload) => {
+          const row = payload.new as EventRow;
+          if (row.latitude == null || row.longitude == null) return;
+          if (!isLebanonRelated(row)) return;
+
+          const enriched = transformRow(row);
+
+          // Check if it matches current filters
+          if (filters.types?.length && !filters.types.includes(enriched.eventType)) return;
+          if (filters.severities?.length && !filters.severities.includes(enriched.severity)) return;
+          if (filters.regions?.length && !filters.regions.includes(enriched.location.region ?? "")) return;
+          if (filters.sourceTypes?.length && !filters.sourceTypes.includes(enriched.sourceType)) return;
+
+          setEvents((prev) => {
+            // Deduplicate
+            if (prev.some((e) => e.id === enriched.id)) return prev;
+            return [enriched, ...prev];
+          });
+        },
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+
+    return () => {
+      supabase!.removeChannel(channel);
+      channelRef.current = null;
+    };
+  }, [filterKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || isLoadingMore) return;
+    fetchPage(cursorRef.current, false);
+  }, [hasMore, isLoadingMore, fetchPage]);
+
+  return { events, loadMore, hasMore, isLoading, isLoadingMore, error };
+}

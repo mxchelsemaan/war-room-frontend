@@ -1,4 +1,5 @@
-import type { EventRow, EnrichedEvent } from "@/types/events";
+import type { EventRow, EnrichedEvent, MapMarkerRow, MapMarkerEvent } from "@/types/events";
+import { getEventTypeMeta } from "@/config/eventTypes";
 
 /** Transform a raw DB row into a display-ready EnrichedEvent */
 export function transformRow(row: EventRow): EnrichedEvent {
@@ -36,5 +37,28 @@ export function transformRow(row: EventRow): EnrichedEvent {
     topics: Array.isArray(d.topics) ? d.topics : [],
     sourceClaim: d.source_claim ?? null,
     mediaUrl: row.media_url ?? null,
+  };
+}
+
+/** Transform a slim marker row into a map-ready marker */
+export function transformMarkerRow(row: MapMarkerRow): MapMarkerEvent {
+  const meta = getEventTypeMeta(row.event_type);
+  const rawDate = row.date ? row.date.slice(0, 10) : "Unknown";
+
+  return {
+    id: row.id,
+    event_type: row.event_type,
+    event_icon: meta.icon,
+    event_label: meta.label,
+    event_location: {
+      name: row.location_name ?? "Unknown location",
+      lat: row.lat,
+      lng: row.lng,
+    },
+    event_count: 1,
+    date: rawDate,
+    severity: row.severity ?? "moderate",
+    sourceType: row.source_type,
+    locationRegion: row.location_region ?? null,
   };
 }
