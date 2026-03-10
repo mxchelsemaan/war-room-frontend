@@ -29,6 +29,7 @@ export function CollapsePanel({ open, direction = "down", className, children }:
           "grid transition-[grid-template-columns] duration-200 ease-out",
           direction === "left" && "ml-auto",
           open ? "grid-cols-[1fr]" : "grid-cols-[0fr]",
+          !open && "pointer-events-none",
           className
         )}
       >

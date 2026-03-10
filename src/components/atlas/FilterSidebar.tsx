@@ -78,12 +78,16 @@ export function FilterSidebar({
 }: FilterSidebarProps) {
   const isMobile = useIsMobile();
 
+  const fmtDate = (iso: string) => {
+    const d = parseISO(iso);
+    return iso.includes("T") ? format(d, "dd MMM, HH:mm") : format(d, "dd MMM yyyy");
+  };
   const dateLabel = filters.dateFrom
     ? filters.dateTo
-      ? `${format(parseISO(filters.dateFrom), "dd MMM")} \u2013 ${format(parseISO(filters.dateTo), "dd MMM yyyy")}`
-      : format(parseISO(filters.dateFrom), "dd MMM yyyy")
+      ? `${fmtDate(filters.dateFrom)} \u2013 ${fmtDate(filters.dateTo)}`
+      : fmtDate(filters.dateFrom)
     : filters.dateTo
-      ? `\u2264 ${format(parseISO(filters.dateTo), "dd MMM yyyy")}`
+      ? `\u2264 ${fmtDate(filters.dateTo)}`
       : null;
 
   // Helper to update a specific Set filter field

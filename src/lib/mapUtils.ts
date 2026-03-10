@@ -1,5 +1,31 @@
 import maplibregl from "maplibre-gl";
 
+// ── Pulse ring image ────────────────────────────────────────────────────────
+
+const PULSE_RING_SIZE = 128;        // canvas px (large enough for smooth scaling)
+const PULSE_RING_STROKE = 4;        // stroke width in canvas px
+let _pulseRingRegistered = false;
+
+/** Register a reusable red ring image for the pulse symbol layer */
+export function registerPulseRingImage(map: maplibregl.Map) {
+  if (_pulseRingRegistered || map.hasImage("pulse-ring")) {
+    _pulseRingRegistered = true;
+    return;
+  }
+  const size = PULSE_RING_SIZE;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, (size - PULSE_RING_STROKE) / 2, 0, Math.PI * 2);
+  ctx.strokeStyle = "#ef4444";
+  ctx.lineWidth = PULSE_RING_STROKE;
+  ctx.stroke();
+  map.addImage("pulse-ring", { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
+  _pulseRingRegistered = true;
+}
+
 /** Helper: add source + layers if not present, otherwise toggle visibility */
 export function ensureLayers(
   map: maplibregl.Map,

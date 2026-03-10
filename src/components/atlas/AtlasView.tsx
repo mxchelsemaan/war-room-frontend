@@ -32,11 +32,9 @@ import type { FilterOption } from "./FilterSidebar";
 import type { MapEvent } from "@/data/index";
 import type { EnrichedEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { subDays, format } from "date-fns";
+import { subHours } from "date-fns";
 
 function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
-  const today = format(new Date(), "yyyy-MM-dd");
-  const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
   return {
     selectedTypes: new Set(typeKeys ?? []),
     selectedInfraTypes: new Set(Object.keys(STATIC_MARKER_META) as StaticMarkerType[]),
@@ -44,8 +42,8 @@ function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
     selectedRegions: new Set<string>(),
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
-    dateFrom: yesterday,
-    dateTo: today,
+    dateFrom: subHours(new Date(), 12).toISOString(),
+    dateTo: new Date().toISOString(),
   };
 }
 
@@ -235,6 +233,15 @@ function AtlasViewInner() {
       duration: 900,
     });
   }
+
+  const handleFlyToEvent = useCallback((lat: number, lng: number) => {
+    mapRef.current?.getMap().flyTo({
+      center: [lng, lat],
+      zoom: 14,
+      duration: 2500,
+      easing: (t: number) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+    });
+  }, []);
 
   useEffect(() => {
     setTimelineDay(null);
@@ -453,6 +460,7 @@ function AtlasViewInner() {
             youtubePopped={isPanelOpen('youtube')}
             onPopOutYouTube={handlePopOutYouTube}
             onDockYouTube={handleDockYouTube}
+            onFlyToEvent={handleFlyToEvent}
           />
         </div>
       </div>

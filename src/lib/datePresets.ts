@@ -1,4 +1,4 @@
-import { subDays, subMonths, startOfYear, format } from "date-fns";
+import { subDays, subHours, subMonths, startOfYear, format } from "date-fns";
 
 export interface DatePreset {
   key: string;
@@ -7,6 +7,14 @@ export interface DatePreset {
 }
 
 export const DATE_PRESETS: DatePreset[] = [
+  {
+    key: "last_12h",
+    label: "Last 12 hours",
+    getRange: () => ({
+      from: subHours(new Date(), 12).toISOString(),
+      to: new Date().toISOString(),
+    }),
+  },
   {
     key: "yesterday",
     label: "Yesterday",

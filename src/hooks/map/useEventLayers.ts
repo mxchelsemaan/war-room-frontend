@@ -4,7 +4,7 @@ import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
-import { registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
+import { registerPinImages, registerPulseRingImage, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
 import { getEventTypeColor } from "@/config/eventTypes";
 import { CROSSFADE } from "@/config/map";
 
@@ -95,6 +95,7 @@ export function useEventLayers(
     if (!map) return;
 
     registerPinImages(map, uniqueEmojis, pinColors, bgFill);
+    registerPulseRingImage(map);
 
     const vis = markersEnabled ? "visible" : "none";
 
@@ -108,18 +109,25 @@ export function useEventLayers(
         data: geoJson,
       });
 
-      // ── Pulse circle layer (below pins) — only for recent events ──
+      // ── Pulse ring symbol layer (below pins) — only for recent events ──
+      // Uses a symbol layer instead of circle so it elevates with 3D terrain
       map.addLayer({
         id: "event-pulse",
-        type: "circle",
+        type: "symbol",
         source: "events-points",
         filter: ["==", ["get", "isRecent"], true],
-        layout: { visibility: vis },
+        layout: {
+          visibility: vis,
+          "icon-image": "pulse-ring",
+          "icon-size": 0.1,                         // animated in useMapAnimation
+          "icon-anchor": "center",
+          "icon-pitch-alignment": "viewport",
+          "icon-rotation-alignment": "viewport",
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
         paint: {
-          "circle-color": "#ef4444",
-          "circle-radius": 10,
-          "circle-opacity": 0.1,
-          "circle-blur": 0.6,
+          "icon-opacity": 0.8,                      // animated in useMapAnimation
         },
       });
 

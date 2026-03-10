@@ -87,10 +87,10 @@ export function useHeatmapLayer(
     const vis = heatmapEnabled ? "visible" : "none";
     const s = settingsRef.current;
     const scheme = HEATMAP_COLOR_SCHEMES[s?.colorScheme ?? "fire"] ?? HEATMAP_COLOR_SCHEMES.fire;
-    const drape = s?.drapeOnTerrain && terrainEnabled;
-    const radius = (s?.radius ?? 25) * (drape ? 1.2 : 1);
-    const intensity = s?.intensity ?? 1.5;
-    const opacity = (s?.opacity ?? 0.6) * (drape ? 0.7 : 1);
+    const drape = s?.drapeOnTerrain ?? false;
+    const radius = (s?.radius ?? 25) * (drape ? 1.5 : 1);
+    const intensity = (s?.intensity ?? 1.5) * (drape ? 0.8 : 1);
+    const opacity = (s?.opacity ?? 0.6) * (drape ? 0.6 : 1);
 
     if (!map.getSource(HEATMAP_SOURCE)) {
       map.addSource(HEATMAP_SOURCE, {
@@ -141,18 +141,19 @@ export function useHeatmapLayer(
     if (!map || !map.getLayer(HEATMAP_LAYER)) return;
 
     const scheme = HEATMAP_COLOR_SCHEMES[settings.colorScheme] ?? HEATMAP_COLOR_SCHEMES.fire;
-    const drape = settings.drapeOnTerrain && terrainEnabled;
-    const radius = settings.radius * (drape ? 1.2 : 1);
-    const opacity = settings.opacity * (drape ? 0.7 : 1);
+    const drape = settings.drapeOnTerrain ?? false;
+    const radius = settings.radius * (drape ? 1.5 : 1);
+    const opacity = settings.opacity * (drape ? 0.6 : 1);
 
     // Also update the source data when preset changes (filtering/weighting)
     const src = map.getSource(HEATMAP_SOURCE) as maplibregl.GeoJSONSource | undefined;
     if (src) src.setData(geoJsonRef.current);
 
+    const intensity = settings.intensity * (drape ? 0.8 : 1);
     map.setPaintProperty(HEATMAP_LAYER, "heatmap-intensity", [
       "interpolate", ["linear"], ["zoom"],
-      7, settings.intensity * 0.53,
-      12, settings.intensity * 1.33,
+      7, intensity * 0.53,
+      12, intensity * 1.33,
     ]);
     map.setPaintProperty(HEATMAP_LAYER, "heatmap-radius", [
       "interpolate", ["linear"], ["zoom"],

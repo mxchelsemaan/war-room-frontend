@@ -35,7 +35,7 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
 
   return (
     <div className="relative flex flex-col items-center gap-1">
-      <div className="absolute bottom-full right-0 mb-1 w-max">
+      <div className={`absolute bottom-full right-0 mb-1 w-max${open ? "" : " pointer-events-none"}`}>
         <CollapsePanel open={open} direction="up">
           <div className="glass-panel p-1.5 rounded-xl grid grid-cols-3 gap-px place-items-center">
           {/* Row 1: zoom in + up + zoom out */}

@@ -79,7 +79,7 @@ const MONITOR_OPTIONS: { value: MonitorMode; label: React.ReactNode }[] = [
 const schemeKeys = Object.keys(HEATMAP_COLOR_SCHEMES);
 const presetKeys = Object.keys(HEATMAP_PRESETS);
 
-function HeatmapConfig({ settings, onChange, terrainEnabled }: { settings: HeatmapSettings; onChange: (s: HeatmapSettings) => void; terrainEnabled: boolean }) {
+function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onChange: (s: HeatmapSettings) => void }) {
   const activePreset = HEATMAP_PRESETS[settings.preset] ?? HEATMAP_PRESETS.all_events;
 
   return (
@@ -171,17 +171,18 @@ function HeatmapConfig({ settings, onChange, terrainEnabled }: { settings: Heatm
           })}
         </div>
       </div>
-      {/* Terrain Blend toggle — only when terrain layer is on */}
-      {terrainEnabled && (
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">Terrain Blend</span>
-          <Switch
-            checked={settings.drapeOnTerrain}
-            onCheckedChange={(v) => onChange({ ...settings, drapeOnTerrain: v })}
-            className="scale-75"
-          />
-        </div>
-      )}
+      {/* Render mode — Float (above map) or Surface (draped on terrain) */}
+      <div className="space-y-1">
+        <span className="text-[10px] text-muted-foreground">Render Mode</span>
+        <SegmentedToggle<"float" | "surface">
+          options={[
+            { value: "float", label: "Float" },
+            { value: "surface", label: "Surface" },
+          ]}
+          value={settings.drapeOnTerrain ? "surface" : "float"}
+          onChange={(v) => onChange({ ...settings, drapeOnTerrain: v === "surface" })}
+        />
+      </div>
     </div>
   );
 }
@@ -202,7 +203,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
 
   return (
     <div className="relative flex flex-col items-center gap-1">
-      <div className="absolute top-1/2 -translate-y-1/2 left-full ml-2 w-56">
+      <div className={`absolute top-1/2 -translate-y-1/2 left-full ml-2 w-56${open ? "" : " pointer-events-none"}`}>
         <CollapsePanel open={open} direction="right">
           <div className="glass-panel p-2 max-h-[calc(100vh-14rem)] overflow-y-auto">
           {/* Intelligence — Event Monitor */}
@@ -231,7 +232,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
               )}
             </div>
             {showHeatmapConfig && heatmapConfigOpen && heatmapSettings && onHeatmapSettingsChange && (
-              <HeatmapConfig settings={heatmapSettings} onChange={onHeatmapSettingsChange} terrainEnabled={layers.terrain} />
+              <HeatmapConfig settings={heatmapSettings} onChange={onHeatmapSettingsChange} />
             )}
           </div>
 

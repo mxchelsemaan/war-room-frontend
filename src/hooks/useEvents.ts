@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { getEventTypeMeta } from "@/config/eventTypes";
+import { isLebanonRelated } from "@/lib/filterUtils";
 import type { EventRow, EnrichedEvent, EventTypeMeta } from "@/types/events";
 
 /** Lebanon theater countries — LB, IL, SY, PS */
@@ -63,8 +64,9 @@ export function useEvents(dateFrom?: string, dateTo?: string): UseEventsReturn {
 
         if (rpcErr) throw rpcErr;
 
-        setRows((data ?? []) as EventRow[]);
-        if (countData !== null) setTotalCount(Number(countData));
+        const filtered = ((data ?? []) as EventRow[]).filter(isLebanonRelated);
+        setRows(filtered);
+        setTotalCount(filtered.length);
         setError(null);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Failed to fetch events");
@@ -73,10 +75,13 @@ export function useEvents(dateFrom?: string, dateTo?: string): UseEventsReturn {
     [dateFrom, dateTo],
   );
 
-  // Initial load + reset on filter change
+  // Initial load + reset on filter change + silent background polling every 60s
   useEffect(() => {
     setIsLoading(true);
     fetchAll().finally(() => setIsLoading(false));
+
+    const interval = setInterval(() => { fetchAll(); }, 60_000);
+    return () => clearInterval(interval);
   }, [fetchAll]);
 
   const refresh = useCallback(() => {
