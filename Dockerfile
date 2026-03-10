@@ -2,7 +2,7 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-RUN apk add --no-cache curl bash && curl -fsSL https://get.dotenvx.com | sh
+RUN npm install -g @dotenvx/dotenvx
 
 COPY package*.json ./
 RUN npm ci
