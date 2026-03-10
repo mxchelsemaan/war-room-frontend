@@ -143,7 +143,11 @@ export const AtlasMap = React.memo(function AtlasMap({
   layersRef.current = layers;
   eventsRef.current = events;
 
-  const [mapLoaded, setMapLoaded] = useState(false);
+  // Counter that increments on each map style load, used as dependency
+  // for hooks to re-initialize layers after style reloads (HMR, theme change).
+  const [mapReadyKey, setMapReadyKey] = useState(0);
+  const mapLoaded = mapReadyKey > 0;
+
   const [popupEvent, setPopupEvent] = useState<MapEvent | null>(null);
   const [popupInfra, setPopupInfra] = useState<StaticMarker | null>(null);
   const [popupAnnotation, setPopupAnnotation] = useState<{ annotation: Annotation; lngLat: [number, number] } | null>(null);
@@ -181,20 +185,35 @@ export const AtlasMap = React.memo(function AtlasMap({
     [drawingMode, placementMode, pathDrawingUnitId, rotatingUnitId],
   );
 
+  // ── Re-init layers on style reload (HMR, theme change) ──────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const handleStyleLoad = () => {
+      // style.load fires when setStyle() completes (theme change, HMR).
+      // All custom layers/sources are destroyed — bump mapReadyKey so hooks re-create them.
+      setMapReadyKey((k) => k + 1);
+    };
+    map.on("style.load", handleStyleLoad);
+    return () => { map.off("style.load", handleStyleLoad); };
+  }, [mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Extracted hooks ──────────────────────────────────────────────────
-  useMapAnimation(mapRef, layersRef, mapLoaded);
-  useTerrainLayer(mapRef, layers.terrain, layers.hillshade, mapLoaded);
-  useRiverLayers(mapRef, layers.rivers, mapLoaded);
-  useOverlayLayers(mapRef, layers, mapLoaded);
-  useHeatmapLayer(mapRef, events, layers.heatmap, mapLoaded, heatmapSettings, layers.terrain, crossfadeEnabled);
+  // Pass mapReadyKey (not mapLoaded boolean) so hooks re-run on style reload
+  useMapAnimation(mapRef, layersRef, mapReadyKey);
+  useTerrainLayer(mapRef, layers.terrain, layers.hillshade, mapReadyKey);
+  useRiverLayers(mapRef, layers.rivers, mapReadyKey);
+  useOverlayLayers(mapRef, layers, mapReadyKey);
+  useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, heatmapSettings, layers.terrain, crossfadeEnabled);
   useEventLayers(
-    mapRef, events, layers.markers, mapLoaded,
+    mapRef, events, layers.markers, mapReadyKey,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     setPopupEvent, setPopupInfra as (v: null) => void,
     dark, layers.terrain, crossfadeEnabled,
   );
   useInfraLayers(
-    mapRef, layers.infrastructure, selectedInfraTypes, mapLoaded,
+    mapRef, layers.infrastructure, selectedInfraTypes, mapReadyKey,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     setPopupInfra, setPopupEvent as (v: null) => void,
     dark, layers.terrain,
@@ -291,7 +310,7 @@ export const AtlasMap = React.memo(function AtlasMap({
         touchZoomRotate={true}
         keyboard={false}
         attributionControl={false}
-        onLoad={() => setMapLoaded(true)}
+        onLoad={() => setMapReadyKey((k) => k + 1)}
         onClick={(e) => {
           if (rotatingUnitIdRef.current) {
             // Click confirms rotation — handled by the mousemove effect

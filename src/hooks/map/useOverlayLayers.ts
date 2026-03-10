@@ -14,7 +14,7 @@ const FACTION_COLOR: any = ["match", ["get", "faction"], "idf", FACTION_COLORS.i
 export function useOverlayLayers(
   mapRef: React.RefObject<MapRef | null>,
   layers: LayerVisibility,
-  mapLoaded: boolean,
+  mapLoaded: number | boolean,
 ) {
   // ── Governorate polygons ──────────────────────────────────────────────
   useEffect(() => {

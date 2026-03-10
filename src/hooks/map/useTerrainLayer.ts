@@ -7,7 +7,7 @@ export function useTerrainLayer(
   mapRef: React.RefObject<MapRef | null>,
   terrainEnabled: boolean,
   hillshadeEnabled: boolean,
-  mapLoaded: boolean,
+  mapLoaded: number | boolean,
 ) {
   // ── Terrain ─────────────────────────────────────────────────────────────
   useEffect(() => {

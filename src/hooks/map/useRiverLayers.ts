@@ -12,7 +12,7 @@ export const RIVER_DASH_SEQ = [
 export function useRiverLayers(
   mapRef: React.RefObject<MapRef | null>,
   riversEnabled: boolean,
-  mapLoaded: boolean,
+  mapLoaded: number | boolean,
 ) {
   // ── Vector-tile rivers ──────────────────────────────────────
   useEffect(() => {

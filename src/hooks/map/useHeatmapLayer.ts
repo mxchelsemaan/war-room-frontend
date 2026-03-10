@@ -49,7 +49,7 @@ export function useHeatmapLayer(
   mapRef: React.RefObject<MapRef | null>,
   events: MapEvent[],
   heatmapEnabled: boolean,
-  mapLoaded: boolean,
+  mapLoaded: number | boolean,
   settings?: HeatmapSettings,
   terrainEnabled?: boolean,
   crossfadeEnabled: boolean = false,

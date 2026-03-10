@@ -13,7 +13,7 @@ export function useInfraLayers(
   mapRef: React.RefObject<MapRef | null>,
   visible: boolean,
   selectedTypes: Set<StaticMarkerType>,
-  mapLoaded: boolean,
+  mapLoaded: number | boolean,
   drawingModeRef: React.RefObject<AnnotationType | null>,
   placementModeRef: React.RefObject<NATOUnitType | null>,
   pathDrawingUnitIdRef: React.RefObject<string | null>,

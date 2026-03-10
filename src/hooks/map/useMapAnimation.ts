@@ -6,7 +6,7 @@ import { RIVER_DASH_SEQ } from "./useRiverLayers";
 export function useMapAnimation(
   mapRef: React.RefObject<MapRef | null>,
   layersRef: React.RefObject<LayerVisibility>,
-  mapLoaded: boolean,
+  mapLoaded: number | boolean,
 ) {
   const animRef   = useRef<number | null>(null);
   const riverStep = useRef(0);
