@@ -79,7 +79,7 @@ export function useInfraLayers(
         layout: {
           visibility: vis,
           "icon-image": ["concat", pinPrefix, bgFill, "-", ["get", "color"], "-", ["get", "icon"]] as unknown as maplibregl.ExpressionSpecification,
-          "icon-size": 0.5,
+          "icon-size": 0.4,
           "icon-anchor": pinAnchor,
           "icon-pitch-alignment": "viewport",
           "icon-rotation-alignment": "viewport",
