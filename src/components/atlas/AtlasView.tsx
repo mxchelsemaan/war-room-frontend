@@ -33,19 +33,12 @@ import type { MapEvent } from "@/data/index";
 import type { EnrichedEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-/** Attacker key for events with no attacker (political, humanitarian, etc.) */
-const UNATTRIBUTED_KEY = "__unattributed__";
-
-/** Attackers excluded from the default selection (not the editorial focus) */
-const EXCLUDED_ATTACKERS = new Set(["hezbollah", "hamas", "islamic jihad", "pij", "pflp", "resistance"]);
-
-function buildDefaultFilters(typeKeys?: string[], attackerKeys?: string[]): AtlasFilters {
+function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
   return {
     selectedTypes: new Set(typeKeys ?? []),
     selectedInfraTypes: new Set(Object.keys(STATIC_MARKER_META) as StaticMarkerType[]),
     selectedSeverities: new Set<string>(),
     selectedRegions: new Set<string>(),
-    selectedAttackers: new Set(attackerKeys ?? []),
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
     dateFrom: "",
@@ -123,15 +116,6 @@ function AtlasViewInner() {
 
   // Extract dynamic filter options from all loaded events
   const regionOptions = useMemo(() => extractOptions(allEvents, (e) => e.location.region), [allEvents]);
-  const attackerOptions = useMemo(() => {
-    const opts = extractOptions(allEvents, (e) => e.attacker);
-    // Add "Unattributed" for events with no attacker (political, humanitarian, etc.)
-    const hasUnattributed = allEvents.some((e) => !e.attacker);
-    if (hasUnattributed) {
-      opts.unshift({ key: UNATTRIBUTED_KEY, label: "Unattributed (political, etc.)", icon: "🏛️" });
-    }
-    return opts;
-  }, [allEvents]);
   const weaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
   const sourceTypeOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceType), [allEvents]);
 
@@ -147,19 +131,6 @@ function AtlasViewInner() {
     }
   }, [liveEventTypes]);
 
-  // Initialize attacker filter defaults once we have events
-  const attackersInitialized = useRef(false);
-  useEffect(() => {
-    if (attackerOptions.length > 0 && !attackersInitialized.current) {
-      attackersInitialized.current = true;
-      const defaultAttackers = new Set(
-        attackerOptions
-          .filter((o) => !EXCLUDED_ATTACKERS.has(o.key.toLowerCase()))
-          .map((o) => o.key),
-      );
-      setFilters((prev) => ({ ...prev, selectedAttackers: defaultAttackers }));
-    }
-  }, [attackerOptions]);
 
   // Count events per event type — applies all filters EXCEPT event type so
   // each type shows how many events would appear if toggled on
@@ -168,13 +139,12 @@ function AtlasViewInner() {
     for (const e of allEvents) {
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(e.severity)) continue;
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(e.location.region ?? "")) continue;
-      if (filters.selectedAttackers.size > 0 && !filters.selectedAttackers.has(e.attacker ?? UNATTRIBUTED_KEY)) continue;
       if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(e.weaponSystem ?? "")) continue;
       if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(e.sourceType)) continue;
       counts.set(e.eventType, (counts.get(e.eventType) ?? 0) + 1);
     }
     return counts;
-  }, [allEvents, filters.selectedSeverities, filters.selectedRegions, filters.selectedAttackers, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
+  }, [allEvents, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
 
   // Client-side filter by all selected filters
   const filteredEvents = useMemo(() => {
@@ -182,12 +152,11 @@ function AtlasViewInner() {
       if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(event.eventType)) return false;
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(event.severity)) return false;
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(event.location.region ?? "")) return false;
-      if (filters.selectedAttackers.size > 0 && !filters.selectedAttackers.has(event.attacker ?? UNATTRIBUTED_KEY)) return false;
       if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(event.weaponSystem ?? "")) return false;
       if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(event.sourceType)) return false;
       return true;
     });
-  }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedAttackers, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
+  }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
 
   const timelineDates = useMemo(() => {
     const seen = new Set<string>();
@@ -226,13 +195,8 @@ function AtlasViewInner() {
   const mapRef = useRef<MapRef | null>(null);
 
   const handleClearFilters = useCallback(
-    () => {
-      const defaultAttackerKeys = attackerOptions
-        .filter((o) => !EXCLUDED_ATTACKERS.has(o.key.toLowerCase()))
-        .map((o) => o.key);
-      setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key), defaultAttackerKeys));
-    },
-    [liveEventTypes, attackerOptions],
+    () => setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key))),
+    [liveEventTypes],
   );
 
   const { setSelectedAnnotationId: _setSelAnnId } = ann;
@@ -365,7 +329,6 @@ function AtlasViewInner() {
           onOpenChange={(v) => setPanelOpen('filter', v)}
           isLoading={isLoading}
           regionOptions={regionOptions}
-          attackerOptions={attackerOptions}
           weaponSystemOptions={weaponSystemOptions}
           sourceTypeOptions={sourceTypeOptions}
           eventTypeCounts={eventTypeCounts}
@@ -418,15 +381,8 @@ function AtlasViewInner() {
                 <span className="text-[13px] font-semibold">Debrief with Shifra</span>
               </FloatingTriggerBtn>
             </div>
-            {/* Bottom-center: layers + annotate + camera */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-end gap-2">
-              <MapLayerControls
-                layers={layers}
-                onChange={setLayers}
-                open={isPanelOpen('layers')}
-                onToggle={() => togglePanel('layers')}
-                showLabels={showLabels}
-              />
+            {/* Bottom toolbar: annotate + legend + layers + camera */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-end gap-2">
               <DrawingToolbar
                 mode={ann.mode}
                 color={ann.color}
@@ -453,16 +409,23 @@ function AtlasViewInner() {
                 onSetPendingColor={up.setPendingColor}
                 showLabels={showLabels}
               />
+              <MapLegend
+                open={isPanelOpen('legend')}
+                onToggle={() => togglePanel('legend')}
+                layers={layers}
+                eventTypes={liveEventTypes}
+                showLabels={showLabels}
+                placedUnits={up.units}
+              />
+              <MapLayerControls
+                layers={layers}
+                onChange={setLayers}
+                open={isPanelOpen('layers')}
+                onToggle={() => togglePanel('layers')}
+                showLabels={showLabels}
+              />
               <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={showLabels} open={isPanelOpen('camera')} onToggle={() => togglePanel('camera')} />
             </div>
-            <MapLegend
-              open={isPanelOpen('legend')}
-              onToggle={() => togglePanel('legend')}
-              layers={layers}
-              eventTypes={liveEventTypes}
-              showLabels={showLabels}
-              placedUnits={up.units}
-            />
             {!isLoading && mapEvents.length === 0 && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                 <div className="glass-panel px-6 py-4 text-center">

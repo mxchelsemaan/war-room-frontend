@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Bot, Globe } from "lucide-react";
+import { X, Bot, Globe, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -12,7 +12,7 @@ interface AISummaryCardProps {
 export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: AISummaryCardProps) {
   const [activeTab, setActiveTab] = useState<string>("Overall");
 
-  const tabTriggerClass = "flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-t rounded-b-none border -mb-px transition-colors border-transparent text-muted-foreground hover:text-foreground data-[state=active]:border-border data-[state=active]:border-b-card data-[state=active]:bg-card/90 data-[state=active]:text-foreground";
+  const tabTriggerClass = "flex items-center gap-1.5 px-5 py-1.5 text-xs font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:bg-primary/10 data-[state=active]:text-primary";
 
   return (
     <>
@@ -31,9 +31,10 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
         }`}
       >
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0 gap-0">
-          {/* Tabs as folders */}
-          <div className="flex items-end border-b border-border px-4 pt-3 gap-1 overflow-x-auto">
-            <TabsList variant="line" className="h-auto p-0 bg-transparent gap-1">
+          {/* Tab bar */}
+          <div className="flex items-center border-b border-border px-4 pt-3 pb-2">
+            <div className="flex-1" />
+            <TabsList className="h-auto p-0 bg-transparent gap-2">
               <TabsTrigger value="Overall" className={tabTriggerClass}>
                 <Globe className="size-3" />
                 Overall
@@ -43,10 +44,11 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
                 Copilot
               </TabsTrigger>
             </TabsList>
-
-            <Button variant="ghost" size="icon-sm" onClick={onToggle} className="ml-auto mb-1" aria-label="Close daily briefing">
-              <X className="size-4" />
-            </Button>
+            <div className="flex-1 flex justify-end">
+              <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Close daily briefing">
+                <X className="size-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Overall tab */}
@@ -72,14 +74,22 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
             </div>
           </TabsContent>
 
-          {/* Copilot tab — coming soon */}
-          <TabsContent value="Copilot" className="flex-1 overflow-hidden mt-0">
-            <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-8">
+          {/* Copilot tab — chat interface (coming soon) */}
+          <TabsContent value="Copilot" className="flex-1 flex flex-col overflow-hidden mt-0">
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-8">
               <Bot className="size-10 text-muted-foreground/30" />
-              <p className="text-sm font-medium text-muted-foreground/50">Coming very soon!</p>
-              <p className="text-xs text-muted-foreground/30 max-w-xs">
-                Copilot chat will let you ask questions about the situation and get AI-powered analysis.
-              </p>
+              <p className="text-sm font-medium text-muted-foreground/50">Ask Shifra anything about the latest intelligence.</p>
+            </div>
+            <div className="shrink-0 border-t border-border px-4 py-3 flex items-center gap-2">
+              <input
+                type="text"
+                disabled
+                placeholder="Coming soon..."
+                className="flex-1 bg-transparent border-0 text-sm text-muted-foreground/50 placeholder:text-muted-foreground/30 outline-none cursor-not-allowed"
+              />
+              <Button variant="ghost" size="icon-sm" disabled aria-label="Send message" className="text-muted-foreground/30">
+                <Send className="size-4" />
+              </Button>
             </div>
           </TabsContent>
 

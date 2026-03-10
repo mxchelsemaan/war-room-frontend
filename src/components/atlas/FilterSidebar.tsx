@@ -16,7 +16,6 @@ export interface AtlasFilters {
   selectedInfraTypes: Set<StaticMarkerType>;
   selectedSeverities: Set<string>;
   selectedRegions: Set<string>;
-  selectedAttackers: Set<string>;
   selectedWeaponSystems: Set<string>;
   selectedSourceTypes: Set<string>;
   dateFrom: string;
@@ -45,7 +44,6 @@ interface FilterSidebarProps {
   isLoading?: boolean;
   /** Dynamic options extracted from event data */
   regionOptions: FilterOption[];
-  attackerOptions: FilterOption[];
   weaponSystemOptions: FilterOption[];
   sourceTypeOptions: FilterOption[];
   /** Event count per event type key */
@@ -74,7 +72,6 @@ export function FilterSidebar({
   onOpenChange: setOpen,
   isLoading,
   regionOptions,
-  attackerOptions,
   weaponSystemOptions,
   sourceTypeOptions,
   eventTypeCounts,
@@ -156,17 +153,6 @@ export function FilterSidebar({
         </div>
         <div className="p-3">
           <MultiSelectDropdown
-            label="Attacker"
-            options={attackerOptions}
-            selected={filters.selectedAttackers}
-            onChange={(next) => updateSet("selectedAttackers", next)}
-            searchable
-            placeholder="Search attackers…"
-            allLabel="All attackers"
-          />
-        </div>
-        <div className="p-3 border-r border-t border-border">
-          <MultiSelectDropdown
             label="Region"
             options={regionOptions}
             selected={filters.selectedRegions}
@@ -176,7 +162,7 @@ export function FilterSidebar({
             allLabel="All regions"
           />
         </div>
-        <div className="p-3 border-t border-border">
+        <div className="p-3 border-r border-t border-border">
           <MultiSelectDropdown
             label="Weapon System"
             options={weaponSystemOptions}
@@ -331,10 +317,18 @@ function MultiSelectDropdown({
   }
 
   const handleBlur = (e: React.FocusEvent) => {
-    if (!containerRef.current?.contains(e.relatedTarget as Node)) {
-      setIsOpen(false);
-      setSearch("");
-    }
+    // relatedTarget is the element receiving focus.
+    // If it's inside our container, keep dropdown open (e.g. checkbox click).
+    // If null or outside, delay-check because Radix Checkbox can momentarily
+    // move focus outside before returning it.
+    const related = e.relatedTarget as Node | null;
+    if (related && containerRef.current?.contains(related)) return;
+    requestAnimationFrame(() => {
+      if (!containerRef.current?.contains(document.activeElement)) {
+        setIsOpen(false);
+        setSearch("");
+      }
+    });
   };
 
   const selectedCount = selected.size;
@@ -379,12 +373,21 @@ function MultiSelectDropdown({
             <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
           </button>
 
-          {/* Selected pills */}
-          {showPills && selectedCount > 0 && selectedCount < totalCount && (
-            <div className="flex flex-wrap gap-1 mt-1.5">
-              {options
-                .filter((o) => selected.has(o.key))
-                .map((o) => (
+          {/* Selected pills — show excluded items when most are selected, selected items when few are */}
+          {showPills && selectedCount > 0 && selectedCount < totalCount && (() => {
+            const showExcluded = selectedCount > totalCount / 2;
+            const pillItems = showExcluded
+              ? options.filter((o) => !selected.has(o.key))
+              : options.filter((o) => selected.has(o.key));
+            const MAX_PILLS = 8;
+            const visible = pillItems.slice(0, MAX_PILLS);
+            const overflow = pillItems.length - MAX_PILLS;
+            return (
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {showExcluded && (
+                  <span className="text-2xs text-muted-foreground self-center mr-0.5">Excl:</span>
+                )}
+                {visible.map((o) => (
                   <button
                     key={o.key}
                     type="button"
@@ -396,8 +399,12 @@ function MultiSelectDropdown({
                     <X className="size-2.5 text-muted-foreground group-hover:text-foreground" />
                   </button>
                 ))}
-            </div>
-          )}
+                {overflow > 0 && (
+                  <span className="text-2xs text-muted-foreground self-center">+{overflow} more</span>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Dropdown */}
           {isOpen && (

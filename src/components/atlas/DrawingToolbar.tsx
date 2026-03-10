@@ -133,9 +133,9 @@ export function DrawingToolbar({
   );
 
   const panel = (
-    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 w-96">
+    <div className="absolute bottom-full left-0 mb-1 w-96">
       <CollapsePanel open={open} direction="up">
-        <div className="glass-panel p-3 flex flex-col gap-3 max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <div className="glass-panel p-3 flex flex-col gap-3 max-h-[calc(100vh-14rem)] overflow-y-auto">
 
         {/* ── Shapes + Units ── */}
         <div className="rounded-lg border border-border/30 p-2.5 flex flex-col gap-2">

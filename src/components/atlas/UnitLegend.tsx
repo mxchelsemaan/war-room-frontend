@@ -33,14 +33,9 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
     layers.territory;
 
   return (
-    <div className="absolute bottom-4 left-3 z-10 flex flex-col-reverse items-start gap-1">
-      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close legend" : "Open legend"} showLabels={showLabels}>
-        <Shield className="size-3.5" />
-        Legend
-      </FloatingTriggerBtn>
-
+    <div className="relative flex flex-col items-center gap-1">
       <CollapsePanel open={open} direction="up">
-        <div className="glass-panel p-3 w-56 max-h-[calc(100vh-8rem)] overflow-y-auto space-y-3">
+        <div className="glass-panel p-3 w-56 max-h-[calc(100vh-14rem)] overflow-y-auto space-y-3">
 
           {!hasContent && (
             <p className="text-xs text-muted-foreground italic">No active layers.</p>
@@ -179,6 +174,10 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
 
         </div>
       </CollapsePanel>
+      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close legend" : "Open legend"} showLabels={showLabels} open={open}>
+        <Shield className="size-3.5" />
+        Legend
+      </FloatingTriggerBtn>
     </div>
   );
 }

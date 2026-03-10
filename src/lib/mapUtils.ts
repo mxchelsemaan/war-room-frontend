@@ -58,47 +58,31 @@ export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
 
 const _registeredPins = new Set<string>();
 
-const PIN_W = 44;
-const PIN_H = 56;
+const PIN_SIZE = 44;
 const CIRCLE_R = 18;
-const CIRCLE_CY = 20;
-const TIP_Y = PIN_H - 2;
-const DARK = "#0f172a";
 
-/** Render a pin image: circle with colored border + downward pointer + emoji */
+/** Render a circle pin: colored border ring + emoji, no dark fill */
 function renderPinImage(color: string, emoji: string): ImageData {
   const canvas = document.createElement("canvas");
-  canvas.width = PIN_W;
-  canvas.height = PIN_H;
+  canvas.width = PIN_SIZE;
+  canvas.height = PIN_SIZE;
   const ctx = canvas.getContext("2d")!;
-  const cx = PIN_W / 2;
+  const cx = PIN_SIZE / 2;
+  const cy = PIN_SIZE / 2;
 
   // Colored glow
   ctx.save();
   ctx.shadowColor = color;
   ctx.shadowBlur = 8;
   ctx.beginPath();
-  ctx.arc(cx, CIRCLE_CY, CIRCLE_R, 0, Math.PI * 2);
-  ctx.fillStyle = DARK;
+  ctx.arc(cx, cy, CIRCLE_R, 0, Math.PI * 2);
+  ctx.fillStyle = "transparent";
   ctx.fill();
   ctx.restore();
 
-  // Pin tip (triangle)
+  // Circle border only
   ctx.beginPath();
-  ctx.moveTo(cx - 8, CIRCLE_CY + CIRCLE_R - 4);
-  ctx.lineTo(cx, TIP_Y);
-  ctx.lineTo(cx + 8, CIRCLE_CY + CIRCLE_R - 4);
-  ctx.fillStyle = DARK;
-  ctx.fill();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
-
-  // Main circle (on top of triangle base)
-  ctx.beginPath();
-  ctx.arc(cx, CIRCLE_CY, CIRCLE_R, 0, Math.PI * 2);
-  ctx.fillStyle = DARK;
-  ctx.fill();
+  ctx.arc(cx, cy, CIRCLE_R, 0, Math.PI * 2);
   ctx.strokeStyle = color;
   ctx.lineWidth = 2.5;
   ctx.stroke();
@@ -107,9 +91,9 @@ function renderPinImage(color: string, emoji: string): ImageData {
   ctx.font = "20px serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(emoji, cx, CIRCLE_CY);
+  ctx.fillText(emoji, cx, cy);
 
-  return ctx.getImageData(0, 0, PIN_W, PIN_H);
+  return ctx.getImageData(0, 0, PIN_SIZE, PIN_SIZE);
 }
 
 /** Register pin images for every (color, emoji) combo that hasn't been registered yet */
@@ -127,7 +111,7 @@ export function registerPinImages(
         continue;
       }
       const img = renderPinImage(color, emoji);
-      map.addImage(key, { width: PIN_W, height: PIN_H, data: img.data });
+      map.addImage(key, { width: PIN_SIZE, height: PIN_SIZE, data: img.data });
       _registeredPins.add(key);
     }
   }

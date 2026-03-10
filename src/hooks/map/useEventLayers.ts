@@ -168,7 +168,7 @@ export function useEventLayers(
           visibility: vis,
           "icon-image": ["concat", "pin-", colorExpr, "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
           "icon-size": 0.85,
-          "icon-anchor": "bottom",
+          "icon-anchor": "center",
           "icon-allow-overlap": true,
           "icon-ignore-placement": true,
         },
@@ -184,7 +184,7 @@ export function useEventLayers(
           "circle-radius": 8,
           "circle-stroke-width": 1.5,
           "circle-stroke-color": DARK_FILL,
-          "circle-translate": [12, -42],
+          "circle-translate": [12, -12],
         },
       });
 
@@ -197,7 +197,7 @@ export function useEventLayers(
           "text-field": ["get", "event_count"],
           "text-font": ["Noto Sans Bold"],
           "text-size": 9,
-          "text-offset": [1.2, -4.2],
+          "text-offset": [1.2, -1.2],
           "text-allow-overlap": true, "text-ignore-placement": true,
         },
         paint: {

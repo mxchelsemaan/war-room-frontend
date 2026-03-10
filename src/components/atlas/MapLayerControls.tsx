@@ -83,7 +83,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels 
     <div className="relative flex flex-col items-center gap-1">
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 w-56">
         <CollapsePanel open={open} direction="up">
-          <div className="glass-panel p-2 max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <div className="glass-panel p-2 max-h-[calc(100vh-14rem)] overflow-y-auto">
           {visibleGroups.map(({ heading, items }) => (
             <div key={heading}>
               <p className="px-2 pt-2 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 first:pt-1">

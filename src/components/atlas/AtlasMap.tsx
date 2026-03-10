@@ -84,7 +84,7 @@ const InfrastructureMarkers = React.memo(function InfrastructureMarkers({
           pitchAlignment="viewport" rotationAlignment="viewport"
           onClick={(e) => { e.originalEvent.stopPropagation(); onMarkerClick(marker); }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
-            <div style={{ width: 28, height: 28, background: "#0f172a", border: `2px solid ${STATIC_MARKER_COLORS[marker.type]}`,
+            <div style={{ width: 28, height: 28, background: "transparent", border: `2px solid ${STATIC_MARKER_COLORS[marker.type]}`,
               borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
               boxShadow: `0 0 8px ${STATIC_MARKER_COLORS[marker.type]}66` }}>
               {marker.icon}
