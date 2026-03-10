@@ -44,6 +44,12 @@ yarn-error.log*
 # .env.keys holds private decryption keys — NEVER commit
 .env.keys
 
+# claude
+.claude/
+
+# test results
+/test-results/
+
 # vercel
 .vercel
 
