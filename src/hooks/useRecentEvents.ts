@@ -80,7 +80,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
     }
 
     try {
-      const since = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+      const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
       const { data, error: rpcErr } = await supabase.rpc("get_recent_events", {
         p_since: since,
         p_countries: THEATER_COUNTRIES,

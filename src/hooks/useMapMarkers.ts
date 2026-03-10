@@ -84,7 +84,7 @@ export function useMapMarkers(): UseMapMarkersReturn {
     }
 
     try {
-      const since = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+      const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
       const { data, error: rpcErr } = await supabase.rpc("get_map_markers", {
         p_since: since,
         p_countries: THEATER_COUNTRIES,

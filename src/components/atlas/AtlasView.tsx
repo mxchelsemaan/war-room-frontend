@@ -47,7 +47,7 @@ function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
     selectedRegions: new Set<string>(),
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
-    dateFrom: subHours(new Date(), 12).toISOString(),
+    dateFrom: subHours(new Date(), 48).toISOString(),
     dateTo: new Date().toISOString(),
   };
 }
