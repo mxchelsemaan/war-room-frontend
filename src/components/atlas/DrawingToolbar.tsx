@@ -166,6 +166,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
       className={isActive ? "text-primary" : undefined}
       showLabels={showLabels}
       open={open}
+      panelSide="left"
     >
       {placementMode
         ? <Crosshair className="size-3.5" />

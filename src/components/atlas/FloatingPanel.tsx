@@ -8,7 +8,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ChevronUp } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CollapsePanelProps {
   open: boolean;
@@ -63,11 +63,34 @@ interface FloatingTriggerBtnProps {
   showLabels?: boolean;
   /** When true, forces label visible and shows a chevron indicator */
   open?: boolean;
+  /** Which side the panel opens toward — determines chevron direction. "right" = panel opens right, "left" = panel opens left. */
+  panelSide?: "left" | "right";
+  /** Place the chevron before the content instead of after */
+  chevronBefore?: boolean;
   "aria-label"?: string;
 }
 
-export function FloatingTriggerBtn({ onClick, children, className, showLabels = true, open, "aria-label": ariaLabel }: FloatingTriggerBtnProps) {
+export function FloatingTriggerBtn({ onClick, children, className, showLabels = true, open, panelSide = "right", chevronBefore, "aria-label": ariaLabel }: FloatingTriggerBtnProps) {
   const labelVisible = showLabels;
+
+  const chevron = open !== undefined ? (
+    panelSide === "right" ? (
+      <ChevronRight
+        className={cn(
+          "size-3 shrink-0 transition-transform duration-200 text-muted-foreground",
+          !open && "rotate-180"
+        )}
+      />
+    ) : (
+      <ChevronLeft
+        className={cn(
+          "size-3 shrink-0 transition-transform duration-200 text-muted-foreground",
+          !open && "rotate-180"
+        )}
+      />
+    )
+  ) : null;
+
   return (
     <Button
       variant="ghost"
@@ -82,6 +105,7 @@ export function FloatingTriggerBtn({ onClick, children, className, showLabels = 
         transition: "background-color 150ms",
       }}
     >
+      {chevronBefore && chevron}
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) return <span className="shrink-0">{child}</span>;
         return (
@@ -93,14 +117,7 @@ export function FloatingTriggerBtn({ onClick, children, className, showLabels = 
           </span>
         );
       })}
-      {open !== undefined && (
-        <ChevronUp
-          className={cn(
-            "size-3 shrink-0 transition-transform duration-200 text-muted-foreground",
-            !open && "rotate-180"
-          )}
-        />
-      )}
+      {!chevronBefore && chevron}
     </Button>
   );
 }

@@ -38,13 +38,12 @@ const MAX_BOUNDS = _MAX_BOUNDS;
 const GOV_LABEL_STYLE: React.CSSProperties = {
   pointerEvents: "none",
   textTransform: "uppercase",
-  letterSpacing: "0.14em",
-  fontSize: 13,
-  fontWeight: 600,
+  fontSize: 14,
+  fontWeight: 400,
   fontFamily: "'Noto Sans', system-ui, sans-serif",
-  color: "#e2e8f0",
-  opacity: 1,
-  textShadow: "0 0 8px rgba(0,0,0,1), 0 0 16px rgba(0,0,0,0.9), 0 1px 4px rgba(0,0,0,0.9)",
+  color: "rgb(101,101,101)",
+  textShadow:
+    "-1px -1px 0 rgba(0,0,0,0.7), 1px -1px 0 rgba(0,0,0,0.7), -1px 1px 0 rgba(0,0,0,0.7), 1px 1px 0 rgba(0,0,0,0.7)",
   whiteSpace: "nowrap",
   userSelect: "none",
 };
@@ -67,13 +66,12 @@ const GovernorateLabels = React.memo(function GovernorateLabels({ visible }: { v
 const SUBGOV_LABEL_STYLE: React.CSSProperties = {
   pointerEvents: "none",
   textTransform: "uppercase",
-  letterSpacing: "0.1em",
   fontSize: 10,
-  fontWeight: 500,
+  fontWeight: 400,
   fontFamily: "'Noto Sans', system-ui, sans-serif",
-  color: "#94a3b8",
-  opacity: 0.85,
-  textShadow: "0 0 6px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.8)",
+  color: "rgb(101,101,101)",
+  textShadow:
+    "-1px -1px 0 rgba(0,0,0,0.7), 1px -1px 0 rgba(0,0,0,0.7), -1px 1px 0 rgba(0,0,0,0.7), 1px 1px 0 rgba(0,0,0,0.7)",
   whiteSpace: "nowrap",
   userSelect: "none",
 };

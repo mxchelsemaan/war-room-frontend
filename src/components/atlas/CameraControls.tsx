@@ -62,7 +62,7 @@ export function CameraControls({ mapRef, terrainActive, onResetView, showLabels 
         </CollapsePanel>
       </div>
 
-      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close camera" : "Camera controls"} showLabels={showLabels} open={open}>
+      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close camera" : "Camera controls"} showLabels={showLabels} open={open} panelSide="left" chevronBefore>
         <Video className="size-3.5" />
         Camera
       </FloatingTriggerBtn>
