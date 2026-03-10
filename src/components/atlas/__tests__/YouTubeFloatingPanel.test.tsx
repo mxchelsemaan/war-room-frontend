@@ -15,6 +15,9 @@ const MOCK_CHANNEL: YoutubeChannel = {
   language: "arabic",
   country: "QA",
   video_id: "test123",
+  channel_id: "UCtest123",
+  is_live: true,
+  live_video_id: "test123",
 };
 
 function makeMockYt() {
@@ -31,8 +34,6 @@ function makeMockYt() {
     stream: MOCK_CHANNEL,
     embedSrc: "https://www.youtube.com/embed/test?autoplay=0",
     countryFlag: (code: string) => code,
-    statusMap: { aljazeera: { isLive: true, videoId: "test123" } },
-    liveLoading: false,
   };
 }
 

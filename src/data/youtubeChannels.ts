@@ -7,6 +7,9 @@ export interface YoutubeChannel {
   language: string;
   country: string;
   video_id: string | null;
+  channel_id: string | null;
+  is_live: boolean;
+  live_video_id: string | null;
 }
 
 /**
@@ -19,7 +22,7 @@ export async function fetchYoutubeChannels(): Promise<YoutubeChannel[]> {
   const { data, error } = await supabase
     .schema("config")
     .from("youtube_channels")
-    .select("handle, display_name, language, country, video_id, active")
+    .select("handle, display_name, language, country, video_id, channel_id, active, is_live, live_video_id")
     .eq("active", true);
 
   if (error) {

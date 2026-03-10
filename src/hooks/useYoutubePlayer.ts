@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchYoutubeChannels, type YoutubeChannel } from "@/data/youtubeChannels";
-import { useLiveStatus, type LiveStatusMap } from "@/hooks/useLiveStatus";
 
 /** Convert ISO 3166-1 alpha-2 country code to flag emoji */
 function countryFlag(code: string): string {
@@ -41,8 +40,6 @@ export function useYoutubePlayer() {
     };
   }, []);
 
-  const { statusMap, loading: liveLoading } = useLiveStatus(channels);
-
   const channelGroups: ChannelGroup[] = useMemo(() => {
     const sorted = [...channels].sort((a, b) => {
       const countryCmp = a.country.localeCompare(b.country);
@@ -54,9 +51,9 @@ export function useYoutubePlayer() {
       handle: ch.handle,
       country: ch.country,
       streams: [ch],
-      isLive: statusMap[ch.handle]?.isLive ?? false,
+      isLive: ch.is_live,
     }));
-  }, [channels, statusMap]);
+  }, [channels]);
 
   const [selectedGroup, setSelectedGroup] = useState(-1);
   const [selectedStream, setSelectedStream] = useState(0);
@@ -69,9 +66,9 @@ export function useYoutubePlayer() {
   const group = channelGroups[selectedGroup];
   const stream = group?.streams[selectedStream];
 
-  // Prefer dynamically discovered videoId from live status, fall back to stored
+  // Prefer live video ID discovered by edge function, fall back to stored
   const videoId = stream
-    ? (statusMap[stream.handle]?.videoId ?? stream.video_id)
+    ? (stream.live_video_id ?? stream.video_id)
     : null;
   const embedSrc = videoId
     ? `https://www.youtube.com/embed/${videoId}?autoplay=0&cc_load_policy=1&cc_lang_pref=en`
@@ -87,7 +84,5 @@ export function useYoutubePlayer() {
     stream,
     embedSrc,
     countryFlag,
-    statusMap,
-    liveLoading,
   };
 }
