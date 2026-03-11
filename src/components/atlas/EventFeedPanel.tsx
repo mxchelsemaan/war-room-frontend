@@ -403,35 +403,32 @@ function EventRow({
 
         {/* Content */}
         <div className="flex flex-1 flex-col gap-1 min-w-0">
-          {/* Line 1: location + time + chevron */}
+          {/* Line 1: source handle (left) + time ago (right) + chevron */}
           <div className="flex items-center justify-between gap-1">
-            <span className="text-xs font-semibold truncate">
-              {toTitleCase(event.location.name)}
-            </span>
+            {(() => {
+              const handle = event.sourceChannel ? `@${event.sourceChannel}` : null;
+              const inner = (
+                <span className="inline-flex items-center gap-1 text-xs truncate min-w-0">
+                  <SourceIcon sourceType={event.sourceType} className="size-4 shrink-0" />
+                  {handle && <span className="font-medium truncate">{handle}</span>}
+                </span>
+              );
+              return sourceUrl ? (
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="hover:text-foreground transition-colors truncate min-w-0"
+                >
+                  {inner}
+                </a>
+              ) : inner;
+            })()}
             <div className="flex items-center gap-1.5 shrink-0">
-              {(() => {
-                const timeText = event.dateTime ? shortTimeAgo(event.dateTime) : event.date;
-                const handle = event.sourceChannel ? `@${event.sourceChannel}` : null;
-                const inner = (
-                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                    <SourceIcon sourceType={event.sourceType} className="size-4 shrink-0" />
-                    {handle && <span className="font-medium">{handle}</span>}
-                    <span className="text-muted-foreground/50">·</span>
-                    <span>{timeText}</span>
-                  </span>
-                );
-                return sourceUrl ? (
-                  <a
-                    href={sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    {inner}
-                  </a>
-                ) : inner;
-              })()}
+              <span className="text-xs text-muted-foreground">
+                {event.dateTime ? shortTimeAgo(event.dateTime) : event.date}
+              </span>
               <ChevronDown className={`size-3 text-muted-foreground transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} />
             </div>
           </div>
