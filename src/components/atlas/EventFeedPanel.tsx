@@ -11,6 +11,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import type { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
 import { buildSourceUrl, SourceIcon } from "@/lib/sourceUrl";
+import { isThreatAlert } from "@/lib/threatUtils";
+import { MOCK_THREAT_EVENTS } from "@/data/mockThreatEvents";
 
 /** Detect media type from URL path extension */
 function getMediaType(url: string): "video" | "image" {
@@ -132,6 +134,10 @@ function groupByDate(events: EnrichedEvent[]): { date: string; items: EnrichedEv
   const sorted = [...events].sort((a, b) => {
     const dc = b.date.localeCompare(a.date);
     if (dc !== 0) return dc;
+    // Threats float to top within each day
+    const ta = isThreatAlert(a) ? 1 : 0;
+    const tb = isThreatAlert(b) ? 1 : 0;
+    if (tb !== ta) return tb - ta;
     return (b.dateTime ?? "").localeCompare(a.dateTime ?? "");
   });
   for (const e of sorted) {
@@ -153,14 +159,23 @@ export function EventFeedPanel({
   const isMobile = useIsMobile();
   const [showEvents, setShowEvents] = useState(true);
   const [showNews, setShowNews] = useState(true);
+  const [alertsOnly, setAlertsOnly] = useState(false);
+
+  // Inject mock threat events (dedupe by ID)
+  const eventsWithThreats = useMemo(() => {
+    const ids = new Set(events.map((e) => e.id));
+    const mocks = MOCK_THREAT_EVENTS.filter((m) => !ids.has(m.id));
+    return [...mocks, ...events];
+  }, [events]);
 
   const filteredEvents = useMemo(() => {
-    if (showEvents && showNews) return events;
-    return events.filter((e) => {
+    if (alertsOnly) return eventsWithThreats.filter((e) => isThreatAlert(e));
+    if (showEvents && showNews) return eventsWithThreats;
+    return eventsWithThreats.filter((e) => {
       const isNews = NEWS_TYPES.has(e.eventType);
       return isNews ? showNews : showEvents;
     });
-  }, [events, showEvents, showNews]);
+  }, [eventsWithThreats, showEvents, showNews, alertsOnly]);
   const groups = useMemo(() => groupByDate(filteredEvents), [filteredEvents]);
 
   function handleToggle() {
@@ -234,6 +249,15 @@ export function EventFeedPanel({
                     className="size-3 accent-purple-500 cursor-pointer"
                   />
                   <span className="text-2xs text-muted-foreground">News</span>
+                </label>
+                <label className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={alertsOnly}
+                    onChange={(e) => setAlertsOnly(e.target.checked)}
+                    className="size-3 accent-red-600 cursor-pointer"
+                  />
+                  <span className="text-2xs text-red-400 font-medium">Alerts</span>
                 </label>
               </div>
             </>
@@ -433,6 +457,7 @@ function EventRow({
   const detailsRef = useRef<HTMLDivElement>(null);
   const meta = getEventTypeMeta(event.eventType);
   const severityDot = SEVERITY_COLORS[event.severity] ?? "bg-slate-500";
+  const isThreat = isThreatAlert(event);
   const hasMedia = !!event.mediaUrl;
   const hasCasualties = (event.casualties.killed ?? 0) > 0 || (event.casualties.injured ?? 0) > 0;
   const countryPill = getCountryPill(event.location.country);
@@ -475,7 +500,9 @@ function EventRow({
     <div
       className={`border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer ${
         isHighlighted ? "bg-primary/5" : ""
-      } ${expanded ? "bg-muted/20" : ""}`}
+      } ${expanded ? "bg-muted/20" : ""} ${
+        isThreat ? "border-l-2 border-l-red-600 bg-red-500/[0.08]" : ""
+      }`}
       onClick={toggle}
     >
       {/* Collapsed row */}
@@ -493,22 +520,30 @@ function EventRow({
             <span className="text-xs font-semibold truncate">
               {toTitleCase(event.location.name)}
             </span>
-            <div className="flex items-center gap-1 shrink-0">
-              {sourceUrl && (
-                <a
-                  href={sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  title={`View on ${event.sourceType === "telegram" ? "Telegram" : "X"}`}
-                >
-                  <SourceIcon sourceType={event.sourceType} className="size-3" />
-                </a>
-              )}
-              <span className="text-2xs text-muted-foreground">
-                {event.dateTime ? shortTimeAgo(event.dateTime) : event.date}
-              </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {(() => {
+                const timeText = event.dateTime ? shortTimeAgo(event.dateTime) : event.date;
+                const handle = event.sourceChannel ? `@${event.sourceChannel}` : null;
+                const inner = (
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <SourceIcon sourceType={event.sourceType} className="size-4 shrink-0" />
+                    {handle && <span className="font-medium">{handle}</span>}
+                    <span className="text-muted-foreground/50">·</span>
+                    <span>{timeText}</span>
+                  </span>
+                );
+                return sourceUrl ? (
+                  <a
+                    href={sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {inner}
+                  </a>
+                ) : inner;
+              })()}
               <ChevronDown className={`size-3 text-muted-foreground transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} />
             </div>
           </div>
@@ -545,6 +580,11 @@ function EventRow({
             >
               {meta.label}
             </span>
+            {isThreat && (
+              <span className="rounded-full bg-red-600 px-1.5 py-0.5 text-2xs font-bold text-white leading-none animate-pulse">
+                ALERT
+              </span>
+            )}
             {hasCasualties && (
               <span className="rounded-full bg-red-500/15 px-1.5 py-0.5 text-2xs font-medium text-red-400 leading-none">
                 {event.casualties.killed != null && event.casualties.killed > 0 && `${event.casualties.killed} killed`}
@@ -665,23 +705,29 @@ function EventRow({
             )}
             <span className="text-muted-foreground">Source</span>
             <span className="text-foreground">
-              {sourceUrl ? (
-                <a
-                  href={sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1 hover:underline"
-                >
-                  <SourceIcon sourceType={event.sourceType} className="size-3" />
-                  {event.sourceChannel ? `@${event.sourceChannel}` : (event.sourceType === "telegram" ? "Telegram" : "X")}
-                </a>
-              ) : (
-                <>
-                  {event.sourceType === "telegram" ? "Telegram" : event.sourceType === "x_post" ? "X (Twitter)" : event.sourceType}
-                  {event.sourceChannel && ` · ${event.sourceChannel}`}
-                </>
-              )}
+              {(() => {
+                const label = event.sourceChannel
+                  ? `@${event.sourceChannel}`
+                  : event.sourceType === "telegram" ? "Telegram" : event.sourceType === "x_post" ? "X" : event.sourceType;
+                const inner = (
+                  <span className="inline-flex items-center gap-1.5">
+                    <SourceIcon sourceType={event.sourceType} className="size-4" />
+                    {label}
+                  </span>
+                );
+                return sourceUrl ? (
+                  <a
+                    href={sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 hover:underline"
+                  >
+                    <SourceIcon sourceType={event.sourceType} className="size-4" />
+                    {label}
+                  </a>
+                ) : inner;
+              })()}
             </span>
             <span className="text-muted-foreground">Date</span>
             <span className="text-foreground">
