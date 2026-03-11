@@ -3,10 +3,8 @@ import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { isLebanonRelated } from "@/lib/filterUtils";
+import { THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent, EventTypeMeta } from "@/types/events";
-
-/** Lebanon theater countries — LB, IL, SY, PS */
-const THEATER_COUNTRIES = ["LB", "IL", "SY", "PS"];
 
 export interface UseEventsReturn {
   events: EnrichedEvent[];

@@ -2,10 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { isLebanonRelated } from "@/lib/filterUtils";
+import { THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent } from "@/types/events";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-
-const THEATER_COUNTRIES = ["LB", "IL", "SY", "PS"];
 const PAGE_SIZE = 30;
 
 export interface FeedFilters {

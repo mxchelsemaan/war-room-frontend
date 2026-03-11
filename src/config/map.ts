@@ -1,5 +1,8 @@
 /** Shared map configuration constants */
 
+/** Countries to fetch events for — server-side filter passed to Supabase RPCs */
+export const THEATER_COUNTRIES = ["LB"] as const;
+
 export const DEFAULT_VIEW = {
   longitude: 35.5018,
   latitude: 33.8938,

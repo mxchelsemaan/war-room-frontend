@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { THEATER_COUNTRIES } from "@/config/map";
 import type { FilterFacets } from "@/types/events";
-
-/** Lebanon theater countries */
-const THEATER_COUNTRIES = ["LB", "IL", "SY", "PS"];
 
 const EMPTY_FACETS: FilterFacets = {
   by_type: {},

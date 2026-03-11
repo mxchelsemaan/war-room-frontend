@@ -3,11 +3,8 @@ import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { isLebanonRelated } from "@/lib/filterUtils";
-import { DEFAULT_LOOKBACK_MS } from "@/config/map";
+import { DEFAULT_LOOKBACK_MS, THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent, EventTypeMeta } from "@/types/events";
-
-/** Lebanon theater countries — LB, IL, SY, PS */
-const THEATER_COUNTRIES = ["LB", "IL", "SY", "PS"];
 const POLL_INTERVAL_MS = 30_000;
 const PAGE_SIZE = 500;
 

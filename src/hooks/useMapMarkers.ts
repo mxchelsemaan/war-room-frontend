@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformMarkerRow } from "@/lib/transformEvent";
-import { DEFAULT_LOOKBACK_MS } from "@/config/map";
+import { DEFAULT_LOOKBACK_MS, THEATER_COUNTRIES } from "@/config/map";
 import type { MapMarkerRow, MapMarkerEvent } from "@/types/events";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-
-/** Lebanon theater countries */
-const THEATER_COUNTRIES = ["LB", "IL", "SY", "PS"];
 /** Fallback poll interval when Realtime is disconnected */
 const FALLBACK_POLL_MS = 60_000;
 /** Max days to retain in dayCache before LRU eviction */
@@ -150,7 +147,7 @@ export function useMapMarkers(): UseMapMarkersReturn {
           // Filter: must have lat/lng and be in theater countries
           if (row.latitude == null || row.longitude == null) return;
           const country = (row.data as Record<string, unknown>)?.location_country;
-          if (country && !THEATER_COUNTRIES.includes(country as string)) return;
+          if (country && !(THEATER_COUNTRIES as readonly string[]).includes(country as string)) return;
 
           const data = row.data as Record<string, unknown>;
           const markerRow: MapMarkerRow = {
