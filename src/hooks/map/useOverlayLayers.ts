@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { LayerVisibility } from "@/components/atlas/MapLayerControls";
 import { frontLines, territoryZones } from "@/data/overlays";
-import { GOVERNORATE_GEOJSON, SUBGOVERNORATE_GEOJSON } from "@/data/governorates";
+import { GOVERNORATE_GEOJSON, SUBGOVERNORATE_GEOJSON, GOV_LABELS_GEOJSON, SUBGOV_LABELS_GEOJSON } from "@/data/governorates";
 import { GEO_LABELS_GEOJSON } from "@/data/geoLabels";
 import { FACTION_COLORS } from "@/config/map";
 import { ensureLayers } from "@/lib/mapUtils";
@@ -27,6 +27,24 @@ export function useOverlayLayers(
       { id: "gov-border", type: "line", source: "gov-src",
         paint: { "line-color": "#1a1a2e", "line-width": 2.5, "line-opacity": 0.9 } },
     ], layers.governorates);
+    // Governorate labels (native symbol layer)
+    ensureLayers(map, "gov-labels-src", { type: "geojson", data: GOV_LABELS_GEOJSON }, [
+      {
+        id: "gov-labels", type: "symbol", source: "gov-labels-src",
+        layout: {
+          "text-field": ["upcase", ["get", "nameEn"]],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": 14,
+          "text-letter-spacing": 0.05,
+          "text-allow-overlap": true,
+        },
+        paint: {
+          "text-color": "rgb(101,101,101)",
+          "text-halo-color": "rgba(0,0,0,0.7)",
+          "text-halo-width": 1.5,
+        },
+      },
+    ], layers.governorates);
   }, [layers.governorates, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Sub-governorate (district) polygons ──────────────────────────────
@@ -39,6 +57,24 @@ export function useOverlayLayers(
         paint: { "fill-color": ["get", "color"], "fill-opacity": 0.18 } },
       { id: "subgov-border", type: "line", source: "subgov-src",
         paint: { "line-color": "#1a1a2e", "line-width": 1.2, "line-opacity": 0.5, "line-dasharray": [4, 2] } },
+    ], layers.subgovernorates);
+    // Subgovernorate labels (native symbol layer)
+    ensureLayers(map, "subgov-labels-src", { type: "geojson", data: SUBGOV_LABELS_GEOJSON }, [
+      {
+        id: "subgov-labels", type: "symbol", source: "subgov-labels-src",
+        layout: {
+          "text-field": ["upcase", ["get", "nameEn"]],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": 10,
+          "text-letter-spacing": 0.05,
+          "text-allow-overlap": true,
+        },
+        paint: {
+          "text-color": "rgb(101,101,101)",
+          "text-halo-color": "rgba(0,0,0,0.7)",
+          "text-halo-width": 1.2,
+        },
+      },
     ], layers.subgovernorates);
   }, [layers.subgovernorates, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 

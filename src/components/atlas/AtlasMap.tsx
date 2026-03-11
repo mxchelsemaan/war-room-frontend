@@ -1,7 +1,7 @@
 import maplibregl from "maplibre-gl";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
-import { Map, Marker, Popup, AttributionControl } from "react-map-gl/maplibre";
+import { Map, Popup, AttributionControl } from "react-map-gl/maplibre";
 import { DrawingLayers } from "./DrawingLayers";
 import { FloatAnnotationOverlay } from "./FloatAnnotationOverlay";
 import type { MapEvent } from "@/data/index";
@@ -11,7 +11,6 @@ import type { PlacedUnit, UnitPath, NATOUnitType } from "@/types/units";
 import { UnitLayer } from "./UnitLayer";
 import { STATIC_MARKER_COLORS } from "@/data/staticMarkers";
 import type { StaticMarker, StaticMarkerType } from "@/data/staticMarkers";
-import { GOVERNORATES, SUBGOVERNORATES } from "@/data/governorates";
 import { DEFAULT_VIEW as _DEFAULT_VIEW, MAX_BOUNDS as _MAX_BOUNDS } from "@/config/map";
 import type { HeatmapSettings, MonitorMode } from "@/config/map";
 
@@ -38,61 +37,6 @@ try {
 export const DEFAULT_VIEW = _DEFAULT_VIEW;
 const MAX_BOUNDS = _MAX_BOUNDS;
 
-// ── Governorate label style (static, module-level) ──────────────────────────
-const GOV_LABEL_STYLE: React.CSSProperties = {
-  pointerEvents: "none",
-  textTransform: "uppercase",
-  fontSize: 14,
-  fontWeight: 400,
-  fontFamily: "'Noto Sans', system-ui, sans-serif",
-  color: "rgb(101,101,101)",
-  textShadow:
-    "-1px -1px 0 rgba(0,0,0,0.7), 1px -1px 0 rgba(0,0,0,0.7), -1px 1px 0 rgba(0,0,0,0.7), 1px 1px 0 rgba(0,0,0,0.7)",
-  whiteSpace: "nowrap",
-  userSelect: "none",
-};
-
-const GovernorateLabels = React.memo(function GovernorateLabels({ visible }: { visible: boolean }) {
-  if (!visible) return null;
-  return (
-    <>
-      {GOVERNORATES.map((gov) => (
-        <Marker key={gov.id} longitude={gov.lng} latitude={gov.lat} anchor="center"
-          pitchAlignment="viewport" rotationAlignment="viewport">
-          <div style={GOV_LABEL_STYLE}>{gov.nameEn}</div>
-        </Marker>
-      ))}
-    </>
-  );
-});
-
-// ── Subgovernorate (district) label style ────────────────────────────────────
-const SUBGOV_LABEL_STYLE: React.CSSProperties = {
-  pointerEvents: "none",
-  textTransform: "uppercase",
-  fontSize: 10,
-  fontWeight: 400,
-  fontFamily: "'Noto Sans', system-ui, sans-serif",
-  color: "rgb(101,101,101)",
-  textShadow:
-    "-1px -1px 0 rgba(0,0,0,0.7), 1px -1px 0 rgba(0,0,0,0.7), -1px 1px 0 rgba(0,0,0,0.7), 1px 1px 0 rgba(0,0,0,0.7)",
-  whiteSpace: "nowrap",
-  userSelect: "none",
-};
-
-const SubgovernorateLabels = React.memo(function SubgovernorateLabels({ visible }: { visible: boolean }) {
-  if (!visible) return null;
-  return (
-    <>
-      {SUBGOVERNORATES.map((sg) => (
-        <Marker key={sg.id} longitude={sg.lng} latitude={sg.lat} anchor="center"
-          pitchAlignment="viewport" rotationAlignment="viewport">
-          <div style={SUBGOV_LABEL_STYLE}>{sg.nameEn}</div>
-        </Marker>
-      ))}
-    </>
-  );
-});
 
 interface AtlasMapProps {
   events: MapEvent[];
@@ -424,10 +368,6 @@ export const AtlasMap = React.memo(function AtlasMap({
           />
         )}
 
-        {/* ── Governorate labels ── */}
-        <GovernorateLabels visible={layers.governorates} />
-        {/* ── Subgovernorate (district) labels ── */}
-        <SubgovernorateLabels visible={layers.subgovernorates} />
 
         {/* ── Infrastructure markers (native symbol layer via useInfraLayers) ── */}
 
