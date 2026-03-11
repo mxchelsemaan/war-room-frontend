@@ -504,7 +504,7 @@ function AtlasViewInner() {
               />
             </div>
             {/* Left-middle: Layers (mirrors DrawingToolbar on right) */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-3 z-40">
+            <div className="absolute top-1/2 -translate-y-1/2 left-3 z-50">
               <MapLayerControls
                 layers={layers}
                 onChange={setLayers}
@@ -519,7 +519,7 @@ function AtlasViewInner() {
               />
             </div>
             {/* Bottom-left: Legend */}
-            <div className="absolute bottom-4 left-3 z-40">
+            <div className="absolute bottom-4 left-3 z-50">
               <MapLegend
                 open={isPanelOpen('legend')}
                 onToggle={() => togglePanel('legend')}
