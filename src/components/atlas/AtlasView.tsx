@@ -41,6 +41,13 @@ import type { EnrichedEvent, MapMarkerEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { subDays } from "date-fns";
 
+const SEVERITY_META = [
+  { key: "critical", label: "Critical", icon: "🔴" },
+  { key: "major", label: "Major", icon: "🟠" },
+  { key: "moderate", label: "Moderate", icon: "🟡" },
+  { key: "minor", label: "Minor", icon: "🟢" },
+];
+
 function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
   return {
     selectedTypes: new Set(typeKeys ?? []),
@@ -49,6 +56,7 @@ function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
     selectedRegions: new Set<string>(),
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
+    selectedHandles: new Set<string>(),
     dateFrom: subDays(new Date(), 2).toISOString(),
     dateTo: new Date().toISOString(),
   };
@@ -68,6 +76,52 @@ function extractOptions(events: EnrichedEvent[], getter: (e: EnrichedEvent) => s
     if (v) seen.add(v);
   }
   return Array.from(seen).sort().map((v) => ({ key: v, label: toLabel(v) }));
+}
+
+/** Count occurrences per key in a subset of events */
+function countBy(events: EnrichedEvent[], getter: (e: EnrichedEvent) => string | null | undefined): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const e of events) {
+    const v = getter(e);
+    if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
+  }
+  return counts;
+}
+
+type FilterDimension = "types" | "severities" | "regions" | "weaponSystems" | "sourceTypes" | "handles";
+
+/** Apply all filters EXCEPT the skipped dimension — for cross-faceting */
+function applyFiltersExcept(events: EnrichedEvent[], filters: AtlasFilters, skip: FilterDimension): EnrichedEvent[] {
+  return events.filter((e) => {
+    if (skip !== "types" && filters.selectedTypes.size > 0 && !filters.selectedTypes.has(e.eventType)) return false;
+    if (skip !== "severities" && filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(e.severity)) return false;
+    if (skip !== "regions" && filters.selectedRegions.size > 0 && !filters.selectedRegions.has(e.location.region ?? "")) return false;
+    if (skip !== "weaponSystems" && filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(e.weaponSystem ?? "")) return false;
+    if (skip !== "sourceTypes" && filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(e.sourceType)) return false;
+    if (skip !== "handles" && filters.selectedHandles.size > 0 && !filters.selectedHandles.has(e.sourceChannel ?? "")) return false;
+    return true;
+  });
+}
+
+interface CrossFacets {
+  typeCounts: Map<string, number>;
+  severityCounts: Map<string, number>;
+  regionCounts: Map<string, number>;
+  weaponSystemCounts: Map<string, number>;
+  sourceTypeCounts: Map<string, number>;
+  handleCounts: Map<string, number>;
+}
+
+/** Compute cross-filtered counts for every dimension */
+function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): CrossFacets {
+  return {
+    typeCounts: countBy(applyFiltersExcept(events, filters, "types"), (e) => e.eventType),
+    severityCounts: countBy(applyFiltersExcept(events, filters, "severities"), (e) => e.severity),
+    regionCounts: countBy(applyFiltersExcept(events, filters, "regions"), (e) => e.location.region),
+    weaponSystemCounts: countBy(applyFiltersExcept(events, filters, "weaponSystems"), (e) => e.weaponSystem),
+    sourceTypeCounts: countBy(applyFiltersExcept(events, filters, "sourceTypes"), (e) => e.sourceType),
+    handleCounts: countBy(applyFiltersExcept(events, filters, "handles"), (e) => e.sourceChannel),
+  };
 }
 
 /** Convert MapMarkerEvent[] to MapEvent[] for the map layers */
@@ -138,21 +192,42 @@ function AtlasViewInner() {
     filters.dateTo || undefined,
   );
 
-  // Derive filter options from facets (mat view) — fast, no full iteration
-  const regionOptions = useMemo<FilterOption[]>(() =>
-    Object.entries(facets.by_region).map(([key, count]) => ({
-      key, label: toLabel(key), count,
-    })).sort((a, b) => a.label.localeCompare(b.label)),
-  [facets.by_region]);
+  // ── Base options: all unique values per dimension (stable, from all loaded events) ──
+  const baseSeverityOptions = useMemo<FilterOption[]>(() =>
+    SEVERITY_META.map((s) => ({ key: s.key, label: s.label, icon: s.icon })),
+  []);
+  const baseRegionOptions = useMemo(() => extractOptions(allEvents, (e) => e.location.region), [allEvents]);
+  const baseSourceTypeOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceType), [allEvents]);
+  const baseWeaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
+  const baseHandleOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceChannel), [allEvents]);
 
-  const sourceTypeOptions = useMemo<FilterOption[]>(() =>
-    Object.entries(facets.by_source_type).map(([key, count]) => ({
-      key, label: toLabel(key), count,
-    })).sort((a, b) => a.label.localeCompare(b.label)),
-  [facets.by_source_type]);
+  // ── Cross-filtered counts: for each dimension, apply all OTHER filters ──
+  const crossFacets = useMemo(
+    () => computeCrossFacets(allEvents, filters),
+    [allEvents, filters],
+  );
 
-  // Weapon systems still extracted client-side (not in mat view)
-  const weaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
+  // Merge base options with cross-filtered counts
+  const severityOptions = useMemo<FilterOption[]>(
+    () => baseSeverityOptions.map((o) => ({ ...o, count: crossFacets.severityCounts.get(o.key) ?? 0 })),
+    [baseSeverityOptions, crossFacets.severityCounts],
+  );
+  const regionOptions = useMemo<FilterOption[]>(
+    () => baseRegionOptions.map((o) => ({ ...o, count: crossFacets.regionCounts.get(o.key) ?? 0 })),
+    [baseRegionOptions, crossFacets.regionCounts],
+  );
+  const sourceTypeOptions = useMemo<FilterOption[]>(
+    () => baseSourceTypeOptions.map((o) => ({ ...o, count: crossFacets.sourceTypeCounts.get(o.key) ?? 0 })),
+    [baseSourceTypeOptions, crossFacets.sourceTypeCounts],
+  );
+  const weaponSystemOptions = useMemo<FilterOption[]>(
+    () => baseWeaponSystemOptions.map((o) => ({ ...o, count: crossFacets.weaponSystemCounts.get(o.key) ?? 0 })),
+    [baseWeaponSystemOptions, crossFacets.weaponSystemCounts],
+  );
+  const handleOptions = useMemo<FilterOption[]>(
+    () => baseHandleOptions.map((o) => ({ ...o, count: crossFacets.handleCounts.get(o.key) ?? 0 })),
+    [baseHandleOptions, crossFacets.handleCounts],
+  );
 
   // Priority 4: Server-side feed pagination
   const feedFilters = useMemo<FeedFilters>(() => ({
@@ -160,10 +235,11 @@ function AtlasViewInner() {
     severities: filters.selectedSeverities.size > 0 ? Array.from(filters.selectedSeverities) : undefined,
     regions: filters.selectedRegions.size > 0 ? Array.from(filters.selectedRegions) : undefined,
     sourceTypes: filters.selectedSourceTypes.size > 0 ? Array.from(filters.selectedSourceTypes) : undefined,
+    handles: filters.selectedHandles.size > 0 ? Array.from(filters.selectedHandles) : undefined,
     dateFrom: filters.dateFrom?.slice(0, 10),
     dateTo: filters.dateTo?.slice(0, 10),
     weaponSystems: filters.selectedWeaponSystems.size > 0 ? [...filters.selectedWeaponSystems] : undefined,
-  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems]);
+  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems]);
 
   const {
     events: feedEvents,
@@ -187,30 +263,8 @@ function AtlasViewInner() {
   }, [liveEventTypes]);
 
 
-  // Event type counts — use facets from mat view when no secondary filters active,
-  // fall back to client-side iteration when secondary filters narrow the data
-  const eventTypeCounts = useMemo(() => {
-    const hasSecondaryFilters =
-      filters.selectedSeverities.size > 0 ||
-      filters.selectedRegions.size > 0 ||
-      filters.selectedWeaponSystems.size > 0 ||
-      filters.selectedSourceTypes.size > 0;
-
-    if (!hasSecondaryFilters && Object.keys(facets.by_type).length > 0) {
-      return new Map(Object.entries(facets.by_type));
-    }
-
-    // Fallback: iterate loaded events with secondary filters applied
-    const counts = new Map<string, number>();
-    for (const e of allEvents) {
-      if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(e.severity)) continue;
-      if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(e.location.region ?? "")) continue;
-      if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(e.weaponSystem ?? "")) continue;
-      if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(e.sourceType)) continue;
-      counts.set(e.eventType, (counts.get(e.eventType) ?? 0) + 1);
-    }
-    return counts;
-  }, [allEvents, facets.by_type, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
+  // Event type cross-filtered counts (from cross facets)
+  const eventTypeCounts = crossFacets.typeCounts;
 
   // Client-side filter by all selected filters
   const filteredEvents = useMemo(() => {
@@ -220,9 +274,10 @@ function AtlasViewInner() {
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(event.location.region ?? "")) return false;
       if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(event.weaponSystem ?? "")) return false;
       if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(event.sourceType)) return false;
+      if (filters.selectedHandles.size > 0 && !filters.selectedHandles.has(event.sourceChannel ?? "")) return false;
       return true;
     });
-  }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes]);
+  }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles]);
 
   // Timeline dates from materialized view (or fallback to client-side)
   const timelineDates = useMemo(() => {
@@ -451,8 +506,10 @@ function AtlasViewInner() {
           onOpenChange={handleFilterOpenChange}
           isLoading={isLoading}
           regionOptions={regionOptions}
+          severityOptions={severityOptions}
           weaponSystemOptions={weaponSystemOptions}
           sourceTypeOptions={sourceTypeOptions}
+          handleOptions={handleOptions}
           eventTypeCounts={eventTypeCounts}
         />
         <div className="flex flex-1 min-h-0 min-w-0">

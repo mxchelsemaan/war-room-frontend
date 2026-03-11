@@ -19,6 +19,7 @@ export interface AtlasFilters {
   selectedRegions: Set<string>;
   selectedWeaponSystems: Set<string>;
   selectedSourceTypes: Set<string>;
+  selectedHandles: Set<string>;
   dateFrom: string;
   dateTo: string;
 }
@@ -43,20 +44,15 @@ interface FilterSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isLoading?: boolean;
-  /** Dynamic options extracted from event data */
+  /** Dynamic options with cross-filtered counts */
+  severityOptions: FilterOption[];
   regionOptions: FilterOption[];
   weaponSystemOptions: FilterOption[];
   sourceTypeOptions: FilterOption[];
+  handleOptions: FilterOption[];
   /** Event count per event type key */
   eventTypeCounts: Map<string, number>;
 }
-
-const SEVERITY_OPTIONS: FilterOption[] = [
-  { key: "critical", label: "Critical", icon: "🔴" },
-  { key: "major", label: "Major", icon: "🟠" },
-  { key: "moderate", label: "Moderate", icon: "🟡" },
-  { key: "minor", label: "Minor", icon: "🟢" },
-];
 
 const INFRA_OPTIONS: FilterOption[] = (
   Object.entries(STATIC_MARKER_META) as [StaticMarkerType, { label: string; icon: string }][]
@@ -72,9 +68,11 @@ export function FilterSidebar({
   open,
   onOpenChange: setOpen,
   isLoading,
+  severityOptions,
   regionOptions,
   weaponSystemOptions,
   sourceTypeOptions,
+  handleOptions,
   eventTypeCounts,
 }: FilterSidebarProps) {
   const isMobile = useIsMobile();
@@ -157,63 +155,71 @@ export function FilterSidebar({
           searchable
           showPills
           sortable
-          showCounts
           placeholder="Search event types…"
           allLabel="All types"
         />
       </div>
 
-      {/* Compact 2-column grid for smaller filters */}
-      <div className="grid grid-cols-2 gap-px border-b border-border">
-        <div className="p-3 border-r border-border">
-          <MultiSelectDropdown
-            label="Severity"
-            options={SEVERITY_OPTIONS}
-            selected={filters.selectedSeverities}
-            onChange={(next) => updateSet("selectedSeverities", next)}
-            allLabel="All severities"
-          />
-        </div>
-        <div className="p-3">
-          <MultiSelectDropdown
-            label="Region"
-            options={regionOptions}
-            selected={filters.selectedRegions}
-            onChange={(next) => updateSet("selectedRegions", next)}
-            searchable
-            placeholder="Search regions…"
-            allLabel="All regions"
-          />
-        </div>
-        <div className="p-3 border-r border-t border-border">
-          <MultiSelectDropdown
-            label="Weapon System"
-            options={weaponSystemOptions}
-            selected={filters.selectedWeaponSystems}
-            onChange={(next) => updateSet("selectedWeaponSystems", next)}
-            searchable
-            placeholder="Search weapons…"
-            allLabel="All weapons"
-          />
-        </div>
-        <div className="p-3 border-r border-t border-border">
-          <MultiSelectDropdown
-            label="Source Type"
-            options={sourceTypeOptions}
-            selected={filters.selectedSourceTypes}
-            onChange={(next) => updateSet("selectedSourceTypes", next)}
-            allLabel="All sources"
-          />
-        </div>
-        <div className="p-3 border-t border-border">
-          <MultiSelectDropdown
-            label="Infrastructure"
-            options={INFRA_OPTIONS}
-            selected={filters.selectedInfraTypes as Set<string>}
-            onChange={(next) => updateSet("selectedInfraTypes", next as Set<string> as Set<StaticMarkerType>)}
-            allLabel="All infra"
-          />
-        </div>
+      {/* Stacked full-width filters */}
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Severity"
+          options={severityOptions}
+          selected={filters.selectedSeverities}
+          onChange={(next) => updateSet("selectedSeverities", next)}
+          allLabel="All severities"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Region"
+          options={regionOptions}
+          selected={filters.selectedRegions}
+          onChange={(next) => updateSet("selectedRegions", next)}
+          searchable
+          placeholder="Search regions…"
+          allLabel="All regions"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Weapon System"
+          options={weaponSystemOptions}
+          selected={filters.selectedWeaponSystems}
+          onChange={(next) => updateSet("selectedWeaponSystems", next)}
+          searchable
+          placeholder="Search weapons…"
+          allLabel="All weapons"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Source Type"
+          options={sourceTypeOptions}
+          selected={filters.selectedSourceTypes}
+          onChange={(next) => updateSet("selectedSourceTypes", next)}
+          allLabel="All sources"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Handle"
+          options={handleOptions}
+          selected={filters.selectedHandles}
+          onChange={(next) => updateSet("selectedHandles", next)}
+          searchable
+          placeholder="Search handles…"
+          allLabel="All handles"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Infrastructure"
+          options={INFRA_OPTIONS}
+          selected={filters.selectedInfraTypes as Set<string>}
+          onChange={(next) => updateSet("selectedInfraTypes", next as Set<string> as Set<StaticMarkerType>)}
+          allLabel="All infra"
+        />
       </div>
 
       {/* Counter + clear */}
@@ -243,7 +249,6 @@ function MultiSelectDropdown({
   searchable,
   showPills,
   sortable,
-  showCounts,
   placeholder = "Search…",
   allLabel = "All selected",
 }: {
@@ -255,7 +260,6 @@ function MultiSelectDropdown({
   searchable?: boolean;
   showPills?: boolean;
   sortable?: boolean;
-  showCounts?: boolean;
   placeholder?: string;
   allLabel?: string;
 }) {
@@ -463,26 +467,29 @@ function MultiSelectDropdown({
                 {filtered.length === 0 && (
                   <div className="px-3 py-2 text-xs text-muted-foreground">No matches for &ldquo;{search}&rdquo;</div>
                 )}
-                {filtered.map((o) => (
-                  <label
-                    key={o.key}
-                    onMouseDown={(e) => { e.preventDefault(); keepOpen(); }}
-                    className="flex items-center gap-2 px-2.5 py-1.5 cursor-pointer hover:bg-muted/50 transition-colors"
-                  >
-                    <Checkbox
-                      checked={selected.has(o.key)}
-                      onCheckedChange={() => toggle(o.key)}
-                      className="size-3.5"
-                    />
-                    <span className="text-xs leading-none flex items-center gap-1.5 flex-1">
-                      {o.icon && <span>{o.icon}</span>}
-                      <span>{o.label}</span>
-                    </span>
-                    {showCounts && o.count != null && (
-                      <span className="text-2xs text-muted-foreground tabular-nums">{o.count}</span>
-                    )}
-                  </label>
-                ))}
+                {filtered.map((o) => {
+                  const unavailable = o.count != null && o.count === 0;
+                  return (
+                    <label
+                      key={o.key}
+                      onMouseDown={(e) => { e.preventDefault(); keepOpen(); }}
+                      className={`flex items-center gap-2 px-2.5 py-1.5 cursor-pointer transition-colors ${unavailable ? "opacity-35" : "hover:bg-muted/50"}`}
+                    >
+                      <Checkbox
+                        checked={selected.has(o.key)}
+                        onCheckedChange={() => toggle(o.key)}
+                        className="size-3.5"
+                      />
+                      <span className="text-xs leading-none flex items-center gap-1.5 flex-1">
+                        {o.icon && <span>{o.icon}</span>}
+                        <span>{o.label}</span>
+                      </span>
+                      {o.count != null && (
+                        <span className="text-2xs text-muted-foreground tabular-nums">{o.count}</span>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
             </div>
           )}
