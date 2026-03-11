@@ -397,7 +397,7 @@ function EventRow({
           className={`absolute inset-0 pointer-events-none animate-pulse ${
             isEvac ? "bg-red-500/40" : "bg-red-500/25"
           }`}
-          style={{ animationDelay: `${-(event.id % 20) * 0.1}s` }}
+          style={{ animationDelay: `${-((event.id.charCodeAt(0) ?? 0) % 20) * 0.1}s` }}
         />
       )}
       {/* Collapsed row */}

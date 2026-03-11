@@ -170,12 +170,12 @@ export function useMapMarkers(): UseMapMarkersReturn {
       .channel("events-realtime")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "events" },
+        { event: "INSERT", schema: "enriched", table: "events" },
         handlePayload,
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "events" },
+        { event: "UPDATE", schema: "enriched", table: "events" },
         handlePayload,
       )
       .subscribe((status) => {

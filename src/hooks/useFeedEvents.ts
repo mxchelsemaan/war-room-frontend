@@ -6,6 +6,7 @@ import { THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent } from "@/types/events";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 const PAGE_SIZE = 30;
+const POLL_INTERVAL_MS = 15_000; // polling fallback in case realtime misses events
 
 export interface FeedFilters {
   types?: string[];
@@ -106,6 +107,35 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
     fetchPage(null, true);
   }, [filterKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Track the newest enriched_at for polling dedup
+  const newestAtRef = useRef<string | null>(null);
+
+  // Update newestAtRef whenever events change
+  useEffect(() => {
+    if (events.length > 0) {
+      newestAtRef.current = events[0].enrichedAt;
+    }
+  }, [events]);
+
+  // Merge new events into the feed (prepend new, update existing)
+  const mergeEvents = useCallback((enriched: EnrichedEvent[]) => {
+    if (enriched.length === 0) return;
+    setEvents((prev) => {
+      const existing = new Map(prev.map((e) => [e.id, e]));
+      const prepend: EnrichedEvent[] = [];
+      for (const e of enriched) {
+        if (existing.has(e.id)) {
+          existing.set(e.id, e); // update in-place
+        } else {
+          prepend.push(e);
+        }
+      }
+      if (prepend.length === 0 && enriched.every((e) => existing.get(e.id) === e)) return prev;
+      const updated = Array.from(existing.values());
+      return [...prepend, ...updated];
+    });
+  }, []);
+
   // Realtime: prepend new events to feed
   useEffect(() => {
     if (!supabase) return;
@@ -127,29 +157,19 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       if (filters.dateTo && enriched.date > filters.dateTo) return;
       if (filters.weaponSystems?.length && !filters.weaponSystems.includes(enriched.weaponSystem ?? "")) return;
 
-      setEvents((prev) => {
-        const idx = prev.findIndex((e) => e.id === enriched.id);
-        if (idx >= 0) {
-          // UPDATE: replace existing event in-place
-          const next = [...prev];
-          next[idx] = enriched;
-          return next;
-        }
-        // INSERT: prepend
-        return [enriched, ...prev];
-      });
+      mergeEvents([enriched]);
     };
 
     const channel = supabase
       .channel("feed-realtime")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "events" },
+        { event: "INSERT", schema: "enriched", table: "events" },
         handlePayload,
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "events" },
+        { event: "UPDATE", schema: "enriched", table: "events" },
         handlePayload,
       )
       .subscribe();
@@ -160,7 +180,42 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       supabase!.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [filterKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filterKey, mergeEvents]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Polling fallback: fetch newest events periodically in case realtime misses them
+  useEffect(() => {
+    if (!supabase) return;
+
+    const poll = async () => {
+      try {
+        const params: Record<string, unknown> = {
+          p_countries: THEATER_COUNTRIES,
+          p_limit: PAGE_SIZE,
+        };
+        if (filters.types?.length) params.p_types = filters.types;
+        if (filters.severities?.length) params.p_severities = filters.severities;
+        if (filters.regions?.length) params.p_regions = filters.regions;
+        if (filters.sourceTypes?.length) params.p_source_types = filters.sourceTypes;
+        if (filters.handles?.length) params.p_handles = filters.handles;
+        if (filters.dateFrom) params.p_date_from = filters.dateFrom;
+        if (filters.dateTo) params.p_date_to = filters.dateTo;
+        if (filters.weaponSystems?.length) params.p_weapon_systems = filters.weaponSystems;
+        // No cursor — fetch the latest page and merge
+
+        const { data } = await supabase!.rpc("get_feed_events", params);
+        if (!data) return;
+
+        const rows = (data as EventRow[]).filter(isLebanonRelated);
+        const enriched = rows.map(transformRow);
+        mergeEvents(enriched);
+      } catch {
+        // Silently ignore poll errors — realtime or next poll will catch up
+      }
+    };
+
+    const interval = setInterval(poll, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [filterKey, mergeEvents]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadMore = useCallback(() => {
     if (!hasMore || isLoadingMore) return;
