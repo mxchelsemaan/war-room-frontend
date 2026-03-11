@@ -90,8 +90,13 @@ export function useEventLayers(
 
     const vis = markersEnabled ? "visible" : "none";
 
+    // zoom expressions must be the top-level input to interpolate/step —
+    // nest the per-feature "case" inside the output stops, not the other way around.
     const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
-      ? ["case", ["get", "isRecent"], 1, ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0.35, CROSSFADE.FADE_END, 1]] as unknown as maplibregl.ExpressionSpecification
+      ? ["interpolate", ["linear"], ["zoom"],
+          CROSSFADE.FADE_START, ["case", ["get", "isRecent"], 1, 0.35],
+          CROSSFADE.FADE_END, 1,
+        ] as unknown as maplibregl.ExpressionSpecification
       : 1;
 
     // Remove stale source+layers and re-create with fresh data every time.
@@ -176,7 +181,10 @@ export function useEventLayers(
     if (!map) return;
 
     const opacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
-      ? ["case", ["get", "isRecent"], 1, ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0.35, CROSSFADE.FADE_END, 1]] as unknown as maplibregl.ExpressionSpecification
+      ? ["interpolate", ["linear"], ["zoom"],
+          CROSSFADE.FADE_START, ["case", ["get", "isRecent"], 1, 0.35],
+          CROSSFADE.FADE_END, 1,
+        ] as unknown as maplibregl.ExpressionSpecification
       : 1;
 
     if (map.getLayer("event-dots")) map.setPaintProperty("event-dots", "circle-opacity", opacity);

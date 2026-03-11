@@ -12,6 +12,7 @@ import { DrawingToolbar } from "./DrawingToolbar";
 import { FloatingTriggerBtn } from "./FloatingPanel";
 import { YouTubeFloatingPanel } from "./YouTubeFloatingPanel";
 import { Sparkles, SlidersHorizontal, List } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CameraControls } from "./CameraControls";
 import { DEFAULT_VIEW, HEATMAP_DEFAULTS } from "@/config/map";
@@ -561,18 +562,19 @@ function AtlasViewInner() {
             )}
             {/* Bottom-center: Alpha disclaimer */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20">
-              <button
+              <Badge
+                variant="outline"
                 onClick={() => setDisclaimerOpen(p => !p)}
-                className="text-center text-[10px] text-red-400/70 hover:text-red-400 transition-colors cursor-pointer bg-transparent border-none"
+                className={`cursor-pointer bg-background/80 backdrop-blur-sm border-red-400/30 text-red-400/70 hover:text-red-400 hover:border-red-400/50 transition-colors text-[10px] font-normal px-3 ${disclaimerOpen ? "whitespace-normal overflow-visible py-2" : ""}`}
               >
                 {disclaimerOpen ? (
-                  <span className="block max-w-xs">
+                  <span className="block max-w-xs text-center">
                     Shifra is in active development (alpha). Data accuracy is not guaranteed — always verify information through independent sources before relying on it.
                   </span>
                 ) : (
-                  <span>Alpha · Disclaimer</span>
+                  <span>Disclaimer</span>
                 )}
-              </button>
+              </Badge>
             </div>
           </div>
           <EventFeedPanel
