@@ -105,8 +105,8 @@ export function useClusterLayer(
       type: "geojson",
       data: geoJson,
       cluster: true,
-      clusterRadius: 50,
-      clusterMaxZoom: 14,
+      clusterRadius: 40,
+      clusterMaxZoom: 18,
     });
 
     const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
@@ -162,14 +162,17 @@ export function useClusterLayer(
       filter: ["has", "point_count"],
       layout: {
         visibility: vis,
-        "icon-image": "cluster-badge",
+        "icon-image": terrain ? "cluster-badge-stem" : "cluster-badge",
         "icon-size": 0.4,
+        "icon-anchor": terrain ? "bottom" : "center",
         "icon-overlap": "always",
         "icon-pitch-alignment": "viewport",
         "icon-rotation-alignment": "viewport",
         "text-field": ["get", "point_count_abbreviated"] as unknown as maplibregl.ExpressionSpecification,
         "text-font": ["Noto Sans Regular"],
         "text-size": 13,
+        "text-anchor": terrain ? "bottom" : "center",
+        "text-offset": terrain ? [0, -1.2] as [number, number] : [0, 0] as [number, number],
         "text-overlap": "always",
       },
       paint: {

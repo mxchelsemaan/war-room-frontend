@@ -68,15 +68,30 @@ export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
 /** Register a pin-head-style circle used as background for cluster count badges.
  *  Matches the event pin look: glow + dark fill + colored border. */
 export function registerClusterBadgeImage(map: maplibregl.Map, bgFill: string = PIN_BG_LIGHT, accentColor: string = "#6366f1") {
-  if (map.hasImage("cluster-badge")) return;
-  const size = HEAD;  // same resolution as pin heads (80px at 2×)
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  // Reuse the pin-head renderer without an emoji
-  drawPinHead(ctx, size / 2, size / 2, accentColor, "", bgFill, "circle");
-  map.addImage("cluster-badge", { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
+  // Flat variant
+  if (!map.hasImage("cluster-badge")) {
+    const canvas = document.createElement("canvas");
+    canvas.width = HEAD;
+    canvas.height = HEAD;
+    const ctx = canvas.getContext("2d")!;
+    drawPinHead(ctx, HEAD / 2, HEAD / 2, accentColor, "", bgFill, "circle");
+    map.addImage("cluster-badge", { width: HEAD, height: HEAD, data: ctx.getImageData(0, 0, HEAD, HEAD).data });
+  }
+  // Stemmed variant (for 3D terrain)
+  if (!map.hasImage("cluster-badge-stem")) {
+    const canvas = document.createElement("canvas");
+    canvas.width = HEAD;
+    canvas.height = TOTAL_H;
+    const ctx = canvas.getContext("2d")!;
+    drawPinHead(ctx, HEAD / 2, HEAD / 2, accentColor, "", bgFill, "circle");
+    const stemTop = HEAD / 2 + HEAD / 2;
+    const grad = ctx.createLinearGradient(0, stemTop, 0, TOTAL_H);
+    grad.addColorStop(0, accentColor + "cc");
+    grad.addColorStop(1, "transparent");
+    ctx.fillStyle = grad;
+    ctx.fillRect(HEAD / 2 - STEM_W / 2, stemTop, STEM_W, TOTAL_H - stemTop);
+    map.addImage("cluster-badge-stem", { width: HEAD, height: TOTAL_H, data: ctx.getImageData(0, 0, HEAD, TOTAL_H).data });
+  }
 }
 
 // ── Generic map pin image system ─────────────────────────────────────────────
