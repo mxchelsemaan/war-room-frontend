@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
@@ -56,12 +56,9 @@ export function useHeatmapLayer(
     })),
   }), [events]);
 
-  const geoJsonRef = useRef(geoJson);
-  geoJsonRef.current = geoJson;
-
   const stops = dark ? FIRE_STOPS_DARK : FIRE_STOPS_LIGHT;
 
-  // ── Create / update source + layer ──────────────────────────────────
+  // ── Create / recreate source + layer ────────────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
@@ -73,64 +70,39 @@ export function useHeatmapLayer(
       ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.HEATMAP_FULL, OPACITY, CROSSFADE.FADE_END, 0] as unknown as maplibregl.ExpressionSpecification
       : ["interpolate", ["linear"], ["zoom"], 7, OPACITY, 14, OPACITY * 0.5] as unknown as maplibregl.ExpressionSpecification;
 
-    if (!map.getSource(HEATMAP_SOURCE)) {
-      map.addSource(HEATMAP_SOURCE, { type: "geojson", data: geoJson });
+    // Clean up stale layer + source for full re-create
+    if (map.getLayer(HEATMAP_LAYER)) map.removeLayer(HEATMAP_LAYER);
+    if (map.getSource(HEATMAP_SOURCE)) map.removeSource(HEATMAP_SOURCE);
 
-      const beforeLayer = map.getLayer("event-pulse") ? "event-pulse" : map.getLayer("event-pins") ? "event-pins" : undefined;
+    if (geoJson.features.length === 0) return;
 
-      map.addLayer({
-        id: HEATMAP_LAYER,
-        type: "heatmap",
-        source: HEATMAP_SOURCE,
-        layout: { visibility: vis },
-        paint: {
-          "heatmap-weight": ["get", "weight"] as unknown as maplibregl.ExpressionSpecification,
-          "heatmap-intensity": [
-            "interpolate", ["linear"], ["zoom"],
-            7, INTENSITY * 0.53,
-            12, INTENSITY * 1.33,
-          ] as unknown as maplibregl.ExpressionSpecification,
-          "heatmap-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            7, RADIUS * 0.6,
-            12, RADIUS * 1.2,
-          ] as unknown as maplibregl.ExpressionSpecification,
-          "heatmap-color": [
-            "interpolate", ["linear"], ["heatmap-density"],
-            ...stops.flat(),
-          ] as unknown as maplibregl.ExpressionSpecification,
-          "heatmap-opacity": opacityExpr,
-        },
-      } as maplibregl.LayerSpecification, beforeLayer);
-    } else {
-      (map.getSource(HEATMAP_SOURCE) as maplibregl.GeoJSONSource).setData(geoJson);
-    }
-  }, [geoJson, dark, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+    map.addSource(HEATMAP_SOURCE, { type: "geojson", data: geoJson });
 
-  // ── Update paint when theme or crossfade changes ───────────────────
-  useEffect(() => {
-    if (!mapLoaded) return;
-    const map = mapRef.current?.getMap();
-    if (!map || !map.getLayer(HEATMAP_LAYER)) return;
+    const beforeLayer = map.getLayer("event-pulse") ? "event-pulse" : map.getLayer("event-pins") ? "event-pins" : undefined;
 
-    const activeStops = dark ? FIRE_STOPS_DARK : FIRE_STOPS_LIGHT;
-    map.setPaintProperty(HEATMAP_LAYER, "heatmap-color", [
-      "interpolate", ["linear"], ["heatmap-density"],
-      ...activeStops.flat(),
-    ]);
-
-    const opacityExpr = crossfadeEnabled
-      ? ["interpolate", ["linear"], ["zoom"], CROSSFADE.HEATMAP_FULL, OPACITY, CROSSFADE.FADE_END, 0]
-      : ["interpolate", ["linear"], ["zoom"], 7, OPACITY, 14, OPACITY * 0.5];
-    map.setPaintProperty(HEATMAP_LAYER, "heatmap-opacity", opacityExpr);
-  }, [dark, crossfadeEnabled, terrainEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Visibility toggle ─────────────────────────────────────────────
-  useEffect(() => {
-    if (!mapLoaded) return;
-    const map = mapRef.current?.getMap();
-    if (!map || !map.getLayer(HEATMAP_LAYER)) return;
-
-    map.setLayoutProperty(HEATMAP_LAYER, "visibility", heatmapEnabled ? "visible" : "none");
-  }, [heatmapEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+    map.addLayer({
+      id: HEATMAP_LAYER,
+      type: "heatmap",
+      source: HEATMAP_SOURCE,
+      layout: { visibility: vis },
+      paint: {
+        "heatmap-weight": ["get", "weight"] as unknown as maplibregl.ExpressionSpecification,
+        "heatmap-intensity": [
+          "interpolate", ["linear"], ["zoom"],
+          7, INTENSITY * 0.53,
+          12, INTENSITY * 1.33,
+        ] as unknown as maplibregl.ExpressionSpecification,
+        "heatmap-radius": [
+          "interpolate", ["linear"], ["zoom"],
+          7, RADIUS * 0.6,
+          12, RADIUS * 1.2,
+        ] as unknown as maplibregl.ExpressionSpecification,
+        "heatmap-color": [
+          "interpolate", ["linear"], ["heatmap-density"],
+          ...stops.flat(),
+        ] as unknown as maplibregl.ExpressionSpecification,
+        "heatmap-opacity": opacityExpr,
+      },
+    } as maplibregl.LayerSpecification, beforeLayer);
+  }, [geoJson, dark, mapLoaded, heatmapEnabled, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
 }
