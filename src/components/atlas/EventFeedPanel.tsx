@@ -6,14 +6,12 @@ import type { EnrichedEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import type { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
 import { buildSourceUrl, SourceIcon } from "@/lib/sourceUrl";
 import { isThreatAlert } from "@/lib/threatUtils";
-import { MOCK_THREAT_EVENTS } from "@/data/mockThreatEvents";
 
 /** Detect media type from URL path extension */
 function getMediaType(url: string): "video" | "image" {
@@ -48,15 +46,6 @@ const SEVERITY_COLORS: Record<string, string> = {
   moderate: "bg-amber-500",
   minor:    "bg-slate-400",
 };
-
-/** Event types classified as "news" (statements, political, updates) — everything else is "events" */
-const NEWS_TYPES = new Set([
-  "military_statement", "political_statement", "diplomatic_meeting",
-  "government_formation", "legislation", "judicial_proceedings",
-  "trade_disruption", "economic_crisis", "civil_defense_update",
-  "civil_defense_warning", "all_clear", "humanitarian",
-]);
-
 
 /** Map country name → [ISO 2-letter code, flag emoji] */
 const COUNTRY_META: Record<string, [code: string, flag: string]> = {
@@ -158,26 +147,8 @@ export function EventFeedPanel({
 }: EventFeedPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [showEvents, setShowEvents] = useState(true);
-  const [showNews, setShowNews] = useState(true);
-  const [alertsOnly, setAlertsOnly] = useState(false);
 
-  // Inject mock threat events (dedupe by ID)
-  const eventsWithThreats = useMemo(() => {
-    const ids = new Set(events.map((e) => e.id));
-    const mocks = MOCK_THREAT_EVENTS.filter((m) => !ids.has(m.id));
-    return [...mocks, ...events];
-  }, [events]);
-
-  const filteredEvents = useMemo(() => {
-    if (alertsOnly) return eventsWithThreats.filter((e) => isThreatAlert(e));
-    if (showEvents && showNews) return eventsWithThreats;
-    return eventsWithThreats.filter((e) => {
-      const isNews = NEWS_TYPES.has(e.eventType);
-      return isNews ? showNews : showEvents;
-    });
-  }, [eventsWithThreats, showEvents, showNews, alertsOnly]);
-  const groups = useMemo(() => groupByDate(filteredEvents), [filteredEvents]);
+  const groups = useMemo(() => groupByDate(events), [events]);
 
   function handleToggle() {
     onOpenChange(!open);
@@ -230,35 +201,7 @@ export function EventFeedPanel({
             />
           </Button>
           {(open || isMobile) && (
-            <>
-              <span className="text-sm font-semibold">Live Feeds</span>
-              <div className="flex items-center gap-2 ml-auto">
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <Checkbox
-                    checked={showEvents}
-                    onCheckedChange={(v) => setShowEvents(!!v)}
-                    className="size-3.5"
-                  />
-                  <span className="text-2xs text-muted-foreground">Events</span>
-                </label>
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <Checkbox
-                    checked={showNews}
-                    onCheckedChange={(v) => setShowNews(!!v)}
-                    className="size-3.5"
-                  />
-                  <span className="text-2xs text-muted-foreground">News</span>
-                </label>
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <Checkbox
-                    checked={alertsOnly}
-                    onCheckedChange={(v) => setAlertsOnly(!!v)}
-                    className="size-3.5"
-                  />
-                  <span className="text-2xs text-red-400 font-medium">Alerts</span>
-                </label>
-              </div>
-            </>
+            <span className="text-sm font-semibold">Live Feeds</span>
           )}
         </div>
       }

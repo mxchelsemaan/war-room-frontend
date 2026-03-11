@@ -63,6 +63,7 @@ export interface EnrichedEvent {
   topics: string[];
   sourceClaim: string | null;
   mediaUrl: string | null;
+  enrichedAt: string;
 }
 
 /** Metadata for rendering an event type */

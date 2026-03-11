@@ -38,6 +38,7 @@ export function transformRow(row: EventRow): EnrichedEvent {
     topics: Array.isArray(d.topics) ? d.topics : [],
     sourceClaim: d.source_claim ?? null,
     mediaUrl: row.media_url ?? null,
+    enrichedAt: row.enriched_at,
   };
 }
 

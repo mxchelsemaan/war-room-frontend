@@ -159,7 +159,10 @@ function AtlasViewInner() {
     severities: filters.selectedSeverities.size > 0 ? Array.from(filters.selectedSeverities) : undefined,
     regions: filters.selectedRegions.size > 0 ? Array.from(filters.selectedRegions) : undefined,
     sourceTypes: filters.selectedSourceTypes.size > 0 ? Array.from(filters.selectedSourceTypes) : undefined,
-  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes]);
+    dateFrom: filters.dateFrom?.slice(0, 10),
+    dateTo: filters.dateTo?.slice(0, 10),
+    weaponSystems: filters.selectedWeaponSystems.size > 0 ? [...filters.selectedWeaponSystems] : undefined,
+  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems]);
 
   const {
     events: feedEvents,

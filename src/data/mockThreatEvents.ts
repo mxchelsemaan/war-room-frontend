@@ -28,6 +28,7 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     topics: ["evacuation", "south lebanon"],
     sourceClaim: "IDF Spokesperson",
     mediaUrl: null,
+    enrichedAt: new Date().toISOString(),
   },
   {
     id: "threat-mock-2",
@@ -55,6 +56,7 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     topics: ["evacuation", "leaflets"],
     sourceClaim: "Local sources",
     mediaUrl: null,
+    enrichedAt: new Date().toISOString(),
   },
   {
     id: "threat-mock-3",
@@ -82,6 +84,7 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     topics: ["civil defense", "border zone"],
     sourceClaim: "Lebanese Civil Defense",
     mediaUrl: null,
+    enrichedAt: new Date().toISOString(),
   },
   {
     id: "threat-mock-4",
@@ -109,5 +112,6 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     topics: ["evacuation", "military zone"],
     sourceClaim: "IDF Official",
     mediaUrl: null,
+    enrichedAt: new Date().toISOString(),
   },
 ];

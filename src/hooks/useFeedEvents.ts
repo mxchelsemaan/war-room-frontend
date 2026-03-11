@@ -12,6 +12,9 @@ export interface FeedFilters {
   severities?: string[];
   regions?: string[];
   sourceTypes?: string[];
+  dateFrom?: string;
+  dateTo?: string;
+  weaponSystems?: string[];
 }
 
 export interface UseFeedEventsReturn {
@@ -58,6 +61,9 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       if (filters.severities?.length) params.p_severities = filters.severities;
       if (filters.regions?.length) params.p_regions = filters.regions;
       if (filters.sourceTypes?.length) params.p_source_types = filters.sourceTypes;
+      if (filters.dateFrom) params.p_date_from = filters.dateFrom;
+      if (filters.dateTo) params.p_date_to = filters.dateTo;
+      if (filters.weaponSystems?.length) params.p_weapon_systems = filters.weaponSystems;
       if (cursor) params.p_cursor = cursor;
 
       const { data, error: rpcErr } = await supabase.rpc("get_feed_events", params);
@@ -76,10 +82,10 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
 
       setHasMore(rows.length === PAGE_SIZE);
 
-      // Update cursor to the last event's dateTime for next page
+      // Update cursor to the last event's enrichedAt for next page
       if (enriched.length > 0) {
         const last = enriched[enriched.length - 1];
-        cursorRef.current = last.dateTime ?? last.date;
+        cursorRef.current = last.enrichedAt;
       }
 
       setError(null);
@@ -119,6 +125,9 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
           if (filters.severities?.length && !filters.severities.includes(enriched.severity)) return;
           if (filters.regions?.length && !filters.regions.includes(enriched.location.region ?? "")) return;
           if (filters.sourceTypes?.length && !filters.sourceTypes.includes(enriched.sourceType)) return;
+          if (filters.dateFrom && enriched.date < filters.dateFrom) return;
+          if (filters.dateTo && enriched.date > filters.dateTo) return;
+          if (filters.weaponSystems?.length && !filters.weaponSystems.includes(enriched.weaponSystem ?? "")) return;
 
           setEvents((prev) => {
             // Deduplicate
