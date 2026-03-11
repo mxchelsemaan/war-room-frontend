@@ -265,6 +265,7 @@ function AtlasViewInner() {
   const rightLabels = showLabels && !isPanelOpen('feed');
   const [heatmapSettings, setHeatmapSettings] = useState<HeatmapSettings>({ ...HEATMAP_DEFAULTS });
   const [monitorMode, setMonitorMode] = useState<MonitorMode>("auto");
+  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [layers, setLayers] = useState<LayerVisibility>({
     terrain: false,
     hillshade: true,
@@ -328,7 +329,7 @@ function AtlasViewInner() {
     mapRef.current?.getMap().flyTo({
       center: [lng, lat],
       zoom: 11,
-      duration: 4000,
+      duration: 1800,
       easing: (t: number) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
     });
   }, []);
@@ -558,7 +559,21 @@ function AtlasViewInner() {
                 </div>
               </div>
             )}
-            {/* Timeline scrubber removed for now */}
+            {/* Bottom-center: Alpha disclaimer */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20">
+              <button
+                onClick={() => setDisclaimerOpen(p => !p)}
+                className="text-center text-[10px] text-red-400/70 hover:text-red-400 transition-colors cursor-pointer bg-transparent border-none"
+              >
+                {disclaimerOpen ? (
+                  <span className="block max-w-xs">
+                    Shifra is in active development (alpha). Data accuracy is not guaranteed — always verify information through independent sources before relying on it.
+                  </span>
+                ) : (
+                  <span>Alpha · Disclaimer</span>
+                )}
+              </button>
+            </div>
           </div>
           <EventFeedPanel
             events={feedEvents}

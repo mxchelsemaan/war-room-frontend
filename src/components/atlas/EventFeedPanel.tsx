@@ -47,58 +47,6 @@ const SEVERITY_COLORS: Record<string, string> = {
   minor:    "bg-slate-400",
 };
 
-/** Map country name → [ISO 2-letter code, flag emoji] */
-const COUNTRY_META: Record<string, [code: string, flag: string]> = {
-  lebanon:              ["LB", "\uD83C\uDDF1\uD83C\uDDE7"],
-  syria:                ["SY", "\uD83C\uDDF8\uD83C\uDDFE"],
-  israel:               ["IL", "\uD83C\uDDEE\uD83C\uDDF1"],
-  palestine:            ["PS", "\uD83C\uDDF5\uD83C\uDDF8"],
-  iran:                 ["IR", "\uD83C\uDDEE\uD83C\uDDF7"],
-  iraq:                 ["IQ", "\uD83C\uDDEE\uD83C\uDDF6"],
-  jordan:               ["JO", "\uD83C\uDDEF\uD83C\uDDF4"],
-  turkey:               ["TR", "\uD83C\uDDF9\uD83C\uDDF7"],
-  egypt:                ["EG", "\uD83C\uDDEA\uD83C\uDDEC"],
-  "united states":      ["US", "\uD83C\uDDFA\uD83C\uDDF8"],
-  usa:                  ["US", "\uD83C\uDDFA\uD83C\uDDF8"],
-  russia:               ["RU", "\uD83C\uDDF7\uD83C\uDDFA"],
-  ukraine:              ["UA", "\uD83C\uDDFA\uD83C\uDDE6"],
-  yemen:                ["YE", "\uD83C\uDDFE\uD83C\uDDEA"],
-  "saudi arabia":       ["SA", "\uD83C\uDDF8\uD83C\uDDE6"],
-  "united arab emirates": ["AE", "\uD83C\uDDE6\uD83C\uDDEA"],
-  uae:                  ["AE", "\uD83C\uDDE6\uD83C\uDDEA"],
-  qatar:                ["QA", "\uD83C\uDDF6\uD83C\uDDE6"],
-  bahrain:              ["BH", "\uD83C\uDDE7\uD83C\uDDED"],
-  kuwait:               ["KW", "\uD83C\uDDF0\uD83C\uDDFC"],
-  oman:                 ["OM", "\uD83C\uDDF4\uD83C\uDDF2"],
-  libya:                ["LY", "\uD83C\uDDF1\uD83C\uDDFE"],
-  tunisia:              ["TN", "\uD83C\uDDF9\uD83C\uDDF3"],
-  algeria:              ["DZ", "\uD83C\uDDE9\uD83C\uDDFF"],
-  morocco:              ["MA", "\uD83C\uDDF2\uD83C\uDDE6"],
-  sudan:                ["SD", "\uD83C\uDDF8\uD83C\uDDE9"],
-  somalia:              ["SO", "\uD83C\uDDF8\uD83C\uDDF4"],
-  afghanistan:          ["AF", "\uD83C\uDDE6\uD83C\uDDEB"],
-  pakistan:              ["PK", "\uD83C\uDDF5\uD83C\uDDF0"],
-  "united kingdom":     ["GB", "\uD83C\uDDEC\uD83C\uDDE7"],
-  uk:                   ["GB", "\uD83C\uDDEC\uD83C\uDDE7"],
-  france:               ["FR", "\uD83C\uDDEB\uD83C\uDDF7"],
-  germany:              ["DE", "\uD83C\uDDE9\uD83C\uDDEA"],
-  china:                ["CN", "\uD83C\uDDE8\uD83C\uDDF3"],
-};
-
-function getCountryPill(country: string | null): { code: string; flag: string } | null {
-  if (!country) return null;
-  const meta = COUNTRY_META[country.toLowerCase().trim()];
-  if (meta) return { code: meta[0], flag: meta[1] };
-  // Fallback: generate flag from first two chars if it looks like an ISO code
-  if (country.length === 2) {
-    const upper = country.toUpperCase();
-    const flag = String.fromCodePoint(
-      ...upper.split("").map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)
-    );
-    return { code: upper, flag };
-  }
-  return null;
-}
 
 
 interface EventFeedPanelProps {
@@ -401,7 +349,6 @@ function EventRow({
   const isThreat = isThreatAlert(event);
   const hasMedia = !!event.mediaUrl;
   const hasCasualties = (event.casualties.killed ?? 0) > 0 || (event.casualties.injured ?? 0) > 0;
-  const countryPill = getCountryPill(event.location.country);
   const sourceUrl = buildSourceUrl(event.sourceType, event.sourceChannel, event.sourceId);
 
   const toggle = useCallback(() => {
@@ -539,12 +486,6 @@ function EventRow({
                 {toTitleCase(event.verificationStatus)}
               </Badge>
             )}
-            {countryPill && (
-              <Badge variant="outline" className="px-2 py-0.5 text-xs font-medium gap-1">
-                <span className="text-sm leading-none">{countryPill.flag}</span>
-                {countryPill.code}
-              </Badge>
-            )}
           </div>
         </div>
       </div>
@@ -630,47 +571,12 @@ function EventRow({
                 <span className="text-foreground">{toTitleCase(event.location.region)}</span>
               </>
             )}
-            {event.location.country && (
-              <>
-                <span className="text-muted-foreground">Country</span>
-                <span className="text-foreground">
-                  {countryPill && <span className="mr-1">{countryPill.flag}</span>}
-                  {toTitleCase(event.location.country)}
-                </span>
-              </>
-            )}
             {event.casualties.displaced != null && event.casualties.displaced > 0 && (
               <>
                 <span className="text-muted-foreground">Displaced</span>
                 <span className="text-foreground">{event.casualties.displaced.toLocaleString()}</span>
               </>
             )}
-            <span className="text-muted-foreground">Source</span>
-            <span className="text-foreground">
-              {(() => {
-                const label = event.sourceChannel
-                  ? `@${event.sourceChannel}`
-                  : event.sourceType === "telegram" ? "Telegram" : event.sourceType === "x_post" ? "X" : event.sourceType;
-                const inner = (
-                  <span className="inline-flex items-center gap-1.5">
-                    <SourceIcon sourceType={event.sourceType} className="size-4" />
-                    {label}
-                  </span>
-                );
-                return sourceUrl ? (
-                  <a
-                    href={sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1.5 hover:underline"
-                  >
-                    <SourceIcon sourceType={event.sourceType} className="size-4" />
-                    {label}
-                  </a>
-                ) : inner;
-              })()}
-            </span>
             <span className="text-muted-foreground">Date</span>
             <span className="text-foreground">
               {event.dateTime
