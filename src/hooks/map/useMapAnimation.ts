@@ -45,16 +45,20 @@ export function useMapAnimation(
         lastGlow.current = ts;
       }
 
-      // Event pulse animation — expanding + fading circle (~30fps)
+      // Radar ping animation — two staggered expanding discs (~30fps)
       if (ts - lastPulse.current > 33) {
-        const t = (ts % 2000) / 2000;          // sawtooth 0→1 every 2s
-        if (m.getLayer("event-pulse")) {
-          const radius = 4 + t * 22;           // expand from 4px to 26px
-          const fadeOut = 1 - t;                // 1→0 as circle expands
-          m.setPaintProperty("event-pulse", "circle-radius", radius);
-          m.setPaintProperty("event-pulse", "circle-opacity", 0);
-          m.setPaintProperty("event-pulse", "circle-stroke-width", 2 * fadeOut);
-          m.setPaintProperty("event-pulse", "circle-stroke-opacity", 0.7 * fadeOut);
+        const period = 2400;                       // full cycle ms
+        const t1 = (ts % period) / period;         // ping A: 0→1
+        const t2 = ((ts + period / 2) % period) / period; // ping B: offset half
+
+        for (const [id, t] of [["event-ping-a", t1], ["event-ping-b", t2]] as const) {
+          if (!m.getLayer(id)) continue;
+          const ease = 1 - (1 - t) * (1 - t);     // ease-out quadratic
+          // ping image is 128px; scale from ~8px to ~48px diameter
+          const iconSize = (8 + ease * 40) / 128;
+          const opacity = 0.7 * (1 - ease);        // fade as it expands
+          m.setLayoutProperty(id, "icon-size", iconSize);
+          m.setPaintProperty(id, "icon-opacity", opacity);
         }
         lastPulse.current = ts;
       }

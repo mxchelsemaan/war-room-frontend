@@ -1,10 +1,9 @@
 import maplibregl from "maplibre-gl";
 
-// ── Pulse ring image ────────────────────────────────────────────────────────
+// ── Pulse ring image (used by cluster layer) ────────────────────────────────
 
-const PULSE_RING_SIZE = 128;        // canvas px (large enough for smooth scaling)
-const PULSE_RING_STROKE = 4;        // stroke width in canvas px
-/** Register a reusable red ring image for the pulse symbol layer */
+const PULSE_RING_SIZE = 128;
+const PULSE_RING_STROKE = 4;
 export function registerPulseRingImage(map: maplibregl.Map) {
   if (map.hasImage("pulse-ring")) return;
   const size = PULSE_RING_SIZE;
@@ -18,6 +17,34 @@ export function registerPulseRingImage(map: maplibregl.Map) {
   ctx.lineWidth = PULSE_RING_STROKE;
   ctx.stroke();
   map.addImage("pulse-ring", { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
+}
+
+// ── Radar ping image ────────────────────────────────────────────────────────
+
+const PING_SIZE = 128;              // canvas px
+
+/** Register a filled radial-gradient disc for radar-ping animation.
+ *  Creates one image per unique event color: "ping-#rrggbb" */
+export function registerPingImages(map: maplibregl.Map, colors: string[]) {
+  for (const color of colors) {
+    const id = `ping-${color}`;
+    if (map.hasImage(id)) continue;
+    const size = PING_SIZE;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    const cx = size / 2;
+    const grad = ctx.createRadialGradient(cx, cx, 0, cx, cx, cx);
+    grad.addColorStop(0, color);            // solid center
+    grad.addColorStop(0.5, color + "99");   // 60% opacity
+    grad.addColorStop(1, color + "00");     // transparent edge
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cx, cx, 0, Math.PI * 2);
+    ctx.fill();
+    map.addImage(id, { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
+  }
 }
 
 /** Helper: add source + layers if not present, otherwise toggle visibility */
