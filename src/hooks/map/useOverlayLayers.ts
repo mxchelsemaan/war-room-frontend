@@ -35,13 +35,12 @@ export function useOverlayLayers(
           "text-field": ["upcase", ["get", "nameEn"]],
           "text-font": ["Noto Sans Regular"],
           "text-size": 14,
-          "text-letter-spacing": 0.05,
           "text-allow-overlap": true,
         },
         paint: {
           "text-color": "rgb(101,101,101)",
           "text-halo-color": "rgba(0,0,0,0.7)",
-          "text-halo-width": 1.5,
+          "text-halo-width": 1,
         },
       },
     ], layers.governorates);
@@ -66,13 +65,12 @@ export function useOverlayLayers(
           "text-field": ["upcase", ["get", "nameEn"]],
           "text-font": ["Noto Sans Regular"],
           "text-size": 10,
-          "text-letter-spacing": 0.05,
           "text-allow-overlap": true,
         },
         paint: {
           "text-color": "rgb(101,101,101)",
           "text-halo-color": "rgba(0,0,0,0.7)",
-          "text-halo-width": 1.2,
+          "text-halo-width": 1,
         },
       },
     ], layers.subgovernorates);
