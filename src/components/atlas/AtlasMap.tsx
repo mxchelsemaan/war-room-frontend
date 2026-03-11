@@ -138,6 +138,7 @@ export const AtlasMap = React.memo(function AtlasMap({
   rotatingUnitId, onStartRotation, onRotateUnitToward, onStopRotation,
 }: AtlasMapProps) {
   const crossfadeEnabled = monitorMode === "auto";
+  const clickedEventRef = useRef(false);
   const internalMapRef = useRef<MapRef>(null);
   const mapRef = (externalMapRef ?? internalMapRef) as React.RefObject<MapRef>;
 
@@ -220,7 +221,7 @@ export const AtlasMap = React.memo(function AtlasMap({
     mapRef, events, layers.markers, mapReadyKey,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     setPopupEvent, setPopupInfra as (v: null) => void,
-    dark, layers.terrain, crossfadeEnabled,
+    dark, layers.terrain, crossfadeEnabled, clickedEventRef,
   );
   useInfraLayers(
     mapRef, layers.infrastructure, selectedInfraTypes, mapReadyKey,
@@ -362,17 +363,17 @@ export const AtlasMap = React.memo(function AtlasMap({
                 if (ann) {
                   if (onSelectAnnotation) {
                     onSelectAnnotation(ann.id);
-                  } else {
-                    setPopupAnnotation({ annotation: ann, lngLat: [e.lngLat.lng, e.lngLat.lat] });
-                    setPopupEvent(null);
-                    setPopupInfra(null);
                   }
+                  setPopupAnnotation({ annotation: ann, lngLat: [e.lngLat.lng, e.lngLat.lat] });
+                  setPopupEvent(null);
+                  setPopupInfra(null);
                 }
               }
             }
 
             // Tapped empty space — dismiss all popups
             if (!pinHit && !annotationHit) {
+              clickedEventRef.current = false;
               setPopupEvent(null);
               setPopupInfra(null);
               setPopupAnnotation(null);

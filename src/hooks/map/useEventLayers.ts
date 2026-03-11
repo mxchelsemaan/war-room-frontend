@@ -41,6 +41,7 @@ export function useEventLayers(
   dark: boolean = true,
   terrain: boolean = false,
   crossfadeEnabled: boolean = false,
+  clickedEventRef?: React.RefObject<boolean>,
 ) {
   const bgFill = dark ? PIN_BG_DARK : PIN_BG_LIGHT;
   const textColor = dark ? "#ffffff" : "#1e293b";
@@ -211,12 +212,15 @@ export function useEventLayers(
         verificationStatus: p.verificationStatus,
       };
       setPopupInfra(null);
+      if (clickedEventRef) clickedEventRef.current = true;
       setPopupEvent(evt);
     }
 
     function onMouseEnter(e: maplibregl.MapMouseEvent) {
       if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
       map!.getCanvas().style.cursor = "pointer";
+      // Don't overwrite a click-opened popup with hover
+      if (clickedEventRef?.current) return;
       // Show popup on hover (desktop)
       const features = map!.queryRenderedFeatures(e.point, { layers: ["event-pins"] });
       if (!features.length) return;
@@ -240,6 +244,8 @@ export function useEventLayers(
     function onMouseLeave() {
       if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
       map!.getCanvas().style.cursor = "";
+      // Don't dismiss click-opened popups on mouse leave
+      if (clickedEventRef?.current) return;
       setPopupEvent(null);
     }
 
