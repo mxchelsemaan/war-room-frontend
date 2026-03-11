@@ -116,7 +116,7 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
           <span className="text-2xs text-muted-foreground tabular-nums">{settings.radius}</span>
         </div>
         <Slider
-          min={10} max={60} step={1}
+          min={10} max={80} step={1}
           value={[settings.radius]}
           onValueChange={([v]) => onChange({ ...settings, radius: v })}
         />

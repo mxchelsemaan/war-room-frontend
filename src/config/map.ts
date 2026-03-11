@@ -107,54 +107,61 @@ export interface HeatmapSettings {
 export const HEATMAP_DEFAULTS: HeatmapSettings = {
   preset: "all_events",
   radius: 40,
-  intensity: 2.5,
+  intensity: 3.0,
   opacity: 0.85,
   colorScheme: "fire",
   drapeOnTerrain: false,
+} as const;
+
+export const HEATMAP_GRID = {
+  cellSizeKm: 1.5,
+  floatAltitude: 4000,     // meters ASL
+  slabThickness: 200,      // meters
+  bounds: { west: 34.8, east: 36.8, south: 32.9, north: 34.8 },
 } as const;
 
 export const HEATMAP_COLOR_SCHEMES: Record<string, { label: string; stops: [number, string][]; lightStops: [number, string][] }> = {
   fire: {
     label: "Fire",
     stops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#1e3a5f"], [0.35, "#7b2d8e"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#1e3a5f"], [0.35, "#7b2d8e"],
       [0.55, "#dc2626"], [0.75, "#f97316"], [1, "#fef9c3"],
     ],
     lightStops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#fecaca"], [0.35, "#f87171"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#fecaca"], [0.35, "#f87171"],
       [0.55, "#dc2626"], [0.75, "#b91c1c"], [1, "#7f1d1d"],
     ],
   },
   plasma: {
     label: "Plasma",
     stops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#0d0887"], [0.35, "#7e03a8"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#0d0887"], [0.35, "#7e03a8"],
       [0.55, "#cc4778"], [0.75, "#f89540"], [1, "#f0f921"],
     ],
     lightStops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#e0cffc"], [0.35, "#a855f7"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#e0cffc"], [0.35, "#a855f7"],
       [0.55, "#7e22ce"], [0.75, "#cc4778"], [1, "#581c87"],
     ],
   },
   arctic: {
     label: "Arctic",
     stops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#0c1445"], [0.35, "#1b6497"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#0c1445"], [0.35, "#1b6497"],
       [0.55, "#2bc0e4"], [0.75, "#b4ecf2"], [1, "#ffffff"],
     ],
     lightStops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#bae6fd"], [0.35, "#38bdf8"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#bae6fd"], [0.35, "#38bdf8"],
       [0.55, "#0284c7"], [0.75, "#1e3a5f"], [1, "#0c1445"],
     ],
   },
   military: {
     label: "Military",
     stops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#1a1c16"], [0.35, "#3d4a2e"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#1a1c16"], [0.35, "#3d4a2e"],
       [0.55, "#6b8c42"], [0.75, "#a3c644"], [1, "#e2f57a"],
     ],
     lightStops: [
-      [0, "rgba(0,0,0,0)"], [0.15, "#d9f99d"], [0.35, "#84cc16"],
+      [0, "rgba(0,0,0,0)"], [0.05, "#d9f99d"], [0.35, "#84cc16"],
       [0.55, "#4d7c0f"], [0.75, "#3d4a2e"], [1, "#1a1c16"],
     ],
   },
