@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { format, isToday, parseISO } from "date-fns";
-import { ChevronRight, ChevronDown, ChevronUp, Loader2, PictureInPicture2, X, Play, Maximize2, LocateFixed } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Loader2, PictureInPicture2, X, Play, Maximize2, LocateFixed, Camera } from "lucide-react";
 import type { EnrichedEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { Badge } from "@/components/ui/badge";
@@ -348,6 +348,7 @@ function EventRow({
   const severityDot = SEVERITY_COLORS[event.severity] ?? "bg-slate-500";
   const isThreat = isThreatAlert(event);
   const hasMedia = !!event.mediaUrl;
+  const hasPendingMedia = !event.mediaUrl && !!event.mediaType && event.mediaType !== "sticker";
   const hasCasualties = (event.casualties.killed ?? 0) > 0 || (event.casualties.injured ?? 0) > 0;
   const sourceUrl = buildSourceUrl(event.sourceType, event.sourceChannel, event.sourceId);
 
@@ -455,6 +456,11 @@ function EventRow({
                 )}
               </div>
             )}
+            {!expanded && hasPendingMedia && (
+              <div className="shrink-0 w-10 h-10 rounded overflow-hidden border border-border/50 bg-muted/50 flex items-center justify-center">
+                <Camera className="size-3.5 text-muted-foreground/40" />
+              </div>
+            )}
           </div>
 
           {/* Chips — always visible */}
@@ -541,6 +547,14 @@ function EventRow({
               </>
             );
           })()}
+
+          {/* Pending media placeholder */}
+          {!hasMedia && hasPendingMedia && (
+            <div className="w-full h-24 rounded-md border border-dashed border-border/50 bg-muted/30 flex items-center justify-center gap-2">
+              <Camera className="size-4 text-muted-foreground/50" />
+              <span className="text-xs text-muted-foreground/50">Media loading…</span>
+            </div>
+          )}
 
           {/* Detail grid */}
           <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">

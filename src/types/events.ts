@@ -11,6 +11,7 @@ export interface EventRow {
   enriched_at: string;
   data: EventData;
   media_url: string | null;
+  media_type: string | null;
 }
 
 /** JSONB data column — open-ended, index signature for future fields */
@@ -63,6 +64,7 @@ export interface EnrichedEvent {
   topics: string[];
   sourceClaim: string | null;
   mediaUrl: string | null;
+  mediaType: string | null;
   enrichedAt: string;
 }
 
