@@ -19,7 +19,6 @@ import { useTerrainLayer } from "@/hooks/map/useTerrainLayer";
 import { useRiverLayers } from "@/hooks/map/useRiverLayers";
 import { useOverlayLayers } from "@/hooks/map/useOverlayLayers";
 import { useHeatmapLayer } from "@/hooks/map/useHeatmapLayer";
-import { useEventLayers } from "@/hooks/map/useEventLayers";
 import { useMapAnimation } from "@/hooks/map/useMapAnimation";
 import { useClusterLayer } from "@/hooks/map/useClusterLayer";
 import { useInfraLayers } from "@/hooks/map/useInfraLayers";
@@ -155,15 +154,9 @@ export const AtlasMap = React.memo(function AtlasMap({
   useOverlayLayers(mapRef, layers, mapReadyKey);
   useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, layers.terrain, crossfadeEnabled, dark);
   useClusterLayer(
-    mapRef, events, layers.heatmap, mapReadyKey,
-    setClusterPopup,
-    drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
-    crossfadeEnabled,
-  );
-  useEventLayers(
     mapRef, events, layers.markers, mapReadyKey,
+    setClusterPopup, setPopupEvent, setPopupInfra as (v: null) => void,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
-    setPopupEvent, setPopupInfra as (v: null) => void,
     dark, layers.terrain, crossfadeEnabled, clickedEventRef,
   );
   useInfraLayers(

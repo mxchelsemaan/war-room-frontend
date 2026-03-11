@@ -67,7 +67,7 @@ export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
 
 /** Register a pin-head-style circle used as background for cluster count badges.
  *  Matches the event pin look: glow + dark fill + colored border. */
-export function registerClusterBadgeImage(map: maplibregl.Map, bgFill: string = PIN_BG_DARK, accentColor: string = "#6366f1") {
+export function registerClusterBadgeImage(map: maplibregl.Map, bgFill: string = PIN_BG_LIGHT, accentColor: string = "#6366f1") {
   if (map.hasImage("cluster-badge")) return;
   const size = HEAD;  // same resolution as pin heads (80px at 2×)
   const canvas = document.createElement("canvas");
