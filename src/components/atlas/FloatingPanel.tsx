@@ -19,39 +19,24 @@ interface CollapsePanelProps {
 }
 
 export function CollapsePanel({ open, direction = "down", className, children }: CollapsePanelProps) {
-  const isUp = direction === "up";
   const isHorizontal = direction === "left" || direction === "right";
-
-  if (isHorizontal) {
-    return (
-      <div
-        className={cn(
-          "grid transition-[grid-template-columns] duration-200 ease-out",
-          direction === "left" && "ml-auto",
-          open ? "grid-cols-[1fr]" : "grid-cols-[0fr]",
-          !open && "pointer-events-none",
-          className
-        )}
-      >
-        <div className={cn("overflow-hidden min-w-0", !open && "pointer-events-none")}>
-          {children}
-        </div>
-      </div>
-    );
-  }
+  const originMap = { down: "top", up: "bottom", left: "right", right: "left" } as const;
 
   return (
     <div
       className={cn(
-        "grid transition-[grid-template-rows] duration-200 ease-out",
-        open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-        isUp && "-scale-y-100",
-        className
+        "transition-[transform,opacity] duration-150 ease-out",
+        open
+          ? "scale-100 opacity-100"
+          : cn(
+              isHorizontal ? "scale-x-0" : "scale-y-0",
+              "opacity-0 pointer-events-none",
+            ),
+        className,
       )}
+      style={{ transformOrigin: originMap[direction] }}
     >
-      <div className={cn("overflow-hidden", isUp && "-scale-y-100", !open && "pointer-events-none")}>
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
