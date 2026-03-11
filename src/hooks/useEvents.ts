@@ -78,7 +78,7 @@ export function useEvents(dateFrom?: string, dateTo?: string): UseEventsReturn {
     setIsLoading(true);
     fetchAll().finally(() => setIsLoading(false));
 
-    const interval = setInterval(() => { fetchAll(); }, 60_000);
+    const interval = setInterval(() => { fetchAll(); }, 30_000);
     return () => clearInterval(interval);
   }, [fetchAll]);
 

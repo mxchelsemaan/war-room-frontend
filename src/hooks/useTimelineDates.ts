@@ -49,6 +49,9 @@ export function useTimelineDates(
 
   useEffect(() => {
     fetch();
+
+    const interval = setInterval(() => { fetch(); }, 60_000);
+    return () => clearInterval(interval);
   }, [fetch]);
 
   return { dates, isLoading, error, refresh: fetch };

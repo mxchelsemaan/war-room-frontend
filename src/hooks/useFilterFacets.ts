@@ -62,6 +62,9 @@ export function useFilterFacets(
 
   useEffect(() => {
     fetch();
+
+    const interval = setInterval(() => { fetch(); }, 60_000);
+    return () => clearInterval(interval);
   }, [fetch]);
 
   return { facets, isLoading, error, refresh: fetch };

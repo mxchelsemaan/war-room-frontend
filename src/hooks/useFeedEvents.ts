@@ -12,6 +12,7 @@ export interface FeedFilters {
   severities?: string[];
   regions?: string[];
   sourceTypes?: string[];
+  handles?: string[];
   dateFrom?: string;
   dateTo?: string;
   weaponSystems?: string[];
@@ -61,6 +62,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       if (filters.severities?.length) params.p_severities = filters.severities;
       if (filters.regions?.length) params.p_regions = filters.regions;
       if (filters.sourceTypes?.length) params.p_source_types = filters.sourceTypes;
+      if (filters.handles?.length) params.p_handles = filters.handles;
       if (filters.dateFrom) params.p_date_from = filters.dateFrom;
       if (filters.dateTo) params.p_date_to = filters.dateTo;
       if (filters.weaponSystems?.length) params.p_weapon_systems = filters.weaponSystems;
@@ -108,33 +110,47 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
   useEffect(() => {
     if (!supabase) return;
 
+    const handlePayload = (payload: { new: unknown; eventType: string }) => {
+      const row = payload.new as EventRow;
+      if (row.latitude == null || row.longitude == null) return;
+      if (!isLebanonRelated(row)) return;
+
+      const enriched = transformRow(row);
+
+      // Check if it matches current filters
+      if (filters.types?.length && !filters.types.includes(enriched.eventType)) return;
+      if (filters.severities?.length && !filters.severities.includes(enriched.severity)) return;
+      if (filters.regions?.length && !filters.regions.includes(enriched.location.region ?? "")) return;
+      if (filters.sourceTypes?.length && !filters.sourceTypes.includes(enriched.sourceType)) return;
+      if (filters.handles?.length && !filters.handles.includes(enriched.sourceChannel ?? "")) return;
+      if (filters.dateFrom && enriched.date < filters.dateFrom) return;
+      if (filters.dateTo && enriched.date > filters.dateTo) return;
+      if (filters.weaponSystems?.length && !filters.weaponSystems.includes(enriched.weaponSystem ?? "")) return;
+
+      setEvents((prev) => {
+        const idx = prev.findIndex((e) => e.id === enriched.id);
+        if (idx >= 0) {
+          // UPDATE: replace existing event in-place
+          const next = [...prev];
+          next[idx] = enriched;
+          return next;
+        }
+        // INSERT: prepend
+        return [enriched, ...prev];
+      });
+    };
+
     const channel = supabase
       .channel("feed-realtime")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "events" },
-        (payload) => {
-          const row = payload.new as EventRow;
-          if (row.latitude == null || row.longitude == null) return;
-          if (!isLebanonRelated(row)) return;
-
-          const enriched = transformRow(row);
-
-          // Check if it matches current filters
-          if (filters.types?.length && !filters.types.includes(enriched.eventType)) return;
-          if (filters.severities?.length && !filters.severities.includes(enriched.severity)) return;
-          if (filters.regions?.length && !filters.regions.includes(enriched.location.region ?? "")) return;
-          if (filters.sourceTypes?.length && !filters.sourceTypes.includes(enriched.sourceType)) return;
-          if (filters.dateFrom && enriched.date < filters.dateFrom) return;
-          if (filters.dateTo && enriched.date > filters.dateTo) return;
-          if (filters.weaponSystems?.length && !filters.weaponSystems.includes(enriched.weaponSystem ?? "")) return;
-
-          setEvents((prev) => {
-            // Deduplicate
-            if (prev.some((e) => e.id === enriched.id)) return prev;
-            return [enriched, ...prev];
-          });
-        },
+        handlePayload,
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "events" },
+        handlePayload,
       )
       .subscribe();
 

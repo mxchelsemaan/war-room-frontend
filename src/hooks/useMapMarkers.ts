@@ -5,7 +5,7 @@ import { DEFAULT_LOOKBACK_MS, THEATER_COUNTRIES } from "@/config/map";
 import type { MapMarkerRow, MapMarkerEvent } from "@/types/events";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 /** Fallback poll interval when Realtime is disconnected */
-const FALLBACK_POLL_MS = 60_000;
+const FALLBACK_POLL_MS = 30_000;
 /** Max days to retain in dayCache before LRU eviction */
 const MAX_CACHED_DAYS = 14;
 
@@ -137,39 +137,46 @@ export function useMapMarkers(): UseMapMarkersReturn {
   useEffect(() => {
     if (!supabase) return;
 
+    const handlePayload = (payload: { new: Record<string, unknown> }) => {
+      const row = payload.new;
+      // Filter: must have lat/lng and be in theater countries
+      if (row.latitude == null || row.longitude == null) return;
+      const country = (row.data as Record<string, unknown>)?.location_country;
+      if (country && !(THEATER_COUNTRIES as readonly string[]).includes(country as string)) return;
+
+      const data = row.data as Record<string, unknown>;
+      const markerRow: MapMarkerRow = {
+        id: row.id as string,
+        event_type: (data.event_type as string) ?? "unknown",
+        severity: (data.severity as string) ?? null,
+        lat: row.latitude as number,
+        lng: row.longitude as number,
+        date: ((row.date_occurred ?? row.message_date) as string) ?? new Date().toISOString(),
+        source_type: row.source_type as string,
+        location_name: (data.location_name as string) ?? null,
+        location_region: (data.location_region as string) ?? null,
+        enriched_at: row.enriched_at as string,
+      };
+
+      // Update watermark
+      if (markerRow.enriched_at > (lastEnrichedAt.current ?? "")) {
+        lastEnrichedAt.current = markerRow.enriched_at;
+      }
+
+      mergeRows([markerRow]);
+    };
+
     const channel = supabase
       .channel("events-realtime")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "events" },
-        (payload) => {
-          const row = payload.new as Record<string, unknown>;
-          // Filter: must have lat/lng and be in theater countries
-          if (row.latitude == null || row.longitude == null) return;
-          const country = (row.data as Record<string, unknown>)?.location_country;
-          if (country && !(THEATER_COUNTRIES as readonly string[]).includes(country as string)) return;
-
-          const data = row.data as Record<string, unknown>;
-          const markerRow: MapMarkerRow = {
-            id: row.id as string,
-            event_type: (data.event_type as string) ?? "unknown",
-            severity: (data.severity as string) ?? null,
-            lat: row.latitude as number,
-            lng: row.longitude as number,
-            date: ((row.date_occurred ?? row.message_date) as string) ?? new Date().toISOString(),
-            source_type: row.source_type as string,
-            location_name: (data.location_name as string) ?? null,
-            location_region: (data.location_region as string) ?? null,
-            enriched_at: row.enriched_at as string,
-          };
-
-          // Update watermark
-          if (markerRow.enriched_at > (lastEnrichedAt.current ?? "")) {
-            lastEnrichedAt.current = markerRow.enriched_at;
-          }
-
-          mergeRows([markerRow]);
-        },
+        handlePayload,
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "events" },
+        handlePayload,
       )
       .subscribe((status) => {
         realtimeConnected.current = status === "SUBSCRIBED";
