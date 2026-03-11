@@ -395,11 +395,14 @@ function EventRow({
       } ${expanded ? "bg-muted/20" : ""}`}
       onClick={toggle}
     >
-      {/* Threat glow overlay */}
+      {/* Threat glow overlay — animate-pulse with random phase offset */}
       {isThreat && (
-        <div className={`absolute inset-0 pointer-events-none animate-pulse ${
-          isEvac ? "bg-red-500/25" : "bg-red-500/15"
-        }`} />
+        <div
+          className={`absolute inset-0 pointer-events-none animate-pulse ${
+            isEvac ? "bg-red-500/40" : "bg-red-500/25"
+          }`}
+          style={{ animationDelay: `${-(event.id % 20) * 0.1}s` }}
+        />
       )}
       {/* Collapsed row */}
       <div className="flex gap-2.5 px-3 py-2.5 relative z-[1]">
@@ -480,7 +483,7 @@ function EventRow({
               {meta.label}
             </Badge>
             {isThreat && (
-              <Badge variant="destructive" className="px-1.5 py-0.5 text-2xs font-bold leading-none animate-pulse">
+              <Badge variant="destructive" className="px-1.5 py-0.5 text-2xs font-bold leading-none">
                 ALERT
               </Badge>
             )}

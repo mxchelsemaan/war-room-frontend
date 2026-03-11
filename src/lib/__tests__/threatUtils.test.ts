@@ -31,10 +31,16 @@ describe("isThreatAlert", () => {
     ).toBe(true);
   });
 
-  it("does NOT match airstrike + attacker Israel (not a context type)", () => {
+  it("matches airstrike + attacker Israel (any Israeli attacker is threat)", () => {
     expect(
       isThreatAlert({ eventType: "airstrike", attacker: "Israel" }),
-    ).toBe(false);
+    ).toBe(true);
+  });
+
+  it("matches threat source channel: avaborofficial", () => {
+    expect(
+      isThreatAlert({ eventType: "airstrike", sourceChannel: "AvabOrOfficial" }),
+    ).toBe(true);
   });
 
   it("returns false when attacker is null", () => {
