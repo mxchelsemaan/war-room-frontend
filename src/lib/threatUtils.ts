@@ -15,6 +15,12 @@ const THREAT_ATTACKERS = new Set([
   "israeli forces",
 ]);
 
+const EVAC_ORDER_TYPES = new Set(["evacuation_warning", "israeli_evacuation_order", "evacuation"]);
+
+export function isEvacuationOrder(event: { eventType: string }): boolean {
+  return EVAC_ORDER_TYPES.has(event.eventType);
+}
+
 export function isThreatAlert(event: {
   eventType: string;
   attacker?: string | null;

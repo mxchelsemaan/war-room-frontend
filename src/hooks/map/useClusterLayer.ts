@@ -184,15 +184,17 @@ export function useClusterLayer(
       : 13;
 
     // Text offset moves the label up to the badge head center.
-    // Formula: -(totalH - HEAD/2) × baseIconSize / (SCALE × baseTextSize)
-    // where HEAD=80, SCALE=2, baseIconSize=0.4, baseTextSize=13
+    // icon-anchor is "bottom", so text must move up by (totalH - HEAD/2) image px.
+    // In ems: -(totalH - HEAD/2) × iconSize / textSize
+    // HEAD=80, ratio iconSize/textSize ≈ 0.0308 (constant across zoom)
+    const R = 0.45 / 14.6; // iconSize/textSize ratio at reference zoom
     const clusterTextOffset = terrain
       ? ["step", cid5,
-          ["literal", [0, -1.78]],   // stem-0 (totalH=156)
-          1, ["literal", [0, -2.03]], // stem-1 (totalH=172)
-          2, ["literal", [0, -2.28]], // stem-2 (totalH=188)
-          3, ["literal", [0, -2.52]], // stem-3 (totalH=204)
-          4, ["literal", [0, -2.15]], // stem-4 (totalH=180)
+          ["literal", [0, -(156 - 40) * R]],   // stem-0
+          1, ["literal", [0, -(172 - 40) * R]], // stem-1
+          2, ["literal", [0, -(188 - 40) * R]], // stem-2
+          3, ["literal", [0, -(204 - 40) * R]], // stem-3
+          4, ["literal", [0, -(180 - 40) * R]], // stem-4
         ]
       : [0, 0];
 

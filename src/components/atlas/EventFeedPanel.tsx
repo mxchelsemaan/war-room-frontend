@@ -11,7 +11,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import type { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
 import { buildSourceUrl, SourceIcon } from "@/lib/sourceUrl";
-import { isThreatAlert } from "@/lib/threatUtils";
+import { isThreatAlert, isEvacuationOrder } from "@/lib/threatUtils";
+
 
 /** Detect media type from URL path extension */
 function getMediaType(url: string): "video" | "image" {
@@ -347,6 +348,8 @@ function EventRow({
   const meta = getEventTypeMeta(event.eventType);
   const severityDot = SEVERITY_COLORS[event.severity] ?? "bg-slate-500";
   const isThreat = isThreatAlert(event);
+  const isEvac = isEvacuationOrder(event);
+
   const hasMedia = !!event.mediaUrl;
   const hasPendingMedia = !event.mediaUrl && !!event.mediaType && event.mediaType !== "sticker";
   const hasCasualties = (event.casualties.killed ?? 0) > 0 || (event.casualties.injured ?? 0) > 0;
@@ -387,15 +390,19 @@ function EventRow({
 
   return (
     <div
-      className={`border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer ${
+      className={`relative border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer ${
         isHighlighted ? "bg-primary/5" : ""
-      } ${expanded ? "bg-muted/20" : ""} ${
-        isThreat ? "border-l-2 border-l-red-600 bg-red-500/[0.08]" : ""
-      }`}
+      } ${expanded ? "bg-muted/20" : ""}`}
       onClick={toggle}
     >
+      {/* Threat glow overlay */}
+      {isThreat && (
+        <div className={`absolute inset-0 pointer-events-none animate-pulse ${
+          isEvac ? "bg-red-500/25" : "bg-red-500/15"
+        }`} />
+      )}
       {/* Collapsed row */}
-      <div className="flex gap-2.5 px-3 py-2.5">
+      <div className="flex gap-2.5 px-3 py-2.5 relative z-[1]">
         {/* Left: severity bar + icon */}
         <div className="flex flex-col items-center gap-1 mt-0.5 shrink-0">
           <span className="text-base leading-none">{meta.icon}</span>

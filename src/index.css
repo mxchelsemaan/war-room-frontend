@@ -146,6 +146,7 @@
 .copilot-scroll::-webkit-scrollbar-track { background: transparent; }
 .copilot-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+
 /* Typing indicator dots */
 @keyframes typing-bounce {
   0%, 60%, 100% { transform: translateY(0); }
