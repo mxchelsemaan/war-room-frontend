@@ -130,7 +130,7 @@ export function FilterSidebar({
     >
       <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
       {/* Date filter — first */}
-      <div className="p-3 border-b border-border">
+      <div className="p-2 border-b border-border">
         <DatePicker
           dateFrom={filters.dateFrom}
           dateTo={filters.dateTo}
