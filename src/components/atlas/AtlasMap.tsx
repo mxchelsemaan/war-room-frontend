@@ -153,17 +153,17 @@ export const AtlasMap = React.memo(function AtlasMap({
   useRiverLayers(mapRef, layers.rivers, mapReadyKey);
   useOverlayLayers(mapRef, layers, mapReadyKey);
   useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, layers.terrain, crossfadeEnabled, dark);
-  useClusterLayer(
-    mapRef, events, layers.markers, mapReadyKey,
-    setClusterPopup, setPopupEvent, setPopupInfra as (v: null) => void,
-    drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
-    dark, layers.terrain, crossfadeEnabled, clickedEventRef,
-  );
   useInfraLayers(
     mapRef, layers.infrastructure, selectedInfraTypes, mapReadyKey,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     setPopupInfra, setPopupEvent as (v: null) => void,
     dark, layers.terrain,
+  );
+  useClusterLayer(
+    mapRef, events, layers.markers, mapReadyKey,
+    setClusterPopup, setPopupEvent, setPopupInfra as (v: null) => void,
+    drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
+    dark, layers.terrain, crossfadeEnabled, clickedEventRef,
   );
   useKeyboardCamera(mapRef, layersRef);
 
