@@ -65,23 +65,17 @@ export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
 
 // ── Cluster badge image ──────────────────────────────────────────────────────
 
-/** Register a dark semi-transparent circle used as background for cluster count badges */
-export function registerClusterBadgeImage(map: maplibregl.Map) {
+/** Register a pin-head-style circle used as background for cluster count badges.
+ *  Matches the event pin look: glow + dark fill + colored border. */
+export function registerClusterBadgeImage(map: maplibregl.Map, bgFill: string = PIN_BG_DARK, accentColor: string = "#6366f1") {
   if (map.hasImage("cluster-badge")) return;
-  const size = 48;
+  const size = HEAD;  // same resolution as pin heads (80px at 2×)
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
-  // Dark semi-transparent circle
-  ctx.beginPath();
-  ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(15,23,42,0.85)";
-  ctx.fill();
-  // Subtle white border
-  ctx.strokeStyle = "rgba(255,255,255,0.3)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  // Reuse the pin-head renderer without an emoji
+  drawPinHead(ctx, size / 2, size / 2, accentColor, "", bgFill, "circle");
   map.addImage("cluster-badge", { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
 }
 

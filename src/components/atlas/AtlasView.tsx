@@ -15,8 +15,8 @@ import { Sparkles, SlidersHorizontal, List } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CameraControls } from "./CameraControls";
-import { DEFAULT_VIEW, HEATMAP_DEFAULTS } from "@/config/map";
-import type { HeatmapSettings, MonitorMode } from "@/config/map";
+import { DEFAULT_VIEW } from "@/config/map";
+import type { MonitorMode } from "@/config/map";
 import { MapLegend } from "./UnitLegend";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SettingsMenu } from "./SettingsMenu";
@@ -264,7 +264,6 @@ function AtlasViewInner() {
   // Hide labels on left-side buttons when filter sidebar is expanded, right-side when feed is expanded
   const leftLabels = showLabels && !isPanelOpen('filter');
   const rightLabels = showLabels && !isPanelOpen('feed');
-  const [heatmapSettings, setHeatmapSettings] = useState<HeatmapSettings>({ ...HEATMAP_DEFAULTS });
   const [monitorMode, setMonitorMode] = useState<MonitorMode>("auto");
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [layers, setLayers] = useState<LayerVisibility>({
@@ -487,7 +486,6 @@ function AtlasViewInner() {
               onStartRotation={up.startRotation}
               onRotateUnitToward={up.rotateUnitToward}
               onStopRotation={up.stopRotation}
-              heatmapSettings={heatmapSettings}
             />
             </ErrorBoundary>
             <AISummaryCard
@@ -527,8 +525,6 @@ function AtlasViewInner() {
                 onToggle={() => togglePanel('layers')}
                 showLabels={leftLabels}
                 bigger
-                heatmapSettings={heatmapSettings}
-                onHeatmapSettingsChange={setHeatmapSettings}
                 monitorMode={monitorMode}
                 onMonitorModeChange={setMonitorMode}
               />

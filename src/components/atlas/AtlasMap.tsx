@@ -12,7 +12,7 @@ import { UnitLayer } from "./UnitLayer";
 import { STATIC_MARKER_COLORS } from "@/data/staticMarkers";
 import type { StaticMarker, StaticMarkerType } from "@/data/staticMarkers";
 import { DEFAULT_VIEW as _DEFAULT_VIEW, MAX_BOUNDS as _MAX_BOUNDS } from "@/config/map";
-import type { HeatmapSettings, MonitorMode } from "@/config/map";
+import type { MonitorMode } from "@/config/map";
 
 import { useKeyboardCamera } from "@/hooks/map/useKeyboardCamera";
 import { useTerrainLayer } from "@/hooks/map/useTerrainLayer";
@@ -61,7 +61,6 @@ interface AtlasMapProps {
   onAddPathWaypoint?: (lngLat: [number, number]) => void;
   onFinishPath?: () => void;
   onSelectAnnotation?: (id: string) => void;
-  heatmapSettings?: HeatmapSettings;
   monitorMode?: MonitorMode;
   rotatingUnitId?: string | null;
   onStartRotation?: (unitId: string) => void;
@@ -78,7 +77,6 @@ export const AtlasMap = React.memo(function AtlasMap({
   dark = true,
   placedUnits, unitPaths, placementMode, pathDrawingUnitId,
   onPlaceUnit, onAddPathWaypoint, onFinishPath,
-  heatmapSettings,
   monitorMode = "auto",
   rotatingUnitId, onStartRotation, onRotateUnitToward, onStopRotation,
 }: AtlasMapProps) {
@@ -155,7 +153,7 @@ export const AtlasMap = React.memo(function AtlasMap({
   useTerrainLayer(mapRef, layers.terrain, layers.hillshade, mapReadyKey);
   useRiverLayers(mapRef, layers.rivers, mapReadyKey);
   useOverlayLayers(mapRef, layers, mapReadyKey);
-  useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, heatmapSettings, layers.terrain, crossfadeEnabled, dark);
+  useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, layers.terrain, crossfadeEnabled, dark);
   useClusterLayer(
     mapRef, events, layers.heatmap, mapReadyKey,
     setClusterPopup,

@@ -1,12 +1,9 @@
-import { useState } from "react";
-import { Layers, Mountain, Waves, Landmark, Map, Navigation, Pencil, Settings2 } from "lucide-react";
+import { Layers, Mountain, Waves, Landmark, Map, Navigation, Pencil } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
 import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
-import type { HeatmapSettings, MonitorMode } from "@/config/map";
-import { HEATMAP_COLOR_SCHEMES, HEATMAP_PRESETS } from "@/config/map";
+import type { MonitorMode } from "@/config/map";
 
 export interface LayerVisibility {
   terrain: boolean;
@@ -31,8 +28,6 @@ interface MapLayerControlsProps {
   onToggle: () => void;
   showLabels?: boolean;
   bigger?: boolean;
-  heatmapSettings?: HeatmapSettings;
-  onHeatmapSettingsChange?: (settings: HeatmapSettings) => void;
   monitorMode?: MonitorMode;
   onMonitorModeChange?: (mode: MonitorMode) => void;
 }
@@ -76,126 +71,12 @@ const MONITOR_OPTIONS: { value: MonitorMode; label: React.ReactNode }[] = [
   { value: "markers", label: "Pins" },
 ];
 
-const schemeKeys = Object.keys(HEATMAP_COLOR_SCHEMES);
-const presetKeys = Object.keys(HEATMAP_PRESETS);
-
-function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onChange: (s: HeatmapSettings) => void }) {
-  const activePreset = HEATMAP_PRESETS[settings.preset] ?? HEATMAP_PRESETS.all_events;
-
-  return (
-    <div className="px-2 pb-2 pt-1 space-y-2.5" onClick={(e) => e.stopPropagation()}>
-      {/* Data Source presets */}
-      <div className="space-y-1">
-        <span className="text-2xs text-muted-foreground">Data Source</span>
-        <div className="flex flex-wrap gap-1">
-          {presetKeys.map((key) => {
-            const p = HEATMAP_PRESETS[key];
-            const active = settings.preset === key;
-            return (
-              <button
-                key={key}
-                onClick={() => onChange({ ...settings, preset: key })}
-                className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium border transition-all ${
-                  active
-                    ? "border-primary ring-1 ring-primary/40 bg-primary/10 text-foreground"
-                    : "border-border/50 hover:border-border text-muted-foreground"
-                }`}
-              >
-                <span>{p.icon}</span>
-                <span>{p.label}</span>
-              </button>
-            );
-          })}
-        </div>
-        <p className="text-[9px] text-muted-foreground/70 leading-tight">{activePreset.description}</p>
-      </div>
-      {/* Radius */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-2xs text-muted-foreground">Radius</span>
-          <span className="text-2xs text-muted-foreground tabular-nums">{settings.radius}</span>
-        </div>
-        <Slider
-          min={10} max={80} step={1}
-          value={[settings.radius]}
-          onValueChange={([v]) => onChange({ ...settings, radius: v })}
-        />
-      </div>
-      {/* Intensity */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-2xs text-muted-foreground">Intensity</span>
-          <span className="text-2xs text-muted-foreground tabular-nums">{settings.intensity.toFixed(1)}</span>
-        </div>
-        <Slider
-          min={5} max={40} step={1}
-          value={[settings.intensity * 10]}
-          onValueChange={([v]) => onChange({ ...settings, intensity: v / 10 })}
-        />
-      </div>
-      {/* Opacity */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-2xs text-muted-foreground">Opacity</span>
-          <span className="text-2xs text-muted-foreground tabular-nums">{settings.opacity.toFixed(2)}</span>
-        </div>
-        <Slider
-          min={4} max={20} step={1}
-          value={[settings.opacity * 20]}
-          onValueChange={([v]) => onChange({ ...settings, opacity: v / 20 })}
-        />
-      </div>
-      {/* Color scheme swatches */}
-      <div className="space-y-1">
-        <span className="text-2xs text-muted-foreground">Color Scheme</span>
-        <div className="flex gap-1.5">
-          {schemeKeys.map((key) => {
-            const scheme = HEATMAP_COLOR_SCHEMES[key];
-            const gradient = scheme.stops
-              .filter(([, c]) => !c.includes("rgba"))
-              .map(([, c]) => c)
-              .join(", ");
-            return (
-              <button
-                key={key}
-                title={scheme.label}
-                onClick={() => onChange({ ...settings, colorScheme: key })}
-                className={`h-5 flex-1 rounded-sm border transition-all ${
-                  settings.colorScheme === key
-                    ? "border-primary ring-1 ring-primary/40 scale-105"
-                    : "border-border/50 hover:border-border"
-                }`}
-                style={{ background: `linear-gradient(90deg, ${gradient})` }}
-              />
-            );
-          })}
-        </div>
-      </div>
-      {/* Render mode — Float (above map) or Surface (draped on terrain) */}
-      <div className="space-y-1">
-        <span className="text-2xs text-muted-foreground">Render Mode</span>
-        <SegmentedToggle<"float" | "surface">
-          options={[
-            { value: "float", label: "Float" },
-            { value: "surface", label: "Surface" },
-          ]}
-          value={settings.drapeOnTerrain ? "surface" : "float"}
-          onChange={(v) => onChange({ ...settings, drapeOnTerrain: v === "surface" })}
-        />
-      </div>
-    </div>
-  );
-}
-
-export function MapLayerControls({ layers, onChange, open, onToggle, showLabels, bigger, heatmapSettings, onHeatmapSettingsChange, monitorMode = "auto", onMonitorModeChange }: MapLayerControlsProps) {
+export function MapLayerControls({ layers, onChange, open, onToggle, showLabels, bigger, monitorMode = "auto", onMonitorModeChange }: MapLayerControlsProps) {
   const isMobile = useIsMobile();
-  const [heatmapConfigOpen, setHeatmapConfigOpen] = useState(false);
 
   function toggle(key: keyof LayerVisibility) {
     onChange({ ...layers, [key]: !layers[key] });
   }
-
-  const showHeatmapConfig = monitorMode === "auto" || monitorMode === "heatmap";
 
   const visibleGroups = LAYER_GROUPS
     .map(g => ({ ...g, items: isMobile ? g.items.filter(i => i.key !== "terrain") : g.items }))
@@ -211,18 +92,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
             <p className="px-2 pt-1 pb-0.5 section-heading">
               Intelligence
             </p>
-            <div className="px-2 py-1.5 space-y-2">
-              <div className="flex items-center gap-2 text-xs">
-                {showHeatmapConfig && heatmapSettings && onHeatmapSettingsChange && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHeatmapConfigOpen(!heatmapConfigOpen); }}
-                    className="ml-auto p-0.5 rounded hover:bg-muted-foreground/20 transition-colors"
-                    aria-label="Heatmap settings"
-                  >
-                    <Settings2 className={`size-3 ${heatmapConfigOpen ? "text-primary" : "text-muted-foreground"}`} />
-                  </button>
-                )}
-              </div>
+            <div className="px-2 py-1.5">
               {onMonitorModeChange && (
                 <SegmentedToggle<MonitorMode>
                   options={MONITOR_OPTIONS}
@@ -231,9 +101,6 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
                 />
               )}
             </div>
-            {showHeatmapConfig && heatmapConfigOpen && heatmapSettings && onHeatmapSettingsChange && (
-              <HeatmapConfig settings={heatmapSettings} onChange={onHeatmapSettingsChange} />
-            )}
           </div>
 
           {visibleGroups.map(({ heading, items }) => (
