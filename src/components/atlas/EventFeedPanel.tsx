@@ -279,6 +279,11 @@ export function EventFeedPanel({
                   <PictureInPicture2 className="size-3" />
                 </Button>
               )}
+              {selectedGroup !== -1 && (
+                <Button variant="ghost" size="icon-sm" onClick={() => handleGroupChange(-1)} aria-label="Close player" title="Close player">
+                  <X className="size-3" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon-sm"
@@ -306,15 +311,6 @@ export function EventFeedPanel({
             {/* Dropdown list — rendered after video so z-50 stacks on top */}
             {ytDropdownOpen && (
               <div className="absolute left-0 right-0 top-8 z-50 bg-background border border-border rounded-b-lg shadow-lg max-h-52 overflow-y-auto">
-                {selectedGroup !== -1 && (
-                  <button
-                    onClick={() => { handleGroupChange(-1); setYtDropdownOpen(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/40 transition-colors"
-                  >
-                    <X className="size-3" />
-                    <span>Close player</span>
-                  </button>
-                )}
                 {channelGroups.map((g, i) => {
                   const active = selectedGroup === i;
                   return (
