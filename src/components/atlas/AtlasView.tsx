@@ -241,6 +241,16 @@ function AtlasViewInner() {
     }
     _togglePanel(id);
   }, [_togglePanel, setPanelOpen, BOTTOM_PANELS]);
+
+  // Opening left sidebar collapses left-side floating panels; opening right sidebar collapses right-side ones
+  const handleFilterOpenChange = useCallback((v: boolean) => {
+    if (v) { setPanelOpen('layers', false); setPanelOpen('legend', false); }
+    setPanelOpen('filter', v);
+  }, [setPanelOpen]);
+  const handleFeedOpenChange = useCallback((v: boolean) => {
+    if (v) { setPanelOpen('draw', false); setPanelOpen('camera', false); }
+    setPanelOpen('feed', v);
+  }, [setPanelOpen]);
   const [heatmapSettings, setHeatmapSettings] = useState<HeatmapSettings>({ ...HEATMAP_DEFAULTS });
   const [monitorMode, setMonitorMode] = useState<MonitorMode>("auto");
   const [layers, setLayers] = useState<LayerVisibility>({
@@ -424,7 +434,7 @@ function AtlasViewInner() {
           onFiltersChange={setFilters}
           onClear={handleClearFilters}
           open={isPanelOpen('filter')}
-          onOpenChange={(v) => setPanelOpen('filter', v)}
+          onOpenChange={handleFilterOpenChange}
           isLoading={isLoading}
           regionOptions={regionOptions}
           weaponSystemOptions={weaponSystemOptions}
@@ -509,7 +519,7 @@ function AtlasViewInner() {
               />
             </div>
             {/* Bottom-left: Legend */}
-            <div className="absolute bottom-4 left-3 z-20">
+            <div className="absolute bottom-4 left-3 z-40">
               <MapLegend
                 open={isPanelOpen('legend')}
                 onToggle={() => togglePanel('legend')}
@@ -541,7 +551,7 @@ function AtlasViewInner() {
             events={feedEvents}
             activeDay={timelineDay}
             open={isPanelOpen('feed')}
-            onOpenChange={(v) => setPanelOpen('feed', v)}
+            onOpenChange={handleFeedOpenChange}
             isLoading={feedLoading}
             isLoadingMore={feedLoadingMore}
             error={feedError}
