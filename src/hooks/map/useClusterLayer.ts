@@ -88,8 +88,6 @@ export function useClusterLayer(
     registerPulseRingImage(map);
     registerPinImages(map, uniqueEmojis, pinColors, bgFill, "circle");
 
-    const vis = markersEnabled ? "visible" : "none";
-
     // Clean up stale layers + source for full re-create
     for (const id of [PULSE_LAYER, PIN_LAYER, CLUSTER_LAYER]) {
       if (map.getLayer(id)) map.removeLayer(id);
@@ -106,7 +104,7 @@ export function useClusterLayer(
       data: geoJson,
       cluster: true,
       clusterRadius: 40,
-      clusterMaxZoom: 18,
+      clusterMaxZoom: 12,
     });
 
     const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
@@ -124,7 +122,7 @@ export function useClusterLayer(
       minzoom: 7,
       filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "isRecent"], true]],
       layout: {
-        visibility: vis,
+        visibility: "visible",
         "icon-image": "pulse-ring",
         "icon-size": 0.1,
         "icon-anchor": "center",
@@ -143,7 +141,7 @@ export function useClusterLayer(
       minzoom: 7,
       filter: ["!", ["has", "point_count"]],
       layout: {
-        visibility: vis,
+        visibility: "visible",
         "icon-image": ["concat", pinPrefix, bgFill, "-", ["get", "color"], "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
         "icon-size": 0.4,
         "icon-anchor": pinAnchor,
@@ -204,7 +202,7 @@ export function useClusterLayer(
       source: CLUSTER_SOURCE,
       filter: ["has", "point_count"],
       layout: {
-        visibility: vis,
+        visibility: "visible",
         "icon-image": clusterIcon as unknown as maplibregl.ExpressionSpecification,
         "icon-size": clusterIconSize as unknown as number,
         "icon-anchor": terrain ? "bottom" : "center",
@@ -213,7 +211,7 @@ export function useClusterLayer(
         "icon-rotation-alignment": "viewport",
         "text-field": ["get", "point_count_abbreviated"] as unknown as maplibregl.ExpressionSpecification,
         "text-font": ["Noto Sans Regular"],
-        "text-size": 13,
+        "text-size": clusterTextSize as unknown as number,
         "text-anchor": "center",
         "text-offset": clusterTextOffset as unknown as [number, number],
         "text-overlap": "always",
@@ -224,7 +222,17 @@ export function useClusterLayer(
         "text-halo-width": 1,
       },
     } as maplibregl.LayerSpecification);
-  }, [geoJson, uniqueEmojis, pinColors, mapLoaded, bgFill, terrain, markersEnabled, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [geoJson, uniqueEmojis, pinColors, mapLoaded, bgFill, terrain, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Toggle layer visibility without recreating layers ───────────────
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const vis = markersEnabled ? "visible" : "none";
+    for (const id of [PULSE_LAYER, PIN_LAYER, CLUSTER_LAYER]) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
+    }
+  }, [markersEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Click handlers ─────────────────────────────────────────────────────
   useEffect(() => {
