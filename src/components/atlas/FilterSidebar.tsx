@@ -7,6 +7,7 @@ import type { StaticMarkerType } from "@/data/staticMarkers";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import type { EventTypeMeta } from "@/types/events";
@@ -137,7 +138,7 @@ export function FilterSidebar({
           numberOfMonths={1}
           presetColumns={2}
           label={
-            <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="section-heading">
               Date
             </span>
           }
@@ -349,7 +350,7 @@ function MultiSelectDropdown({
     <div ref={containerRef} className="relative" onBlur={handleBlur}>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <span className="section-heading">
           {label}
         </span>
         <div className="flex gap-2">
@@ -424,13 +425,12 @@ function MultiSelectDropdown({
               {searchable && (
                 <div className="flex items-center gap-1.5 border-b border-border px-2.5 py-1.5">
                   <Search className="size-3.5 text-muted-foreground shrink-0" />
-                  <input
+                  <Input
                     ref={inputRef}
-                    type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={placeholder}
-                    className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground/60"
+                    className="h-auto border-0 bg-transparent shadow-none text-xs focus-visible:ring-0 placeholder:text-muted-foreground/60"
                   />
                   {search && (
                     <button type="button" onClick={() => setSearch("")} className="text-muted-foreground hover:text-foreground">

@@ -12,6 +12,7 @@ import { DrawingToolbar } from "./DrawingToolbar";
 import { FloatingTriggerBtn } from "./FloatingPanel";
 import { YouTubeFloatingPanel } from "./YouTubeFloatingPanel";
 import { Sparkles, SlidersHorizontal, List } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { CameraControls } from "./CameraControls";
 import { DEFAULT_VIEW, HEATMAP_DEFAULTS } from "@/config/map";
 import type { HeatmapSettings, MonitorMode } from "@/config/map";
@@ -372,29 +373,32 @@ function AtlasViewInner() {
       {/* Mobile header */}
       {isMobile ? (
         <div className="relative z-[70] flex h-12 shrink-0 items-center border-b border-border px-3 gap-2">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => togglePanel('filter')}
             aria-label="Open filters"
-            className="glass-panel size-9 flex items-center justify-center shrink-0"
+            className="glass-panel size-9"
           >
             <SlidersHorizontal className="size-4" />
-          </button>
+          </Button>
           <div className="flex-1 flex flex-col items-center justify-center">
             <span
-              className="font-black text-[#c62828] uppercase tracking-widest leading-none"
-              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontSize: '0.85rem', letterSpacing: '0.15em' }}
+              className="font-black text-title uppercase tracking-widest leading-none font-['Inter_Tight'] text-[0.85rem] tracking-[0.15em]"
             >
               The War Room
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => togglePanel('feed')}
               aria-label="Open live feeds"
-              className="glass-panel size-9 flex items-center justify-center shrink-0"
+              className="glass-panel size-9"
             >
               <List className="size-4" />
-            </button>
+            </Button>
             <SettingsMenu dark={dark} onToggleTheme={toggleTheme} showLabels={showLabels} onToggleLabels={toggleLabels} />
           </div>
         </div>
@@ -409,14 +413,12 @@ function AtlasViewInner() {
         >
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none">
             <h1
-              className="text-[#c62828] uppercase leading-none underline decoration-2 underline-offset-[3px]"
-              style={{ fontFamily: "'Bebas Neue', system-ui, sans-serif", fontSize: '2rem', letterSpacing: '-0.01em' }}
+              className="text-title uppercase leading-none underline decoration-2 underline-offset-[3px] font-['Bebas_Neue'] text-[2rem] tracking-[-0.01em]"
             >
               The War Room
             </h1>
             <p
-              className="uppercase text-muted-foreground leading-none"
-              style={{ fontFamily: "'Inter Tight', system-ui, sans-serif", fontWeight: 700, fontSize: '0.6rem', letterSpacing: '0.08em' }}
+              className="uppercase text-muted-foreground leading-none font-['Inter_Tight'] font-bold text-[0.6rem] tracking-[0.08em]"
             >
               Israeli Operations in Lebanon — Live Monitor
             </p>
@@ -574,7 +576,7 @@ function AtlasViewInner() {
         </div>
       </div>
       <footer className="hidden md:flex items-center justify-center py-1 border-t border-border/40 bg-background/80">
-        <span className="text-[10px] italic text-muted-foreground/50 tracking-wide">
+        <span className="text-2xs italic text-muted-foreground/50 tracking-wide">
           "Gentlemen, you can't fight in here! This is the war room!"
         </span>
       </footer>

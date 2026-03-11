@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Bot, Globe, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface AISummaryCardProps {
   open: boolean;
@@ -122,11 +123,10 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
               <p className="text-sm font-medium text-muted-foreground/50">Ask Shifra anything about the latest intelligence.</p>
             </div>
             <div className="shrink-0 border-t border-border px-4 py-3 flex items-center gap-2">
-              <input
-                type="text"
+              <Input
                 disabled
                 placeholder="Coming soon..."
-                className="flex-1 bg-transparent border-0 text-sm text-muted-foreground/50 placeholder:text-muted-foreground/30 outline-none cursor-not-allowed"
+                className="flex-1 border-0 bg-transparent shadow-none text-sm text-muted-foreground/50 placeholder:text-muted-foreground/30 focus-visible:ring-0"
               />
               <Button variant="ghost" size="icon-sm" disabled aria-label="Send message" className="text-muted-foreground/30">
                 <Send className="size-4" />

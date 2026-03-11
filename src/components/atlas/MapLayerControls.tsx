@@ -86,7 +86,7 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
     <div className="px-2 pb-2 pt-1 space-y-2.5" onClick={(e) => e.stopPropagation()}>
       {/* Data Source presets */}
       <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground">Data Source</span>
+        <span className="text-2xs text-muted-foreground">Data Source</span>
         <div className="flex flex-wrap gap-1">
           {presetKeys.map((key) => {
             const p = HEATMAP_PRESETS[key];
@@ -95,7 +95,7 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
               <button
                 key={key}
                 onClick={() => onChange({ ...settings, preset: key })}
-                className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium border transition-all ${
+                className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium border transition-all ${
                   active
                     ? "border-primary ring-1 ring-primary/40 bg-primary/10 text-foreground"
                     : "border-border/50 hover:border-border text-muted-foreground"
@@ -112,8 +112,8 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
       {/* Radius */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">Radius</span>
-          <span className="text-[10px] text-muted-foreground tabular-nums">{settings.radius}</span>
+          <span className="text-2xs text-muted-foreground">Radius</span>
+          <span className="text-2xs text-muted-foreground tabular-nums">{settings.radius}</span>
         </div>
         <Slider
           min={10} max={60} step={1}
@@ -124,8 +124,8 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
       {/* Intensity */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">Intensity</span>
-          <span className="text-[10px] text-muted-foreground tabular-nums">{settings.intensity.toFixed(1)}</span>
+          <span className="text-2xs text-muted-foreground">Intensity</span>
+          <span className="text-2xs text-muted-foreground tabular-nums">{settings.intensity.toFixed(1)}</span>
         </div>
         <Slider
           min={5} max={40} step={1}
@@ -136,8 +136,8 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
       {/* Opacity */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">Opacity</span>
-          <span className="text-[10px] text-muted-foreground tabular-nums">{settings.opacity.toFixed(2)}</span>
+          <span className="text-2xs text-muted-foreground">Opacity</span>
+          <span className="text-2xs text-muted-foreground tabular-nums">{settings.opacity.toFixed(2)}</span>
         </div>
         <Slider
           min={4} max={20} step={1}
@@ -147,7 +147,7 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
       </div>
       {/* Color scheme swatches */}
       <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground">Color Scheme</span>
+        <span className="text-2xs text-muted-foreground">Color Scheme</span>
         <div className="flex gap-1.5">
           {schemeKeys.map((key) => {
             const scheme = HEATMAP_COLOR_SCHEMES[key];
@@ -173,7 +173,7 @@ function HeatmapConfig({ settings, onChange }: { settings: HeatmapSettings; onCh
       </div>
       {/* Render mode — Float (above map) or Surface (draped on terrain) */}
       <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground">Render Mode</span>
+        <span className="text-2xs text-muted-foreground">Render Mode</span>
         <SegmentedToggle<"float" | "surface">
           options={[
             { value: "float", label: "Float" },
@@ -208,7 +208,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
           <div className="glass-panel p-2 max-h-[calc(100vh-14rem)] overflow-y-auto" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
           {/* Intelligence — Event Monitor */}
           <div>
-            <p className="px-2 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <p className="px-2 pt-1 pb-0.5 section-heading">
               Intelligence
             </p>
             <div className="px-2 py-1.5 space-y-2">
@@ -238,7 +238,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
 
           {visibleGroups.map(({ heading, items }) => (
             <div key={heading}>
-              <p className="px-2 pt-2 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 first:pt-1">
+              <p className="px-2 pt-2 pb-0.5 section-heading first:pt-1">
                 {heading}
               </p>
               {items.map(({ key, label, Icon }) => (
@@ -254,7 +254,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
                     <span className={layers[key] ? "text-foreground" : "text-muted-foreground"}>
                       {label}
                     </span>
-                    <Switch checked={layers[key]} className="ml-auto pointer-events-none scale-75" />
+                    <Switch checked={layers[key]} size="sm" className="ml-auto pointer-events-none" />
                   </div>
                 </div>
               ))}

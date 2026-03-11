@@ -2,7 +2,7 @@
 @import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
 
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@400;500;600;700&family=Stardos+Stencil:wght@700&family=Milker&family=Inter+Tight:wght@500;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@400;500;600;700&family=Inter+Tight:wght@500;700;900&display=swap");
 @import "maplibre-gl/dist/maplibre-gl.css";
 
 .maplibregl-map { background: #0f0f1a; }
@@ -76,11 +76,13 @@
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
+  --title: #c62828;
   --font-geist-sans: "Geist Variable", system-ui, sans-serif;
   --font-geist-mono: "Geist Mono Variable", monospace;
 }
 
 .dark {
+  --title: #c62828;
   --background: #0a0a14;
   --foreground: #e2e8f0;
   --card: #141422;
@@ -124,13 +126,17 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-title: var(--title);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @layer utilities {
   .glass-panel {
-    @apply rounded-xl border border-border bg-card;
+    @apply rounded-xl border border-border bg-card shadow-sm;
+  }
+  .section-heading {
+    @apply text-2xs font-semibold uppercase tracking-wider text-muted-foreground;
   }
 }
 

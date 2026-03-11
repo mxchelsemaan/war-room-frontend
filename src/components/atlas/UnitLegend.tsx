@@ -144,7 +144,7 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-1.5 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="mb-1.5 section-heading">
         {title}
       </p>
       <div className="space-y-1">{children}</div>

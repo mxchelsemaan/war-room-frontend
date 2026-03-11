@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import { ColorPickerButton } from "./ColorPickerPopover";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
 import { Slider } from "@/components/ui/slider";
@@ -183,7 +184,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
         <div className="rounded-lg border border-border/30 p-2.5 flex flex-col gap-2">
           {/* Shapes */}
           <div>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Shapes</span>
+            <span className="section-heading mb-1.5 block">Shapes</span>
             <div className={`grid gap-1 ${drawTypes.length >= 4 ? "grid-cols-4" : "grid-cols-2"}`}>
               {drawTypes.map((m) => (
                 <Button
@@ -191,7 +192,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
                   variant="ghost"
                   onClick={() => handleModeBtn(m)}
                   title={MODE_LABEL[m]}
-                  className={`flex flex-col items-center justify-center gap-1.5 h-auto py-2.5 text-[10px] font-medium ${
+                  className={`flex flex-col items-center justify-center gap-1.5 h-auto py-2.5 text-2xs font-medium ${
                     mode === m
                       ? "bg-primary/20 text-primary ring-1 ring-primary/40"
                       : "text-muted-foreground"
@@ -208,7 +209,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
 
           {/* Units */}
           <div>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Units</span>
+            <span className="section-heading mb-1.5 block">Units</span>
             <div className="flex flex-col gap-1">
               <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60">Ground</span>
               <div className="grid grid-cols-5 gap-1">
@@ -218,7 +219,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
                     variant="ghost"
                     onClick={() => placementMode === type ? up.cancelPlacement() : handleStartPlacement(type)}
                     title={UNIT_FULL_LABELS[type]}
-                    className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-[10px] font-medium ${
+                    className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-2xs font-medium ${
                       placementMode === type
                         ? "bg-primary/20 text-primary ring-1 ring-primary/40"
                         : "text-muted-foreground"
@@ -237,7 +238,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
                     variant="ghost"
                     onClick={() => placementMode === type ? up.cancelPlacement() : handleStartPlacement(type)}
                     title={UNIT_FULL_LABELS[type]}
-                    className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-[10px] font-medium ${
+                    className={`flex flex-col items-center justify-center gap-1 h-auto py-2 text-2xs font-medium ${
                       placementMode === type
                         ? "bg-primary/20 text-primary ring-1 ring-primary/40"
                         : "text-muted-foreground"
@@ -256,7 +257,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
         <div className="rounded-lg border border-border/30 p-2.5 flex flex-col gap-2">
           {/* Color */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Color</span>
+            <span className="section-heading">Color</span>
             <div className="flex items-center gap-1.5 flex-wrap">
               {DRAW_COLOR_PRESETS.map((c) => (
                 <button
@@ -282,7 +283,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
               <hr className="border-border/30" />
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Width</span>
+                  <span className="section-heading">Width</span>
                   <span className="text-[11px] font-medium text-foreground tabular-nums">{activeWidth}</span>
                 </div>
                 <Slider
@@ -334,7 +335,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
         {/* ── Arrow style toggle ── */}
         {mode === "arrow" && !hasSel && (
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Arrow style</span>
+            <span className="section-heading">Arrow style</span>
             <SegmentedToggle
               value={drawArrowStyle}
               onChange={ann.setDrawArrowStyle}
@@ -351,14 +352,14 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
           <div className="rounded-lg border border-border/30 p-2.5 flex flex-col gap-3">
             {/* Name input */}
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Name</span>
-              <input
+              <span className="section-heading">Name</span>
+              <Input
                 value={editName}
                 placeholder={selection.kind === "unit" ? "Unit name" : "unnamed"}
                 onChange={(e) => setEditName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") commitName(); }}
                 onBlur={commitName}
-                className="rounded border border-border bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-7 text-xs"
               />
             </div>
 
@@ -368,7 +369,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
                 {/* Bearing */}
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Bearing</span>
+                    <span className="section-heading">Bearing</span>
                     <span className="text-[11px] font-medium tabular-nums">{selection.unit.bearing}°</span>
                   </div>
                   {up.rotatingUnitId === selection.unit.id ? (
@@ -379,13 +380,13 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
                       </p>
                     </div>
                   ) : (
-                    <p className="text-[10px] text-muted-foreground/60">Right-click unit on map to rotate</p>
+                    <p className="text-2xs text-muted-foreground/60">Right-click unit on map to rotate</p>
                   )}
                 </div>
 
                 {/* Effects strip */}
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Effects</span>
+                  <span className="section-heading">Effects</span>
                   <div className="flex items-stretch rounded-lg border border-border overflow-hidden flex-wrap">
                     <ToggleChip
                       active={selection.unit.effect === "glow"}
@@ -424,7 +425,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
 
                 {/* Path controls */}
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Path</span>
+                  <span className="section-heading">Path</span>
                   <div className="flex items-stretch rounded-lg border border-border overflow-hidden">
                     {pathDrawingUnitId === selection.unit.id ? (
                       <>

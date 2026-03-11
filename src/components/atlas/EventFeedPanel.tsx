@@ -6,6 +6,7 @@ import type { EnrichedEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
@@ -233,29 +234,26 @@ export function EventFeedPanel({
               <span className="text-sm font-semibold">Live Feeds</span>
               <div className="flex items-center gap-2 ml-auto">
                 <label className="flex items-center gap-1 cursor-pointer">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={showEvents}
-                    onChange={(e) => setShowEvents(e.target.checked)}
-                    className="size-3 accent-red-500 cursor-pointer"
+                    onCheckedChange={(v) => setShowEvents(!!v)}
+                    className="size-3.5"
                   />
                   <span className="text-2xs text-muted-foreground">Events</span>
                 </label>
                 <label className="flex items-center gap-1 cursor-pointer">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={showNews}
-                    onChange={(e) => setShowNews(e.target.checked)}
-                    className="size-3 accent-purple-500 cursor-pointer"
+                    onCheckedChange={(v) => setShowNews(!!v)}
+                    className="size-3.5"
                   />
                   <span className="text-2xs text-muted-foreground">News</span>
                 </label>
                 <label className="flex items-center gap-1 cursor-pointer">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={alertsOnly}
-                    onChange={(e) => setAlertsOnly(e.target.checked)}
-                    className="size-3 accent-red-600 cursor-pointer"
+                    onCheckedChange={(v) => setAlertsOnly(!!v)}
+                    className="size-3.5"
                   />
                   <span className="text-2xs text-red-400 font-medium">Alerts</span>
                 </label>
@@ -396,7 +394,7 @@ export function EventFeedPanel({
               <div key={date}>
                 <div
                   data-date-header={date}
-                  className={`sticky top-0 z-10 flex items-center gap-2 px-3 py-1.5 border-b border-border bg-muted/80 text-2xs font-semibold uppercase tracking-wider text-muted-foreground ${activeDay === date ? "ring-1 ring-inset ring-primary" : ""}`}
+                  className={`sticky top-0 z-10 flex items-center gap-2 px-3 py-1.5 border-b border-border bg-muted/80 section-heading ${activeDay === date ? "ring-1 ring-inset ring-primary" : ""}`}
                 >
                   {today ? "Today \u2014 " : ""}
                   {format(parsedDate, "d MMM yyyy")}
@@ -574,28 +572,29 @@ function EventRow({
 
           {/* Chips — always visible */}
           <div className="flex flex-wrap items-center gap-1 mt-0.5">
-            <span
-              className="rounded-full px-1.5 py-0.5 text-2xs font-medium leading-none"
+            <Badge
+              variant="ghost"
+              className="px-1.5 py-0.5 text-2xs leading-none"
               style={{ background: meta.color + "22", color: meta.color }}
             >
               {meta.label}
-            </span>
+            </Badge>
             {isThreat && (
-              <span className="rounded-full bg-red-600 px-1.5 py-0.5 text-2xs font-bold text-white leading-none animate-pulse">
+              <Badge variant="destructive" className="px-1.5 py-0.5 text-2xs font-bold leading-none animate-pulse">
                 ALERT
-              </span>
+              </Badge>
             )}
             {hasCasualties && (
-              <span className="rounded-full bg-red-500/15 px-1.5 py-0.5 text-2xs font-medium text-red-400 leading-none">
+              <Badge variant="ghost" className="bg-red-500/15 text-red-400 px-1.5 py-0.5 text-2xs leading-none">
                 {event.casualties.killed != null && event.casualties.killed > 0 && `${event.casualties.killed} killed`}
                 {event.casualties.killed != null && event.casualties.killed > 0 && event.casualties.injured != null && event.casualties.injured > 0 && " · "}
                 {event.casualties.injured != null && event.casualties.injured > 0 && `${event.casualties.injured} injured`}
-              </span>
+              </Badge>
             )}
             {event.verificationStatus !== "reported" && event.verificationStatus !== "confirmed" && (
-              <span className="rounded-full bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground leading-none">
+              <Badge variant="secondary" className="px-1.5 py-0.5 text-2xs leading-none">
                 {toTitleCase(event.verificationStatus)}
-              </span>
+              </Badge>
             )}
             {countryPill && (
               <Badge variant="outline" className="px-2 py-0.5 text-xs font-medium gap-1">

@@ -24,26 +24,28 @@ export function SettingsMenu({ dark, onToggleTheme, showLabels, onToggleLabels }
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="z-[80] w-52 border-border/50 p-2">
-        <button
+        <Button
+          variant="ghost"
           onClick={onToggleTheme}
-          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-muted"
+          className="w-full justify-start gap-2 px-2 py-1.5 h-auto text-xs"
         >
           {dark ? <Sun className="size-3.5 text-primary" /> : <Moon className="size-3.5 text-muted-foreground" />}
           <span className={dark ? "text-foreground" : "text-muted-foreground"}>
             {dark ? "Light mode" : "Dark mode"}
           </span>
           <Switch checked={dark} className="ml-auto" size="sm" tabIndex={-1} />
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
           onClick={onToggleLabels}
-          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-muted"
+          className="w-full justify-start gap-2 px-2 py-1.5 h-auto text-xs"
         >
           <Tag className={`size-3.5 ${showLabels ? "text-primary" : "text-muted-foreground"}`} />
           <span className={showLabels ? "text-foreground" : "text-muted-foreground"}>
             UI Labels
           </span>
           <Switch checked={showLabels} className="ml-auto" size="sm" tabIndex={-1} />
-        </button>
+        </Button>
       </PopoverContent>
     </Popover>
   );

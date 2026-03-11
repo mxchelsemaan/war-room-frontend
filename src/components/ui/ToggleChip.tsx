@@ -17,7 +17,7 @@ export function ToggleChip({
       onPressedChange={onClick}
       title={title}
       className={cn(
-        "flex flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-[10px] font-medium rounded-none h-auto min-w-0 min-h-0",
+        "flex flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-2xs font-medium rounded-none h-auto min-w-0 min-h-0",
         active ? activeClass : "text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40 data-[state=on]:bg-transparent"
       )}
     >
