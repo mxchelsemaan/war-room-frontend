@@ -77,6 +77,7 @@
   --destructive-foreground: #ffffff;
 
   --title: #c62828;
+  --font-inter-tight: "Inter Tight", "Geist Variable", system-ui, sans-serif;
   --font-geist-sans: "Geist Variable", system-ui, sans-serif;
   --font-geist-mono: "Geist Mono Variable", monospace;
 }
@@ -127,7 +128,7 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-title: var(--title);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter-tight);
   --font-mono: var(--font-geist-mono);
 }
 

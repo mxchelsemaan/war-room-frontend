@@ -212,34 +212,7 @@ export function useClusterLayer(
         "text-halo-width": 1,
       },
     } as maplibregl.LayerSpecification);
-  }, [geoJson, uniqueEmojis, pinColors, mapLoaded, bgFill, terrain]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Update crossfade opacity ───────────────────────────────────────────
-  useEffect(() => {
-    if (!mapLoaded) return;
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-
-    const opacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
-      ? ["interpolate", ["linear"], ["zoom"],
-          CROSSFADE.FADE_START, ["case", ["get", "isRecent"], 1, 0.35],
-          CROSSFADE.FADE_END, 1,
-        ] as unknown as maplibregl.ExpressionSpecification
-      : 1;
-
-    if (map.getLayer(PIN_LAYER)) map.setPaintProperty(PIN_LAYER, "icon-opacity", opacity);
-  }, [crossfadeEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Visibility toggle ──────────────────────────────────────────────────
-  useEffect(() => {
-    if (!mapLoaded) return;
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    const vis = markersEnabled ? "visible" : "none";
-    for (const id of [PULSE_LAYER, PIN_LAYER, CLUSTER_LAYER]) {
-      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
-    }
-  }, [markersEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [geoJson, uniqueEmojis, pinColors, mapLoaded, bgFill, terrain, markersEnabled, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Click handlers ─────────────────────────────────────────────────────
   useEffect(() => {
