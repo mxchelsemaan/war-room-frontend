@@ -155,6 +155,37 @@ export function useClusterLayer(
     });
 
     // ── Cluster count badges ──
+    // Pseudo-random stem height via cluster_id % 5 → natural variation
+    const cid5 = ["%", ["get", "cluster_id"], 5];
+    const clusterIcon = terrain
+      ? ["step", cid5,
+          "cluster-badge-stem-0",   // 38px
+          1, "cluster-badge-stem-1", // 46px
+          2, "cluster-badge-stem-2", // 54px
+          3, "cluster-badge-stem-3", // 62px
+          4, "cluster-badge-stem-4", // 50px
+        ]
+      : "cluster-badge";
+
+    const clusterIconSize = terrain
+      ? ["interpolate", ["linear"], ["zoom"],
+          7, 0.45,
+          12, 0.38,
+          16, 0.3,
+        ]
+      : 0.4;
+
+    // Text offset matches each stem height so label stays on badge head
+    const clusterTextOffset = terrain
+      ? ["step", cid5,
+          ["literal", [0, -1.45]],   // stem-0 (38)
+          1, ["literal", [0, -1.65]], // stem-1 (46)
+          2, ["literal", [0, -1.85]], // stem-2 (54)
+          3, ["literal", [0, -2.05]], // stem-3 (62)
+          4, ["literal", [0, -1.75]], // stem-4 (50)
+        ]
+      : [0, 0];
+
     map.addLayer({
       id: CLUSTER_LAYER,
       type: "symbol",
@@ -162,8 +193,8 @@ export function useClusterLayer(
       filter: ["has", "point_count"],
       layout: {
         visibility: vis,
-        "icon-image": terrain ? "cluster-badge-stem" : "cluster-badge",
-        "icon-size": 0.4,
+        "icon-image": clusterIcon as unknown as maplibregl.ExpressionSpecification,
+        "icon-size": clusterIconSize as unknown as number,
         "icon-anchor": terrain ? "bottom" : "center",
         "icon-overlap": "always",
         "icon-pitch-alignment": "viewport",
@@ -171,8 +202,8 @@ export function useClusterLayer(
         "text-field": ["get", "point_count_abbreviated"] as unknown as maplibregl.ExpressionSpecification,
         "text-font": ["Noto Sans Regular"],
         "text-size": 13,
-        "text-anchor": terrain ? "bottom" : "center",
-        "text-offset": terrain ? [0, -1.2] as [number, number] : [0, 0] as [number, number],
+        "text-anchor": "center",
+        "text-offset": clusterTextOffset as unknown as [number, number],
         "text-overlap": "always",
       },
       paint: {

@@ -77,20 +77,43 @@ export function registerClusterBadgeImage(map: maplibregl.Map, bgFill: string = 
     drawPinHead(ctx, HEAD / 2, HEAD / 2, accentColor, "", bgFill, "circle");
     map.addImage("cluster-badge", { width: HEAD, height: HEAD, data: ctx.getImageData(0, 0, HEAD, HEAD).data });
   }
-  // Stemmed variant (for 3D terrain)
-  if (!map.hasImage("cluster-badge-stem")) {
+  // Stemmed variants (for 3D terrain) — small / medium / large
+  registerClusterBadgeStemVariants(map, bgFill, accentColor);
+}
+
+/** Stem height variants — moderate range for natural randomness, not hierarchy.
+ *  Distributed via cluster_id % N in the layer expression. */
+const STEM_VARIANTS: { suffix: string; logicalH: number }[] = [
+  { suffix: "0", logicalH: 38 },
+  { suffix: "1", logicalH: 46 },
+  { suffix: "2", logicalH: 54 },
+  { suffix: "3", logicalH: 62 },
+  { suffix: "4", logicalH: 50 },
+];
+
+/** Register 3 stem-height variants: cluster-badge-stem-s / -m / -l */
+export function registerClusterBadgeStemVariants(
+  map: maplibregl.Map,
+  bgFill: string = PIN_BG_LIGHT,
+  accentColor: string = "#6366f1",
+) {
+  for (const { suffix, logicalH } of STEM_VARIANTS) {
+    const key = `cluster-badge-stem-${suffix}`;
+    if (map.hasImage(key)) continue;
+    const stemH = logicalH * S;
+    const totalH = HEAD + stemH;
     const canvas = document.createElement("canvas");
     canvas.width = HEAD;
-    canvas.height = TOTAL_H;
+    canvas.height = totalH;
     const ctx = canvas.getContext("2d")!;
     drawPinHead(ctx, HEAD / 2, HEAD / 2, accentColor, "", bgFill, "circle");
     const stemTop = HEAD / 2 + HEAD / 2;
-    const grad = ctx.createLinearGradient(0, stemTop, 0, TOTAL_H);
+    const grad = ctx.createLinearGradient(0, stemTop, 0, totalH);
     grad.addColorStop(0, accentColor + "cc");
     grad.addColorStop(1, "transparent");
     ctx.fillStyle = grad;
-    ctx.fillRect(HEAD / 2 - STEM_W / 2, stemTop, STEM_W, TOTAL_H - stemTop);
-    map.addImage("cluster-badge-stem", { width: HEAD, height: TOTAL_H, data: ctx.getImageData(0, 0, HEAD, TOTAL_H).data });
+    ctx.fillRect(HEAD / 2 - STEM_W / 2, stemTop, STEM_W, totalH - stemTop);
+    map.addImage(key, { width: HEAD, height: totalH, data: ctx.getImageData(0, 0, HEAD, totalH).data });
   }
 }
 
