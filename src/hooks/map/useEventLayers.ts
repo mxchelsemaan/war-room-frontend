@@ -114,6 +114,7 @@ export function useEventLayers(
         id: "event-pulse",
         type: "symbol",
         source: "events-points",
+        minzoom: 8,
         filter: ["==", ["get", "isRecent"], true],
         layout: {
           visibility: vis,
@@ -135,6 +136,7 @@ export function useEventLayers(
         id: "event-pins",
         type: "symbol",
         source: "events-points",
+        minzoom: 8,
         layout: {
           visibility: vis,
           "icon-image": ["concat", pinPrefix, bgFill, "-", colorExpr, "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
@@ -212,15 +214,33 @@ export function useEventLayers(
       setPopupEvent(evt);
     }
 
-    function onMouseEnter() {
-      if (!drawingModeRef.current && !placementModeRef.current && !pathDrawingUnitIdRef.current) {
-        map!.getCanvas().style.cursor = "pointer";
-      }
+    function onMouseEnter(e: maplibregl.MapMouseEvent) {
+      if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
+      map!.getCanvas().style.cursor = "pointer";
+      // Show popup on hover (desktop)
+      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-pins"] });
+      if (!features.length) return;
+      const p = features[0].properties!;
+      const evt: MapEvent = {
+        id: p.id,
+        event_type: p.event_type,
+        event_icon: p.event_icon,
+        event_label: p.event_label,
+        event_location: { name: p.event_location_name, lat: p.event_location_lat, lng: p.event_location_lng },
+        event_count: p.event_count,
+        date: p.date,
+        summary: p.summary,
+        severity: p.severity,
+        sourceChannel: p.sourceChannel,
+        verificationStatus: p.verificationStatus,
+      };
+      setPopupInfra(null);
+      setPopupEvent(evt);
     }
     function onMouseLeave() {
-      if (!drawingModeRef.current && !placementModeRef.current && !pathDrawingUnitIdRef.current) {
-        map!.getCanvas().style.cursor = "";
-      }
+      if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
+      map!.getCanvas().style.cursor = "";
+      setPopupEvent(null);
     }
 
     map.on("click", "event-pins", onPinClick);

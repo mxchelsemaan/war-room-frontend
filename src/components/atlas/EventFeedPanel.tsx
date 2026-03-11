@@ -322,7 +322,7 @@ export function EventFeedPanel({
 
             {/* Video embed — collapsible, only when channel selected */}
             {showInlineYt && embedSrc && stream && !ytCollapsed && (
-              <div className="aspect-video bg-black">
+              <div className="aspect-video bg-black relative z-0">
                 <iframe
                   key={embedSrc}
                   src={embedSrc}

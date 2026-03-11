@@ -4,14 +4,9 @@ import maplibregl from "maplibre-gl";
 
 const PULSE_RING_SIZE = 128;        // canvas px (large enough for smooth scaling)
 const PULSE_RING_STROKE = 4;        // stroke width in canvas px
-let _pulseRingRegistered = false;
-
 /** Register a reusable red ring image for the pulse symbol layer */
 export function registerPulseRingImage(map: maplibregl.Map) {
-  if (_pulseRingRegistered || map.hasImage("pulse-ring")) {
-    _pulseRingRegistered = true;
-    return;
-  }
+  if (map.hasImage("pulse-ring")) return;
   const size = PULSE_RING_SIZE;
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -23,7 +18,6 @@ export function registerPulseRingImage(map: maplibregl.Map) {
   ctx.lineWidth = PULSE_RING_STROKE;
   ctx.stroke();
   map.addImage("pulse-ring", { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
-  _pulseRingRegistered = true;
 }
 
 /** Helper: add source + layers if not present, otherwise toggle visibility */
@@ -51,21 +45,11 @@ export function ensureLayers(
   }
 }
 
-/** Track emojis already registered across all calls */
-const _registeredEmojis = new Set<string>();
-
 /** Render each unique emoji to a canvas and register as a MapLibre image */
 export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
-  // Fast path: skip entirely if all emojis are already registered
-  if (emojis.every((e) => _registeredEmojis.has(e))) return;
-
   for (const emoji of emojis) {
-    if (_registeredEmojis.has(emoji)) continue;
     const key = `emoji-${emoji}`;
-    if (map.hasImage(key)) {
-      _registeredEmojis.add(emoji);
-      continue;
-    }
+    if (map.hasImage(key)) continue;
     const size = 40;
     const canvas = document.createElement("canvas");
     canvas.width = size;
@@ -76,20 +60,14 @@ export function registerEmojiImages(map: maplibregl.Map, emojis: string[]) {
     ctx.textBaseline = "middle";
     ctx.fillText(emoji, size / 2, size / 2);
     map.addImage(key, { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
-    _registeredEmojis.add(emoji);
   }
 }
 
 // ── Cluster badge image ──────────────────────────────────────────────────────
 
-let _clusterBadgeRegistered = false;
-
 /** Register a dark semi-transparent circle used as background for cluster count badges */
 export function registerClusterBadgeImage(map: maplibregl.Map) {
-  if (_clusterBadgeRegistered || map.hasImage("cluster-badge")) {
-    _clusterBadgeRegistered = true;
-    return;
-  }
+  if (map.hasImage("cluster-badge")) return;
   const size = 48;
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -105,12 +83,9 @@ export function registerClusterBadgeImage(map: maplibregl.Map) {
   ctx.lineWidth = 1.5;
   ctx.stroke();
   map.addImage("cluster-badge", { width: size, height: size, data: ctx.getImageData(0, 0, size, size).data });
-  _clusterBadgeRegistered = true;
 }
 
 // ── Generic map pin image system ─────────────────────────────────────────────
-
-const _registeredPins = new Set<string>();
 
 /** Theme-aware background fills for pins */
 export const PIN_BG_DARK = "#0f172a";
@@ -249,25 +224,15 @@ export function registerPinImages(
     for (const emoji of emojis) {
       // Flat pin
       const key = `pin-${shape}-${bgFill}-${color}-${emoji}`;
-      if (!_registeredPins.has(key)) {
-        if (map.hasImage(key)) {
-          _registeredPins.add(key);
-        } else {
-          const img = renderPin(color, emoji, bgFill, shape);
-          map.addImage(key, { width: HEAD, height: HEAD, data: img.data });
-          _registeredPins.add(key);
-        }
+      if (!map.hasImage(key)) {
+        const img = renderPin(color, emoji, bgFill, shape);
+        map.addImage(key, { width: HEAD, height: HEAD, data: img.data });
       }
       // Stemmed pin for 3D terrain
       const stemKey = `stem-${shape}-${bgFill}-${color}-${emoji}`;
-      if (!_registeredPins.has(stemKey)) {
-        if (map.hasImage(stemKey)) {
-          _registeredPins.add(stemKey);
-        } else {
-          const stemImg = renderPinWithStem(color, emoji, bgFill, shape);
-          map.addImage(stemKey, { width: HEAD, height: TOTAL_H, data: stemImg.data });
-          _registeredPins.add(stemKey);
-        }
+      if (!map.hasImage(stemKey)) {
+        const stemImg = renderPinWithStem(color, emoji, bgFill, shape);
+        map.addImage(stemKey, { width: HEAD, height: TOTAL_H, data: stemImg.data });
       }
     }
   }

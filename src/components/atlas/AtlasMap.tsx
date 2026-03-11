@@ -209,7 +209,7 @@ export const AtlasMap = React.memo(function AtlasMap({
   useTerrainLayer(mapRef, layers.terrain, layers.hillshade, mapReadyKey);
   useRiverLayers(mapRef, layers.rivers, mapReadyKey);
   useOverlayLayers(mapRef, layers, mapReadyKey);
-  useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, heatmapSettings, layers.terrain, crossfadeEnabled);
+  useHeatmapLayer(mapRef, events, layers.heatmap, mapReadyKey, heatmapSettings, layers.terrain, crossfadeEnabled, dark);
   useClusterLayer(
     mapRef, events, layers.heatmap, mapReadyKey,
     setClusterPopup,

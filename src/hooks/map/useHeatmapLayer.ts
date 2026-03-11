@@ -53,6 +53,7 @@ export function useHeatmapLayer(
   settings?: HeatmapSettings,
   terrainEnabled?: boolean,
   crossfadeEnabled: boolean = false,
+  dark: boolean = true,
 ) {
   const preset = HEATMAP_PRESETS[settings?.preset ?? "all_events"] ?? HEATMAP_PRESETS.all_events;
 
@@ -86,7 +87,8 @@ export function useHeatmapLayer(
 
     const vis = heatmapEnabled ? "visible" : "none";
     const s = settingsRef.current;
-    const scheme = HEATMAP_COLOR_SCHEMES[s?.colorScheme ?? "fire"] ?? HEATMAP_COLOR_SCHEMES.fire;
+    const schemeObj = HEATMAP_COLOR_SCHEMES[s?.colorScheme ?? "fire"] ?? HEATMAP_COLOR_SCHEMES.fire;
+    const stops = dark ? schemeObj.stops : schemeObj.lightStops;
     const drape = s?.drapeOnTerrain ?? false;
     const radius = (s?.radius ?? 25) * (drape ? 1.5 : 1);
     const intensity = (s?.intensity ?? 1.5) * (drape ? 0.8 : 1);
@@ -124,7 +126,7 @@ export function useHeatmapLayer(
           ] as unknown as maplibregl.ExpressionSpecification,
           "heatmap-color": [
             "interpolate", ["linear"], ["heatmap-density"],
-            ...scheme.stops.flat(),
+            ...stops.flat(),
           ] as unknown as maplibregl.ExpressionSpecification,
           "heatmap-opacity": opacityExpr,
         },
@@ -132,7 +134,7 @@ export function useHeatmapLayer(
     } else {
       (map.getSource(HEATMAP_SOURCE) as maplibregl.GeoJSONSource).setData(geoJson);
     }
-  }, [geoJson, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [geoJson, dark, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Update paint properties when settings change ───────────────────────
   useEffect(() => {
@@ -140,7 +142,8 @@ export function useHeatmapLayer(
     const map = mapRef.current?.getMap();
     if (!map || !map.getLayer(HEATMAP_LAYER)) return;
 
-    const scheme = HEATMAP_COLOR_SCHEMES[settings.colorScheme] ?? HEATMAP_COLOR_SCHEMES.fire;
+    const schemeObj2 = HEATMAP_COLOR_SCHEMES[settings.colorScheme] ?? HEATMAP_COLOR_SCHEMES.fire;
+    const activeStops = dark ? schemeObj2.stops : schemeObj2.lightStops;
     const drape = settings.drapeOnTerrain ?? false;
     const radius = settings.radius * (drape ? 1.5 : 1);
     const opacity = settings.opacity * (drape ? 0.6 : 1);
@@ -166,9 +169,9 @@ export function useHeatmapLayer(
     map.setPaintProperty(HEATMAP_LAYER, "heatmap-opacity", opacityExpr);
     map.setPaintProperty(HEATMAP_LAYER, "heatmap-color", [
       "interpolate", ["linear"], ["heatmap-density"],
-      ...scheme.stops.flat(),
+      ...activeStops.flat(),
     ]);
-  }, [settings, terrainEnabled, crossfadeEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings, terrainEnabled, crossfadeEnabled, dark, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Visibility toggle ─────────────────────────────────────────────────
   useEffect(() => {
