@@ -45,17 +45,16 @@ export function useMapAnimation(
         lastGlow.current = ts;
       }
 
-      // Event pulse animation — expanding ring (~30fps)
-      // Uses symbol layer icon-size + icon-opacity (works on 3D terrain)
+      // Event pulse animation — expanding + fading circle (~30fps)
       if (ts - lastPulse.current > 33) {
         const t = (ts % 2000) / 2000;          // sawtooth 0→1 every 2s
-        const zoom = m.getZoom();
-        const zoomFade = zoom < 8 ? 1 : zoom > 12 ? 0 : 1 - (zoom - 8) / 4;
         if (m.getLayer("event-pulse")) {
-          // ring image is 128px; scale so visual radius goes from ~6px to ~26px
-          const iconSize = (6 + t * 20) / 64;  // 64 = half of 128px ring image
-          m.setLayoutProperty("event-pulse", "icon-size", iconSize);
-          m.setPaintProperty("event-pulse", "icon-opacity", (1 - t) * 0.8 * zoomFade);
+          const radius = 4 + t * 22;           // expand from 4px to 26px
+          const fadeOut = 1 - t;                // 1→0 as circle expands
+          m.setPaintProperty("event-pulse", "circle-radius", radius);
+          m.setPaintProperty("event-pulse", "circle-opacity", 0);
+          m.setPaintProperty("event-pulse", "circle-stroke-width", 2 * fadeOut);
+          m.setPaintProperty("event-pulse", "circle-stroke-opacity", 0.7 * fadeOut);
         }
         lastPulse.current = ts;
       }

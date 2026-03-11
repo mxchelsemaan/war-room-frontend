@@ -4,7 +4,7 @@ import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
-import { registerPulseRingImage, registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
+import { registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
 import { getEventTypeColor } from "@/config/eventTypes";
 import { CROSSFADE } from "@/config/map";
 
@@ -73,7 +73,6 @@ export function useEventLayers(
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    registerPulseRingImage(map);
     registerPinImages(map, uniqueEmojis, pinColors, bgFill, "circle");
 
     const vis = markersEnabled ? "visible" : "none";
@@ -104,24 +103,24 @@ export function useEventLayers(
       data: geoJson,
     });
 
-    // ── Pulse ring symbol layer (below pins) — only for recent events ──
+    // ── Pulse circle layer (below pins) — expanding/fading ring for recent events ──
     map.addLayer({
       id: "event-pulse",
-      type: "symbol",
+      type: "circle",
       source: "events-points",
       minzoom: 7,
       filter: ["==", ["get", "isRecent"], true],
       layout: {
         visibility: vis,
-        "icon-image": "pulse-ring",
-        "icon-size": 0.1,                         // animated in useMapAnimation
-        "icon-anchor": "center",
-        "icon-pitch-alignment": "viewport",
-        "icon-rotation-alignment": "viewport",
-        "icon-overlap": "always",
       },
       paint: {
-        "icon-opacity": 0.8,                      // animated in useMapAnimation
+        "circle-radius": 4,                       // animated in useMapAnimation
+        "circle-color": ["get", "color"] as unknown as string,
+        "circle-opacity": 0,                      // animated in useMapAnimation
+        "circle-stroke-width": 2,                 // animated in useMapAnimation
+        "circle-stroke-color": ["get", "color"] as unknown as string,
+        "circle-stroke-opacity": 0.6,             // animated in useMapAnimation
+        "circle-pitch-alignment": "viewport",
       },
     });
 
