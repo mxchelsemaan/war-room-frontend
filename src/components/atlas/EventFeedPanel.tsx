@@ -73,10 +73,6 @@ function groupByDate(events: EnrichedEvent[]): { date: string; items: EnrichedEv
   const sorted = [...events].sort((a, b) => {
     const dc = b.date.localeCompare(a.date);
     if (dc !== 0) return dc;
-    // Threats float to top within each day
-    const ta = isThreatAlert(a) ? 1 : 0;
-    const tb = isThreatAlert(b) ? 1 : 0;
-    if (tb !== ta) return tb - ta;
     return (b.dateTime ?? "").localeCompare(a.dateTime ?? "");
   });
   for (const e of sorted) {
