@@ -289,9 +289,23 @@ export function EventFeedPanel({
               </Button>
             </div>
 
-            {/* Dropdown list */}
+            {/* Video embed — collapsible, only when channel selected */}
+            {showInlineYt && embedSrc && stream && !ytCollapsed && (
+              <div className="aspect-video bg-black relative z-0">
+                <iframe
+                  key={embedSrc}
+                  src={embedSrc}
+                  title={`${group!.name} ${stream.language} live`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="h-full w-full"
+                />
+              </div>
+            )}
+
+            {/* Dropdown list — rendered after video so z-50 stacks on top */}
             {ytDropdownOpen && (
-              <div className="absolute left-0 right-0 top-full z-50 bg-background border border-border rounded-b-lg shadow-lg max-h-52 overflow-y-auto">
+              <div className="absolute left-0 right-0 top-8 z-50 bg-background border border-border rounded-b-lg shadow-lg max-h-52 overflow-y-auto">
                 {selectedGroup !== -1 && (
                   <button
                     onClick={() => { handleGroupChange(-1); setYtDropdownOpen(false); }}
@@ -317,20 +331,6 @@ export function EventFeedPanel({
                     </button>
                   );
                 })}
-              </div>
-            )}
-
-            {/* Video embed — collapsible, only when channel selected */}
-            {showInlineYt && embedSrc && stream && !ytCollapsed && (
-              <div className="aspect-video bg-black relative z-0">
-                <iframe
-                  key={embedSrc}
-                  src={embedSrc}
-                  title={`${group!.name} ${stream.language} live`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="h-full w-full"
-                />
               </div>
             )}
           </div>
