@@ -592,7 +592,7 @@ function EventRow({
                 {event.casualties.injured != null && event.casualties.injured > 0 && `${event.casualties.injured} injured`}
               </span>
             )}
-            {event.verificationStatus !== "reported" && (
+            {event.verificationStatus !== "reported" && event.verificationStatus !== "confirmed" && (
               <span className="rounded-full bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground leading-none">
                 {toTitleCase(event.verificationStatus)}
               </span>

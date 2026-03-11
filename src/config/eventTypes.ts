@@ -35,7 +35,7 @@ const KNOWN_TYPES: Record<string, { label: string; icon: string; color: string }
   protest:                { label: "Protest",                icon: "✊", color: "#eab308" },
   humanitarian:           { label: "Humanitarian",           icon: "🤝", color: "#22c55e" },
   evacuation_warning:     { label: "Evacuation Warning",     icon: "🚨", color: "#dc2626" },
-  israeli_evacuation_order: { label: "Israeli Evacuation Order", icon: "🚨", color: "#dc2626" },
+  israeli_evacuation_order: { label: "Evacuation Order",     icon: "🚨", color: "#dc2626" },
 };
 
 /** Deterministic color from a string hash */
