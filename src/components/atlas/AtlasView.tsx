@@ -509,7 +509,7 @@ function AtlasViewInner() {
               />
             </div>
             {/* Bottom-left: Legend */}
-            <div className="absolute bottom-4 left-3 z-30">
+            <div className="absolute bottom-4 left-3 z-20">
               <MapLegend
                 open={isPanelOpen('legend')}
                 onToggle={() => togglePanel('legend')}

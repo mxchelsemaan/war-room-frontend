@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 
 export function useTheme() {
-  const [dark, setDark] = useLocalStorage("theme:dark", true);
+  const [dark, setDark] = useLocalStorage("theme:dark", false);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
