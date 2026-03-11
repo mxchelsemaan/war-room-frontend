@@ -10,6 +10,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import type { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
+import { buildSourceUrl, SourceIcon } from "@/lib/sourceUrl";
 
 /** Detect media type from URL path extension */
 function getMediaType(url: string): "video" | "image" {
@@ -435,6 +436,7 @@ function EventRow({
   const hasMedia = !!event.mediaUrl;
   const hasCasualties = (event.casualties.killed ?? 0) > 0 || (event.casualties.injured ?? 0) > 0;
   const countryPill = getCountryPill(event.location.country);
+  const sourceUrl = buildSourceUrl(event.sourceType, event.sourceChannel, event.sourceId);
 
   const toggle = useCallback(() => {
     const el = detailsRef.current;
@@ -492,6 +494,18 @@ function EventRow({
               {toTitleCase(event.location.name)}
             </span>
             <div className="flex items-center gap-1 shrink-0">
+              {sourceUrl && (
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  title={`View on ${event.sourceType === "telegram" ? "Telegram" : "X"}`}
+                >
+                  <SourceIcon sourceType={event.sourceType} className="size-3" />
+                </a>
+              )}
               <span className="text-2xs text-muted-foreground">
                 {event.dateTime ? shortTimeAgo(event.dateTime) : event.date}
               </span>
@@ -649,16 +663,26 @@ function EventRow({
                 <span className="text-foreground">{event.casualties.displaced.toLocaleString()}</span>
               </>
             )}
-            <span className="text-muted-foreground">Platform</span>
+            <span className="text-muted-foreground">Source</span>
             <span className="text-foreground">
-              {event.sourceType === "telegram" ? "Telegram" : event.sourceType === "x_post" ? "X (Twitter)" : event.sourceType}
+              {sourceUrl ? (
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 hover:underline"
+                >
+                  <SourceIcon sourceType={event.sourceType} className="size-3" />
+                  {event.sourceChannel ? `@${event.sourceChannel}` : (event.sourceType === "telegram" ? "Telegram" : "X")}
+                </a>
+              ) : (
+                <>
+                  {event.sourceType === "telegram" ? "Telegram" : event.sourceType === "x_post" ? "X (Twitter)" : event.sourceType}
+                  {event.sourceChannel && ` · ${event.sourceChannel}`}
+                </>
+              )}
             </span>
-            {event.sourceChannel && (
-              <>
-                <span className="text-muted-foreground">Handle</span>
-                <span className="text-foreground">{event.sourceChannel}</span>
-              </>
-            )}
             <span className="text-muted-foreground">Date</span>
             <span className="text-foreground">
               {event.dateTime

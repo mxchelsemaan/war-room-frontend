@@ -26,6 +26,7 @@ export function transformRow(row: EventRow): EnrichedEvent {
     },
     sourceType: row.source_type,
     sourceChannel: row.source_channel,
+    sourceId: row.source_id,
     casualties: {
       killed: d.casualties_killed ?? (d.casualties as any)?.killed ?? null,
       injured: d.casualties_injured ?? (d.casualties as any)?.injured ?? null,

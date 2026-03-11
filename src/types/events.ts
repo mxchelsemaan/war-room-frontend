@@ -55,6 +55,7 @@ export interface EnrichedEvent {
   };
   sourceType: string;
   sourceChannel: string | null;
+  sourceId: string | null;
   casualties: { killed: number | null; injured: number | null; displaced: number | null };
   attacker: string | null;
   affectedParty: string | null;

@@ -26,6 +26,7 @@ import { useClusterLayer } from "@/hooks/map/useClusterLayer";
 import { useInfraLayers } from "@/hooks/map/useInfraLayers";
 import { ClusterPopup } from "./ClusterPopup";
 import type { ClusterPopupData } from "./ClusterPopup";
+import { buildSourceUrl, SourceIcon } from "@/lib/sourceUrl";
 
 try {
   maplibregl.setRTLTextPlugin(
@@ -458,9 +459,23 @@ export const AtlasMap = React.memo(function AtlasMap({
               </div>
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                 <span>{popupEvent.date}</span>
-                {popupEvent.sourceChannel && (
-                  <span className="text-muted-foreground/70">· {popupEvent.sourceChannel}</span>
-                )}
+                {(() => {
+                  const url = buildSourceUrl(popupEvent.sourceType, popupEvent.sourceChannel, popupEvent.sourceId);
+                  return url ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
+                      title={`View on ${popupEvent.sourceType === "telegram" ? "Telegram" : "X"}`}
+                    >
+                      <SourceIcon sourceType={popupEvent.sourceType!} className="size-3" />
+                      {popupEvent.sourceChannel && <span>@{popupEvent.sourceChannel}</span>}
+                    </a>
+                  ) : popupEvent.sourceChannel ? (
+                    <span className="text-muted-foreground/70">· {popupEvent.sourceChannel}</span>
+                  ) : null;
+                })()}
                 {popupEvent.verificationStatus && popupEvent.verificationStatus !== "reported" && (
                   <span className="rounded bg-muted px-1 py-0.5 text-2xs">{popupEvent.verificationStatus}</span>
                 )}

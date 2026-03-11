@@ -67,7 +67,9 @@ export function useEventLayers(
           date: e.date,
           summary: e.summary ?? "",
           severity: e.severity ?? "",
+          sourceType: e.sourceType ?? "",
           sourceChannel: e.sourceChannel ?? "",
+          sourceId: e.sourceId ?? "",
           verificationStatus: e.verificationStatus ?? "",
           isRecent: now - Date.parse(e.date) < 86400000,
         },
@@ -208,7 +210,9 @@ export function useEventLayers(
         date: p.date,
         summary: p.summary,
         severity: p.severity,
+        sourceType: p.sourceType || undefined,
         sourceChannel: p.sourceChannel,
+        sourceId: p.sourceId || undefined,
         verificationStatus: p.verificationStatus,
       };
       setPopupInfra(null);
@@ -235,7 +239,9 @@ export function useEventLayers(
         date: p.date,
         summary: p.summary,
         severity: p.severity,
+        sourceType: p.sourceType || undefined,
         sourceChannel: p.sourceChannel,
+        sourceId: p.sourceId || undefined,
         verificationStatus: p.verificationStatus,
       };
       setPopupInfra(null);

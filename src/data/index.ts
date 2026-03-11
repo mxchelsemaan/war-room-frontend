@@ -20,7 +20,9 @@ export interface MapEvent {
   date: string;
   summary?: string;
   severity?: string;
+  sourceType?: string;
   sourceChannel?: string;
+  sourceId?: string;
   verificationStatus?: string;
   casualties?: { killed: number | null; injured: number | null; displaced: number | null };
 }
