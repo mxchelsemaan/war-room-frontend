@@ -418,7 +418,7 @@ function AtlasViewInner() {
               The War Room
             </h1>
             <p
-              className="uppercase text-muted-foreground leading-none font-['Inter_Tight'] font-bold text-[0.6rem] tracking-[0.02em] scale-y-[1.1]"
+              className="uppercase text-muted-foreground leading-none font-sans font-bold text-[0.6rem] tracking-[0.02em] scale-y-[1.1]"
             >
               Israeli Operations in Lebanon — Live Monitor
             </p>
