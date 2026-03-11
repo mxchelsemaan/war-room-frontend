@@ -175,14 +175,26 @@ export function useClusterLayer(
         ]
       : 0.4;
 
-    // Text offset matches each stem height so label stays on badge head
+    // Text size must scale proportionally with icon-size so em-based
+    // offsets stay correct at every zoom level.
+    const clusterTextSize = terrain
+      ? ["interpolate", ["linear"], ["zoom"],
+          7, 14.6,   // 13 × 0.45/0.4
+          12, 12.4,  // 13 × 0.38/0.4
+          16, 9.8,   // 13 × 0.3/0.4
+        ]
+      : 13;
+
+    // Text offset moves the label up to the badge head center.
+    // Formula: -(totalH - HEAD/2) × baseIconSize / (SCALE × baseTextSize)
+    // where HEAD=80, SCALE=2, baseIconSize=0.4, baseTextSize=13
     const clusterTextOffset = terrain
       ? ["step", cid5,
-          ["literal", [0, -1.45]],   // stem-0 (38)
-          1, ["literal", [0, -1.65]], // stem-1 (46)
-          2, ["literal", [0, -1.85]], // stem-2 (54)
-          3, ["literal", [0, -2.05]], // stem-3 (62)
-          4, ["literal", [0, -1.75]], // stem-4 (50)
+          ["literal", [0, -1.78]],   // stem-0 (totalH=156)
+          1, ["literal", [0, -2.03]], // stem-1 (totalH=172)
+          2, ["literal", [0, -2.28]], // stem-2 (totalH=188)
+          3, ["literal", [0, -2.52]], // stem-3 (totalH=204)
+          4, ["literal", [0, -2.15]], // stem-4 (totalH=180)
         ]
       : [0, 0];
 
