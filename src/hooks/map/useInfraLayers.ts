@@ -83,8 +83,7 @@ export function useInfraLayers(
           "icon-anchor": pinAnchor,
           "icon-pitch-alignment": "viewport",
           "icon-rotation-alignment": "viewport",
-          "icon-allow-overlap": true,
-          "icon-ignore-placement": true,
+          "icon-overlap": "always",
         },
       });
     } else {

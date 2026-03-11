@@ -4,13 +4,13 @@ import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
-import { registerPinImages, registerPulseRingImage, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
+import { registerPulseRingImage, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
 import { getEventTypeColor } from "@/config/eventTypes";
 import { CROSSFADE } from "@/config/map";
 
 const EVENT_COLOR_DEFAULT = "#64748b";
 
-const EVENT_LAYERS = ["event-pulse", "event-pins"] as const;
+const EVENT_LAYERS = ["event-pulse", "event-dots", "event-pins"] as const;
 
 /** Build a MapLibre `match` expression that maps event_type → color dynamically */
 function eventTypeColorExpr(events: MapEvent[]): maplibregl.ExpressionSpecification {
@@ -44,9 +44,6 @@ export function useEventLayers(
   clickedEventRef?: React.RefObject<boolean>,
 ) {
   const bgFill = dark ? PIN_BG_DARK : PIN_BG_LIGHT;
-  const textColor = dark ? "#ffffff" : "#1e293b";
-  const pinPrefix = terrain ? "stem-circle-" : "pin-circle-";
-  const pinAnchor = terrain ? "bottom" : "center";
 
   // ── Memoize GeoJSON data ──────────────────────────────────────────────
   const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
@@ -78,14 +75,6 @@ export function useEventLayers(
     };
   }, [events]);
 
-  const uniqueEmojis = useMemo(() => [...new Set(events.map((e) => e.event_icon))], [events]);
-  const pinColors = useMemo(() => {
-    const colors = new Set<string>();
-    events.forEach((e) => colors.add(getEventTypeColor(e.event_type)));
-    colors.add(EVENT_COLOR_DEFAULT);
-    return [...colors];
-  }, [events]);
-
   const colorExpr = useMemo(() => eventTypeColorExpr(events), [events]);
 
   const geoJsonRef = useRef(geoJson);
@@ -97,7 +86,6 @@ export function useEventLayers(
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    registerPinImages(map, uniqueEmojis, pinColors, bgFill);
     registerPulseRingImage(map);
 
     const vis = markersEnabled ? "visible" : "none";
@@ -106,76 +94,93 @@ export function useEventLayers(
       ? ["case", ["get", "isRecent"], 1, ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0.35, CROSSFADE.FADE_END, 1]] as unknown as maplibregl.ExpressionSpecification
       : 1;
 
-    if (!map.getSource("events-points")) {
-      map.addSource("events-points", {
-        type: "geojson",
-        data: geoJson,
-      });
-
-      // ── Pulse ring symbol layer (below pins) — only for recent events ──
-      map.addLayer({
-        id: "event-pulse",
-        type: "symbol",
-        source: "events-points",
-        minzoom: 7,
-        filter: ["==", ["get", "isRecent"], true],
-        layout: {
-          visibility: vis,
-          "icon-image": "pulse-ring",
-          "icon-size": 0.1,                         // animated in useMapAnimation
-          "icon-anchor": "center",
-          "icon-pitch-alignment": "viewport",
-          "icon-rotation-alignment": "viewport",
-          "icon-allow-overlap": true,
-          "icon-ignore-placement": true,
-        },
-        paint: {
-          "icon-opacity": 0.8,                      // animated in useMapAnimation
-        },
-      });
-
-      // ── Pin symbol layer ──
-      map.addLayer({
-        id: "event-pins",
-        type: "symbol",
-        source: "events-points",
-        minzoom: 7,
-        layout: {
-          visibility: vis,
-          "icon-image": ["concat", pinPrefix, bgFill, "-", colorExpr, "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
-          "icon-size": 0.4,
-          "icon-anchor": pinAnchor,
-          "icon-pitch-alignment": "viewport",
-          "icon-rotation-alignment": "viewport",
-          "icon-allow-overlap": true,
-          "icon-ignore-placement": true,
-        },
-        paint: {
-          "icon-opacity": iconOpacity,
-        },
-      });
-    } else {
-      (map.getSource("events-points") as maplibregl.GeoJSONSource).setData(geoJson);
-      // Update icon-image expression so new event types / terrain toggle get correct images
-      if (map.getLayer("event-pins")) {
-        map.setLayoutProperty("event-pins", "icon-image",
-          ["concat", pinPrefix, bgFill, "-", colorExpr, "-", ["get", "event_icon"]]);
-        map.setLayoutProperty("event-pins", "icon-anchor", pinAnchor);
-      }
+    // Remove stale source+layers and re-create with fresh data every time.
+    // This avoids a MapLibre bug where setData on an initially-empty GeoJSON
+    // source does not fully re-run symbol layout, leaving most symbols invisible.
+    for (const id of EVENT_LAYERS) {
+      if (map.getLayer(id)) map.removeLayer(id);
     }
-  }, [geoJson, uniqueEmojis, colorExpr, mapLoaded, bgFill, terrain]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (map.getSource("events-points")) map.removeSource("events-points");
+
+    if (geoJson.features.length === 0) return; // nothing to render
+
+    map.addSource("events-points", {
+      type: "geojson",
+      data: geoJson,
+    });
+
+    // ── Pulse ring symbol layer (below pins) — only for recent events ──
+    map.addLayer({
+      id: "event-pulse",
+      type: "symbol",
+      source: "events-points",
+      minzoom: 7,
+      filter: ["==", ["get", "isRecent"], true],
+      layout: {
+        visibility: vis,
+        "icon-image": "pulse-ring",
+        "icon-size": 0.1,                         // animated in useMapAnimation
+        "icon-anchor": "center",
+        "icon-pitch-alignment": "viewport",
+        "icon-rotation-alignment": "viewport",
+        "icon-overlap": "always",
+      },
+      paint: {
+        "icon-opacity": 0.8,                      // animated in useMapAnimation
+      },
+    });
+
+    // ── Circle fallback layer (always visible, beneath symbols) ──
+    map.addLayer({
+      id: "event-dots",
+      type: "circle",
+      source: "events-points",
+      minzoom: 7,
+      layout: { visibility: vis },
+      paint: {
+        "circle-radius": 6,
+        "circle-color": colorExpr,
+        "circle-opacity": iconOpacity as unknown as number,
+        "circle-stroke-width": 1.5,
+        "circle-stroke-color": bgFill,
+      },
+    });
+
+    // ── Pin symbol layer (emoji on top of dots) ──
+    map.addLayer({
+      id: "event-pins",
+      type: "symbol",
+      source: "events-points",
+      minzoom: 7,
+      layout: {
+        visibility: vis,
+        "text-field": ["get", "event_icon"] as unknown as maplibregl.ExpressionSpecification,
+        "text-size": 16,
+        "text-anchor": "center",
+        "text-pitch-alignment": "viewport",
+        "text-rotation-alignment": "viewport",
+        "text-allow-overlap": true,
+        "text-ignore-placement": true,
+        "text-overlap": "always",
+      },
+      paint: {
+        "text-opacity": iconOpacity,
+      },
+    });
+  }, [geoJson, colorExpr, mapLoaded, bgFill, terrain]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Update crossfade opacity when mode changes ─────────────────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
-    if (!map || !map.getLayer("event-pins")) return;
+    if (!map) return;
 
-    const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
+    const opacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
       ? ["case", ["get", "isRecent"], 1, ["interpolate", ["linear"], ["zoom"], CROSSFADE.FADE_START, 0.35, CROSSFADE.FADE_END, 1]] as unknown as maplibregl.ExpressionSpecification
       : 1;
 
-    map.setPaintProperty("event-pins", "icon-opacity", iconOpacity);
+    if (map.getLayer("event-dots")) map.setPaintProperty("event-dots", "circle-opacity", opacity);
+    if (map.getLayer("event-pins")) map.setPaintProperty("event-pins", "text-opacity", opacity);
   }, [crossfadeEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Visibility toggle ──────────────────────────────────────────────────
@@ -197,7 +202,7 @@ export function useEventLayers(
 
     function onPinClick(e: maplibregl.MapMouseEvent) {
       if (drawingModeRef.current || placementModeRef.current || pathDrawingUnitIdRef.current) return;
-      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-pins"] });
+      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-pins", "event-dots"].filter(id => !!map!.getLayer(id)) });
       if (!features.length) return;
       const p = features[0].properties!;
       const evt: MapEvent = {
@@ -226,7 +231,7 @@ export function useEventLayers(
       // Don't overwrite a click-opened popup with hover
       if (clickedEventRef?.current) return;
       // Show popup on hover (desktop)
-      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-pins"] });
+      const features = map!.queryRenderedFeatures(e.point, { layers: ["event-pins", "event-dots"].filter(id => !!map!.getLayer(id)) });
       if (!features.length) return;
       const p = features[0].properties!;
       const evt: MapEvent = {
@@ -255,14 +260,18 @@ export function useEventLayers(
       setPopupEvent(null);
     }
 
-    map.on("click", "event-pins", onPinClick);
-    map.on("mouseenter", "event-pins", onMouseEnter);
-    map.on("mouseleave", "event-pins", onMouseLeave);
+    for (const layerId of ["event-pins", "event-dots"] as const) {
+      map.on("click", layerId, onPinClick);
+      map.on("mouseenter", layerId, onMouseEnter);
+      map.on("mouseleave", layerId, onMouseLeave);
+    }
 
     return () => {
-      map.off("click", "event-pins", onPinClick);
-      map.off("mouseenter", "event-pins", onMouseEnter);
-      map.off("mouseleave", "event-pins", onMouseLeave);
+      for (const layerId of ["event-pins", "event-dots"] as const) {
+        map.off("click", layerId, onPinClick);
+        map.off("mouseenter", layerId, onMouseEnter);
+        map.off("mouseleave", layerId, onMouseLeave);
+      }
     };
   }, [mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 }

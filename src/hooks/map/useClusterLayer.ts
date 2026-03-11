@@ -86,11 +86,11 @@ export function useClusterLayer(
           visibility: vis,
           "icon-image": "cluster-badge",
           "icon-size": 0.65,
-          "icon-allow-overlap": true,
+          "icon-overlap": "always",
           "text-field": ["get", "point_count_abbreviated"] as unknown as maplibregl.ExpressionSpecification,
           "text-font": ["Noto Sans Regular"],
           "text-size": 14,
-          "text-allow-overlap": true,
+          "text-overlap": "always",
         },
         paint: {
           "text-color": "#ffffff",
