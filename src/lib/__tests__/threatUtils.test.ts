@@ -37,9 +37,15 @@ describe("isThreatAlert", () => {
     ).toBe(true);
   });
 
-  it("matches threat source channel: avaborofficial", () => {
+  it("matches threat source channel: IDFSpokespersonArabic", () => {
     expect(
-      isThreatAlert({ eventType: "airstrike", sourceChannel: "AvabOrOfficial" }),
+      isThreatAlert({ eventType: "airstrike", sourceChannel: "IDFSpokespersonArabic" }),
+    ).toBe(true);
+  });
+
+  it("matches threat source channel: AvichayAdraee (X)", () => {
+    expect(
+      isThreatAlert({ eventType: "airstrike", sourceChannel: "AvichayAdraee" }),
     ).toBe(true);
   });
 

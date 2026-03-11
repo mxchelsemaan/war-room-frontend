@@ -8,9 +8,10 @@ const THREAT_ATTACKERS = new Set([
   "israeli forces",
 ]);
 
-/** Telegram channels that always represent Israeli threat alerts */
+/** Source channels that always represent Israeli threat alerts */
 const THREAT_CHANNELS = new Set([
-  "avaborofficial",   // AvichayAdraee — IDF Arabic spokesperson
+  "idfspokespersonarabic", // Telegram: IDF Arabic spokesperson
+  "avichayadraee",         // X: AvichayAdraee
 ]);
 
 const EVAC_ORDER_TYPES = new Set(["evacuation_warning", "israeli_evacuation_order", "evacuation"]);
