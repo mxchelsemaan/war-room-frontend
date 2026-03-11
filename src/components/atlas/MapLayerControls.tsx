@@ -202,7 +202,7 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
     .filter(g => g.items.length > 0);
 
   return (
-    <div className="relative flex flex-col items-center gap-1" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="relative flex flex-col items-center gap-1">
       <div className={`absolute top-1/2 -translate-y-1/2 left-full ml-2 w-72${open ? "" : " pointer-events-none"}`}>
         <CollapsePanel open={open} direction="right">
           <div className="glass-panel p-2 max-h-[calc(100vh-14rem)] overflow-y-auto" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>

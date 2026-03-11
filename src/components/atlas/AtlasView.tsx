@@ -239,8 +239,12 @@ function AtlasViewInner() {
     if (BOTTOM_PANELS.has(id)) {
       BOTTOM_PANELS.forEach(p => { if (p !== id) setPanelOpen(p as typeof id, false); });
     }
+    // Opening briefing closes all floating map panels
+    if (id === 'briefing' && !isPanelOpen('briefing')) {
+      BOTTOM_PANELS.forEach(p => setPanelOpen(p as typeof id, false));
+    }
     _togglePanel(id);
-  }, [_togglePanel, setPanelOpen, BOTTOM_PANELS]);
+  }, [_togglePanel, setPanelOpen, BOTTOM_PANELS, isPanelOpen]);
 
   // Opening left sidebar collapses left-side floating panels; opening right sidebar collapses right-side ones
   const handleFilterOpenChange = useCallback((v: boolean) => {
@@ -251,6 +255,10 @@ function AtlasViewInner() {
     if (v) { setPanelOpen('draw', false); setPanelOpen('camera', false); }
     setPanelOpen('feed', v);
   }, [setPanelOpen]);
+
+  // Hide labels on left-side buttons when filter sidebar is expanded, right-side when feed is expanded
+  const leftLabels = showLabels && !isPanelOpen('filter');
+  const rightLabels = showLabels && !isPanelOpen('feed');
   const [heatmapSettings, setHeatmapSettings] = useState<HeatmapSettings>({ ...HEATMAP_DEFAULTS });
   const [monitorMode, setMonitorMode] = useState<MonitorMode>("auto");
   const [layers, setLayers] = useState<LayerVisibility>({
@@ -500,7 +508,7 @@ function AtlasViewInner() {
               <DrawingToolbar
                 open={isPanelOpen('draw')}
                 onToggle={() => togglePanel('draw')}
-                showLabels={showLabels}
+                showLabels={rightLabels}
               />
             </div>
             {/* Left-middle: Layers (mirrors DrawingToolbar on right) */}
@@ -510,7 +518,7 @@ function AtlasViewInner() {
                 onChange={setLayers}
                 open={isPanelOpen('layers')}
                 onToggle={() => togglePanel('layers')}
-                showLabels={showLabels}
+                showLabels={leftLabels}
                 bigger
                 heatmapSettings={heatmapSettings}
                 onHeatmapSettingsChange={setHeatmapSettings}
@@ -525,13 +533,13 @@ function AtlasViewInner() {
                 onToggle={() => togglePanel('legend')}
                 layers={layers}
                 eventTypes={liveEventTypes}
-                showLabels={showLabels}
+                showLabels={leftLabels}
                 placedUnits={up.units}
               />
             </div>
             {/* Bottom-right: Camera */}
             <div className="absolute bottom-4 right-3 z-30">
-              <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={showLabels} open={isPanelOpen('camera')} onToggle={() => togglePanel('camera')} />
+              <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={rightLabels} open={isPanelOpen('camera')} onToggle={() => togglePanel('camera')} />
             </div>
             {!isLoading && mapEvents.length === 0 && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

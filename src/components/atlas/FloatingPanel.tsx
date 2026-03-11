@@ -19,19 +19,15 @@ interface CollapsePanelProps {
 }
 
 export function CollapsePanel({ open, direction = "down", className, children }: CollapsePanelProps) {
-  const isHorizontal = direction === "left" || direction === "right";
   const originMap = { down: "top", up: "bottom", left: "right", right: "left" } as const;
 
   return (
     <div
       className={cn(
-        "transition-[transform,opacity] duration-150 ease-out",
+        "transition-[transform,opacity] duration-200 ease-out",
         open
           ? "scale-100 opacity-100"
-          : cn(
-              isHorizontal ? "scale-x-0" : "scale-y-0",
-              "opacity-0 pointer-events-none",
-            ),
+          : "scale-95 opacity-0 pointer-events-none",
         className,
       )}
       style={{ transformOrigin: originMap[direction] }}
