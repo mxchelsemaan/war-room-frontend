@@ -88,10 +88,10 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
 
       setHasMore(rows.length === PAGE_SIZE);
 
-      // Update cursor to the last event's enrichedAt for next page
+      // Update cursor to the last event's message_date for next page
       if (enriched.length > 0) {
         const last = enriched[enriched.length - 1];
-        cursorRef.current = last.enrichedAt;
+        cursorRef.current = last.dateTime;
       }
 
       setError(null);
