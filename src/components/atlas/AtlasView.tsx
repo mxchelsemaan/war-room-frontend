@@ -444,20 +444,20 @@ function AtlasViewInner() {
       ) : (
         /* Desktop header */
         <div
-          className="relative z-[70] flex h-20 shrink-0 items-center border-b border-border/50 transition-all duration-200"
+          className="relative z-[70] flex h-14 shrink-0 items-center border-b border-border/50 transition-all duration-200"
           style={{
             paddingLeft: isPanelOpen('filter') ? 288 : 56,
-            paddingRight: isPanelOpen('feed') ? 288 : 56,
+            paddingRight: isPanelOpen('feed') ? 392 : 56,
           }}
         >
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pointer-events-none">
             <h1
-              className="text-title uppercase leading-none underline decoration-2 underline-offset-[3px] font-['Bebas_Neue'] text-[2rem] tracking-[-0.03em] scale-y-[1.15] origin-bottom"
+              className="text-title uppercase leading-none underline decoration-2 underline-offset-[3px] font-['Bebas_Neue'] text-[1.5rem] tracking-[-0.03em] scale-y-[1.15] origin-bottom"
             >
               The War Room
             </h1>
             <p
-              className="uppercase text-muted-foreground leading-none font-sans font-bold text-[0.6rem] tracking-[0.02em] scale-y-[1.1]"
+              className="uppercase text-muted-foreground leading-none font-sans font-bold text-[0.55rem] tracking-[0.02em] scale-y-[1.1]"
             >
               Israeli Operations in Lebanon — Live Monitor
             </p>
@@ -539,10 +539,10 @@ function AtlasViewInner() {
               <FloatingTriggerBtn
                 onClick={() => togglePanel('briefing')}
                 aria-label={isPanelOpen('briefing') ? "Close briefing" : "Open briefing"}
-                className="px-5 py-2.5 text-sm"
+                className="px-4 py-2 text-sm"
               >
-                <Sparkles className="size-5 text-primary" />
-                <span className="text-[13px] font-semibold">Debrief with Shifra</span>
+                <Sparkles className="size-4 text-primary" />
+                <span className="text-xs font-semibold">Debrief with Shifra</span>
               </FloatingTriggerBtn>
             </div>
             {/* Right-middle: Annotate */}

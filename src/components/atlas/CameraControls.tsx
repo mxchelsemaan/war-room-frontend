@@ -31,13 +31,13 @@ export function CameraControls({ mapRef, terrainActive: _terrainActive, onResetV
     map.easeTo({ zoom: map.getZoom() + delta, duration: 200 });
   }
 
-  const btnSize = isMobile ? "size-11" : "size-7";
+  const btnSize = isMobile ? "size-9" : "size-6";
 
   return (
     <div className="relative flex flex-col items-center gap-1">
       <div className={`absolute bottom-full right-0 mb-1 w-max${open ? "" : " pointer-events-none"}`}>
         <CollapsePanel open={open} direction="up">
-          <div className="glass-panel p-1.5 rounded-xl grid grid-cols-3 gap-px place-items-center" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+          <div className="glass-panel p-1 rounded-xl grid grid-cols-3 gap-px place-items-center" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
           {/* Row 1: zoom in + up + zoom out */}
           <Btn size={btnSize} onClick={() => zoom(1)} title="Zoom in"><ZoomIn className="size-3.5" /></Btn>
           {!isMobile ? (

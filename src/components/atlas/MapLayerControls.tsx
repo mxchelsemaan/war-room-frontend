@@ -84,9 +84,9 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
 
   return (
     <div className="relative flex flex-col items-center gap-1">
-      <div className={`absolute top-1/2 -translate-y-1/2 left-full ml-2 w-72${open ? "" : " pointer-events-none"}`}>
+      <div className={`absolute top-1/2 -translate-y-1/2 left-full ml-2 w-64${open ? "" : " pointer-events-none"}`}>
         <CollapsePanel open={open} direction="right">
-          <div className="glass-panel p-2 max-h-[calc(100vh-14rem)] overflow-y-auto" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+          <div className="glass-panel p-2 max-h-[calc(100vh-10rem)] overflow-y-auto" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
           {/* Intelligence — Event Monitor */}
           <div>
             <p className="px-2 pt-1 pb-0.5 section-heading">
@@ -130,8 +130,8 @@ export function MapLayerControls({ layers, onChange, open, onToggle, showLabels,
           </div>
         </CollapsePanel>
       </div>
-      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close layers" : "Open layers"} showLabels={showLabels} open={open} className={bigger ? "px-4 py-3.5 md:px-3.5 md:py-3" : undefined}>
-        <Layers className={bigger ? "size-4" : "size-3.5"} />
+      <FloatingTriggerBtn onClick={onToggle} aria-label={open ? "Close layers" : "Open layers"} showLabels={showLabels} open={open} className={bigger ? "px-3 py-2.5 md:px-2.5 md:py-2" : undefined}>
+        <Layers className={bigger ? "size-3.5" : "size-3.5"} />
         Layers
       </FloatingTriggerBtn>
     </div>

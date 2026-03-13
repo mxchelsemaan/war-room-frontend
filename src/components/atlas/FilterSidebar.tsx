@@ -101,7 +101,7 @@ export function FilterSidebar({
       side="left"
       width="w-80"
       header={
-        <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
+        <div className="flex h-9 shrink-0 items-center border-b border-border px-3 gap-2">
           {(open || isMobile) && (
             <span className="flex-1 text-sm font-semibold text-foreground">Filters</span>
           )}

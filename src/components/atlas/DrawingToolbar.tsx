@@ -180,7 +180,7 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
   const panel = (
     <div className={`absolute top-1/2 -translate-y-1/2 right-full mr-2 w-72${open ? "" : " pointer-events-none"}`}>
       <CollapsePanel open={open} direction="left">
-        <div className="glass-panel p-3 flex flex-col gap-3 max-h-[calc(100vh-14rem)] overflow-y-auto" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+        <div className="glass-panel p-3 flex flex-col gap-3 max-h-[calc(100vh-10rem)] overflow-y-auto" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
 
         {/* ── [A] Tool Picker: Shapes + Units ── */}
         <div className="rounded-lg border border-border/30 p-2.5 flex flex-col gap-2">
