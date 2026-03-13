@@ -76,30 +76,6 @@ function extractOptions(events: EnrichedEvent[], getter: (e: EnrichedEvent) => s
   return Array.from(seen).sort().map((v) => ({ key: v, label: toLabel(v) }));
 }
 
-/** Count occurrences per key in a subset of events */
-function countBy(events: EnrichedEvent[], getter: (e: EnrichedEvent) => string | null | undefined): Map<string, number> {
-  const counts = new Map<string, number>();
-  for (const e of events) {
-    const v = getter(e);
-    if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
-  }
-  return counts;
-}
-
-type FilterDimension = "types" | "severities" | "regions" | "weaponSystems" | "sourceTypes" | "handles";
-
-/** Apply all filters EXCEPT the skipped dimension — for cross-faceting */
-function applyFiltersExcept(events: EnrichedEvent[], filters: AtlasFilters, skip: FilterDimension): EnrichedEvent[] {
-  return events.filter((e) => {
-    if (skip !== "types" && filters.selectedTypes.size > 0 && !filters.selectedTypes.has(e.eventType)) return false;
-    if (skip !== "severities" && filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(e.severity)) return false;
-    if (skip !== "regions" && filters.selectedRegions.size > 0 && !filters.selectedRegions.has(e.location.region ?? "")) return false;
-    if (skip !== "weaponSystems" && filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(e.weaponSystem ?? "")) return false;
-    if (skip !== "sourceTypes" && filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(e.sourceType)) return false;
-    if (skip !== "handles" && filters.selectedHandles.size > 0 && !filters.selectedHandles.has(e.sourceChannel ?? "")) return false;
-    return true;
-  });
-}
 
 interface CrossFacets {
   typeCounts: Map<string, number>;
@@ -110,16 +86,65 @@ interface CrossFacets {
   handleCounts: Map<string, number>;
 }
 
-/** Compute cross-filtered counts for every dimension */
+/**
+ * Single-pass cross-faceting: for each event compute a 6-bit mask of which
+ * filters it passes, then for each dimension count events passing all OTHER
+ * dimensions. Reduces 6×N filter passes to 1×N + 6×constant.
+ */
 function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): CrossFacets {
-  return {
-    typeCounts: countBy(applyFiltersExcept(events, filters, "types"), (e) => e.eventType),
-    severityCounts: countBy(applyFiltersExcept(events, filters, "severities"), (e) => e.severity),
-    regionCounts: countBy(applyFiltersExcept(events, filters, "regions"), (e) => e.location.region),
-    weaponSystemCounts: countBy(applyFiltersExcept(events, filters, "weaponSystems"), (e) => e.weaponSystem),
-    sourceTypeCounts: countBy(applyFiltersExcept(events, filters, "sourceTypes"), (e) => e.sourceType),
-    handleCounts: countBy(applyFiltersExcept(events, filters, "handles"), (e) => e.sourceChannel),
-  };
+  // Bit positions: 0=types, 1=severities, 2=regions, 3=weaponSystems, 4=sourceTypes, 5=handles
+  const hasType = filters.selectedTypes.size > 0;
+  const hasSev = filters.selectedSeverities.size > 0;
+  const hasReg = filters.selectedRegions.size > 0;
+  const hasWep = filters.selectedWeaponSystems.size > 0;
+  const hasSrc = filters.selectedSourceTypes.size > 0;
+  const hasHdl = filters.selectedHandles.size > 0;
+  const FULL = 0b111111;
+
+  const typeCounts = new Map<string, number>();
+  const severityCounts = new Map<string, number>();
+  const regionCounts = new Map<string, number>();
+  const weaponSystemCounts = new Map<string, number>();
+  const sourceTypeCounts = new Map<string, number>();
+  const handleCounts = new Map<string, number>();
+
+  for (const e of events) {
+    let bits = FULL;
+    if (hasType && !filters.selectedTypes.has(e.eventType)) bits &= ~1;
+    if (hasSev && !filters.selectedSeverities.has(e.severity)) bits &= ~2;
+    if (hasReg && !filters.selectedRegions.has(e.location.region ?? "")) bits &= ~4;
+    if (hasWep && !filters.selectedWeaponSystems.has(e.weaponSystem ?? "")) bits &= ~8;
+    if (hasSrc && !filters.selectedSourceTypes.has(e.sourceType)) bits &= ~16;
+    if (hasHdl && !filters.selectedHandles.has(e.sourceChannel ?? "")) bits &= ~32;
+
+    // For each dimension, count if all OTHER filters pass (mask without that bit)
+    if ((bits & (FULL ^ 1)) === (FULL ^ 1)) {
+      const k = e.eventType;
+      if (k) typeCounts.set(k, (typeCounts.get(k) ?? 0) + 1);
+    }
+    if ((bits & (FULL ^ 2)) === (FULL ^ 2)) {
+      const k = e.severity;
+      if (k) severityCounts.set(k, (severityCounts.get(k) ?? 0) + 1);
+    }
+    if ((bits & (FULL ^ 4)) === (FULL ^ 4)) {
+      const k = e.location.region;
+      if (k) regionCounts.set(k, (regionCounts.get(k) ?? 0) + 1);
+    }
+    if ((bits & (FULL ^ 8)) === (FULL ^ 8)) {
+      const k = e.weaponSystem;
+      if (k) weaponSystemCounts.set(k, (weaponSystemCounts.get(k) ?? 0) + 1);
+    }
+    if ((bits & (FULL ^ 16)) === (FULL ^ 16)) {
+      const k = e.sourceType;
+      if (k) sourceTypeCounts.set(k, (sourceTypeCounts.get(k) ?? 0) + 1);
+    }
+    if ((bits & (FULL ^ 32)) === (FULL ^ 32)) {
+      const k = e.sourceChannel;
+      if (k) handleCounts.set(k, (handleCounts.get(k) ?? 0) + 1);
+    }
+  }
+
+  return { typeCounts, severityCounts, regionCounts, weaponSystemCounts, sourceTypeCounts, handleCounts };
 }
 
 /** Convert MapMarkerEvent[] to MapEvent[] for the map layers */
@@ -204,27 +229,18 @@ function AtlasViewInner() {
     [allEvents, filters],
   );
 
-  // Merge base options with cross-filtered counts
-  const severityOptions = useMemo<FilterOption[]>(
-    () => baseSeverityOptions.map((o) => ({ ...o, count: crossFacets.severityCounts.get(o.key) ?? 0 })),
-    [baseSeverityOptions, crossFacets.severityCounts],
-  );
-  const regionOptions = useMemo<FilterOption[]>(
-    () => baseRegionOptions.map((o) => ({ ...o, count: crossFacets.regionCounts.get(o.key) ?? 0 })),
-    [baseRegionOptions, crossFacets.regionCounts],
-  );
-  const sourceTypeOptions = useMemo<FilterOption[]>(
-    () => baseSourceTypeOptions.map((o) => ({ ...o, count: crossFacets.sourceTypeCounts.get(o.key) ?? 0 })),
-    [baseSourceTypeOptions, crossFacets.sourceTypeCounts],
-  );
-  const weaponSystemOptions = useMemo<FilterOption[]>(
-    () => baseWeaponSystemOptions.map((o) => ({ ...o, count: crossFacets.weaponSystemCounts.get(o.key) ?? 0 })),
-    [baseWeaponSystemOptions, crossFacets.weaponSystemCounts],
-  );
-  const handleOptions = useMemo<FilterOption[]>(
-    () => baseHandleOptions.map((o) => ({ ...o, count: crossFacets.handleCounts.get(o.key) ?? 0 })),
-    [baseHandleOptions, crossFacets.handleCounts],
-  );
+  // Merge base options with cross-filtered counts (single memo)
+  const { severityOptions, regionOptions, sourceTypeOptions, weaponSystemOptions, handleOptions } = useMemo(() => {
+    const merge = (opts: FilterOption[], counts: Map<string, number>): FilterOption[] =>
+      opts.map((o) => ({ ...o, count: counts.get(o.key) ?? 0 }));
+    return {
+      severityOptions: merge(baseSeverityOptions, crossFacets.severityCounts),
+      regionOptions: merge(baseRegionOptions, crossFacets.regionCounts),
+      sourceTypeOptions: merge(baseSourceTypeOptions, crossFacets.sourceTypeCounts),
+      weaponSystemOptions: merge(baseWeaponSystemOptions, crossFacets.weaponSystemCounts),
+      handleOptions: merge(baseHandleOptions, crossFacets.handleCounts),
+    };
+  }, [baseSeverityOptions, baseRegionOptions, baseSourceTypeOptions, baseWeaponSystemOptions, baseHandleOptions, crossFacets]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -487,8 +503,6 @@ function AtlasViewInner() {
         <FilterSidebar
           eventTypes={liveEventTypes}
           filters={filters}
-          filteredCount={filteredEvents.length}
-          totalCount={facets.total > 0 ? facets.total : totalCount}
           onFiltersChange={setFilters}
           onClear={handleClearFilters}
           open={isPanelOpen('filter')}

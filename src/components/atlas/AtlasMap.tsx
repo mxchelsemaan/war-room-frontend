@@ -1,5 +1,5 @@
 import maplibregl from "maplibre-gl";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { Map, Popup, AttributionControl } from "react-map-gl/maplibre";
 import { DrawingLayers } from "./DrawingLayers";
@@ -99,10 +99,24 @@ export const AtlasMap = React.memo(function AtlasMap({
   const [mapReadyKey, setMapReadyKey] = useState(0);
   const mapLoaded = mapReadyKey > 0;
 
-  const [popupEvent, setPopupEvent] = useState<MapEvent | null>(null);
-  const [popupInfra, setPopupInfra] = useState<StaticMarker | null>(null);
+  const [popupEvent, _setPopupEvent] = useState<MapEvent | null>(null);
+  const [popupInfra, _setPopupInfra] = useState<StaticMarker | null>(null);
   const [popupAnnotation, setPopupAnnotation] = useState<{ annotation: Annotation; lngLat: [number, number] } | null>(null);
-  const [clusterPopup, setClusterPopup] = useState<ClusterPopupData | null>(null);
+  const [clusterPopup, _setClusterPopup] = useState<ClusterPopupData | null>(null);
+
+  // Exclusive popup setters: opening one closes the others
+  const setPopupEvent = useCallback((v: MapEvent | null) => {
+    _setPopupEvent(v);
+    if (v) { _setPopupInfra(null); _setClusterPopup(null); }
+  }, []);
+  const setPopupInfra = useCallback((v: StaticMarker | null) => {
+    _setPopupInfra(v);
+    if (v) { _setPopupEvent(null); _setClusterPopup(null); }
+  }, []);
+  const setClusterPopup = useCallback((v: ClusterPopupData | null) => {
+    _setClusterPopup(v);
+    if (v) { _setPopupEvent(null); _setPopupInfra(null); }
+  }, []);
 
   const drawingModeRef = useRef(drawingMode);
   drawingModeRef.current = drawingMode;
@@ -409,8 +423,8 @@ export const AtlasMap = React.memo(function AtlasMap({
           <Popup longitude={popupEvent.event_location.lng} latitude={popupEvent.event_location.lat}
             anchor="bottom" offset={22} onClose={() => { setPopupEvent(null); onEventSelectRef.current?.(null); }} closeOnClick={false}
             maxWidth={enriched ? "340px" : "280px"}>
-            <div className="flex flex-col gap-1.5 pr-3">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2 pr-5">
                 <span className="text-lg">{popupEvent.event_icon}</span>
                 <span className="font-semibold text-sm text-foreground">{popupEvent.event_label}</span>
                 {popupEvent.severity && (
@@ -531,6 +545,7 @@ export const AtlasMap = React.memo(function AtlasMap({
         {clusterPopup && (
           <ClusterPopup
             data={clusterPopup}
+            enrichedEventsById={enrichedEventsById}
             onClose={() => setClusterPopup(null)}
             onSelectEvent={(evt) => {
               setClusterPopup(null);

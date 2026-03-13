@@ -110,20 +110,26 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
     fetchPage(null, true);
   }, [filterKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Merge new events into the feed (prepend new, update existing)
+  // Merge new events into the feed (prepend new, update existing).
+  // Returns prev ref when nothing actually changed to avoid downstream re-renders.
   const mergeEvents = useCallback((enriched: EnrichedEvent[]) => {
     if (enriched.length === 0) return;
     setEvents((prev) => {
       const existing = new Map(prev.map((e) => [e.id, e]));
       const prepend: EnrichedEvent[] = [];
+      let anyUpdated = false;
       for (const e of enriched) {
         if (existing.has(e.id)) {
-          existing.set(e.id, e); // update in-place
+          const old = existing.get(e.id)!;
+          if (old.messageDate !== e.messageDate || old.summary !== e.summary) {
+            existing.set(e.id, e);
+            anyUpdated = true;
+          }
         } else {
           prepend.push(e);
         }
       }
-      if (prepend.length === 0 && enriched.every((e) => existing.get(e.id) === e)) return prev;
+      if (prepend.length === 0 && !anyUpdated) return prev;
       const updated = Array.from(existing.values());
       return [...prepend, ...updated];
     });

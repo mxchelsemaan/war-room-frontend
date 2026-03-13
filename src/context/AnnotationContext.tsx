@@ -2,8 +2,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useDrawing } from "@/hooks/useDrawing";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 
-interface AnnotationContextValue {
-  // Drawing state
+// ── Drawing context (mode, color, width, style, temp coords, drawing actions) ──
+
+interface DrawingContextValue {
   mode: AnnotationType | null;
   color: string;
   drawWidth: number;
@@ -22,7 +23,19 @@ interface AnnotationContextValue {
   handleClick: (lngLat: [number, number]) => void;
   handleDblClick: (lngLat: [number, number]) => void;
   cancel: () => void;
-  // Annotations
+}
+
+const DrawingCtx = createContext<DrawingContextValue | null>(null);
+
+export function useDrawingContext() {
+  const ctx = useContext(DrawingCtx);
+  if (!ctx) throw new Error("useDrawingContext must be used within AnnotationProvider");
+  return ctx;
+}
+
+// ── Annotation list context (annotations CRUD, selection, reorder) ──
+
+interface AnnotationListContextValue {
   annotations: Annotation[];
   selectedAnnotationId: string | null;
   setSelectedAnnotationId: (id: string | null) => void;
@@ -37,13 +50,23 @@ interface AnnotationContextValue {
   reorderAnnotation: (id: string, toIndex: number) => void;
 }
 
-const AnnotationCtx = createContext<AnnotationContextValue | null>(null);
+const AnnotationListCtx = createContext<AnnotationListContextValue | null>(null);
 
-export function useAnnotationContext() {
-  const ctx = useContext(AnnotationCtx);
-  if (!ctx) throw new Error("useAnnotationContext must be used within AnnotationProvider");
+export function useAnnotationListContext() {
+  const ctx = useContext(AnnotationListCtx);
+  if (!ctx) throw new Error("useAnnotationListContext must be used within AnnotationProvider");
   return ctx;
 }
+
+// ── Combined hook for backwards compatibility ──
+
+export function useAnnotationContext() {
+  const drawing = useDrawingContext();
+  const list = useAnnotationListContext();
+  return useMemo(() => ({ ...drawing, ...list }), [drawing, list]);
+}
+
+// ── Provider (wraps both contexts) ──
 
 export function AnnotationProvider({ children }: { children: React.ReactNode }) {
   const drawing = useDrawing();
@@ -101,7 +124,7 @@ export function AnnotationProvider({ children }: { children: React.ReactNode }) 
     });
   }, []);
 
-  const value = useMemo<AnnotationContextValue>(() => ({
+  const drawingValue = useMemo<DrawingContextValue>(() => ({
     mode: drawing.mode,
     color: drawing.color,
     drawWidth: drawing.drawWidth,
@@ -120,6 +143,15 @@ export function AnnotationProvider({ children }: { children: React.ReactNode }) 
     handleClick: drawing.handleClick,
     handleDblClick: drawing.handleDblClick,
     cancel: drawing.cancel,
+  }), [
+    drawing.mode, drawing.color, drawing.drawWidth, drawing.drawArrowStyle,
+    drawing.drawGlow, drawing.drawDash, drawing.drawFloat, drawing.tempCoords,
+    drawing.startDrawing, drawing.setColor, drawing.setDrawWidth, drawing.setDrawArrowStyle,
+    drawing.setDrawGlow, drawing.setDrawDash, drawing.setDrawFloat,
+    drawing.handleClick, drawing.handleDblClick, drawing.cancel,
+  ]);
+
+  const listValue = useMemo<AnnotationListContextValue>(() => ({
     annotations,
     selectedAnnotationId,
     setSelectedAnnotationId,
@@ -133,19 +165,16 @@ export function AnnotationProvider({ children }: { children: React.ReactNode }) 
     setAnnotationWidth,
     reorderAnnotation,
   }), [
-    drawing.mode, drawing.color, drawing.drawWidth, drawing.drawArrowStyle,
-    drawing.drawGlow, drawing.drawDash, drawing.drawFloat, drawing.tempCoords,
-    drawing.startDrawing, drawing.setColor, drawing.setDrawWidth, drawing.setDrawArrowStyle,
-    drawing.setDrawGlow, drawing.setDrawDash, drawing.setDrawFloat,
-    drawing.handleClick, drawing.handleDblClick, drawing.cancel,
     annotations, selectedAnnotationId,
     deleteAnnotation, renameAnnotation, toggleGlow, toggleDash, toggleLabel,
     toggleAnnotationFloat, setAnnotationColor, setAnnotationWidth, reorderAnnotation,
   ]);
 
   return (
-    <AnnotationCtx.Provider value={value}>
-      {children}
-    </AnnotationCtx.Provider>
+    <DrawingCtx.Provider value={drawingValue}>
+      <AnnotationListCtx.Provider value={listValue}>
+        {children}
+      </AnnotationListCtx.Provider>
+    </DrawingCtx.Provider>
   );
 }

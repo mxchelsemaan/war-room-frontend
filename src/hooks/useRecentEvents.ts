@@ -211,7 +211,17 @@ export function useRecentEvents(): UseRecentEventsReturn {
     fetchRecent().finally(() => setIsLoading(false));
   }, [fetchRecent]);
 
-  const events = useMemo(() => Array.from(eventMap.values()), [eventMap]);
+  // Stabilise array ref: only create a new array when event IDs actually change
+  const prevEventsRef = useRef<EnrichedEvent[]>([]);
+  const events = useMemo(() => {
+    const next = Array.from(eventMap.values());
+    const prev = prevEventsRef.current;
+    if (prev.length === next.length && prev.every((e, i) => e.id === next[i].id)) {
+      return prev;
+    }
+    prevEventsRef.current = next;
+    return next;
+  }, [eventMap]);
   const totalCount = events.length;
 
   return {

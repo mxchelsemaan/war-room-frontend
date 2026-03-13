@@ -37,8 +37,6 @@ type SortMode = "alpha-asc" | "alpha-desc" | "count-desc" | "count-asc";
 interface FilterSidebarProps {
   eventTypes: EventTypeMeta[];
   filters: AtlasFilters;
-  filteredCount: number;
-  totalCount: number;
   onFiltersChange: (filters: AtlasFilters) => void;
   onClear: () => void;
   open: boolean;
@@ -61,8 +59,6 @@ const INFRA_OPTIONS: FilterOption[] = (
 export function FilterSidebar({
   eventTypes,
   filters,
-  filteredCount,
-  totalCount,
   onFiltersChange,
   onClear,
   open,
@@ -222,13 +218,8 @@ export function FilterSidebar({
         />
       </div>
 
-      {/* Counter + clear */}
-      <div className="p-3 flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">{filteredCount}</span>
-          {" / "}
-          {totalCount} events
-        </span>
+      {/* Clear */}
+      <div className="p-3 flex items-center justify-end">
         <Button variant="outline" size="xs" onClick={onClear}>
           Clear
         </Button>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Trash2, MapPin, Spline, MoveRight, Pentagon, GripVertical,
 } from "lucide-react";
-import { useAnnotationContext } from "@/context/AnnotationContext";
+import { useAnnotationListContext, useDrawingContext } from "@/context/AnnotationContext";
 import { useUnitPlacementContext } from "@/context/UnitPlacementContext";
 import { natoMiniSVG } from "@/lib/natoSymbols";
 import type { Annotation, AnnotationType } from "@/hooks/useDrawing";
@@ -102,7 +102,8 @@ function ListItem({
 type SelectedItem = { kind: "ann"; id: string } | { kind: "unit"; id: string } | null;
 
 export function SavedItemsContent({ onSelectionChange }: { onSelectionChange?: (sel: SelectionSync) => void }) {
-  const ann = useAnnotationContext();
+  const ann = useAnnotationListContext();
+  const drawing = useDrawingContext();
   const up = useUnitPlacementContext();
   const [selected, setSelected] = useState<SelectedItem>(null);
 
@@ -144,7 +145,7 @@ export function SavedItemsContent({ onSelectionChange }: { onSelectionChange?: (
         path: selectedUnitPath,
         setColor: (c) => up.updateUnit(selectedUnit.id, { color: c }),
         updateUnit: (changes) => up.updateUnit(selectedUnit.id, changes),
-        startPathDrawing: () => { ann.cancel(); up.startPathDrawing(selectedUnit.id); },
+        startPathDrawing: () => { drawing.cancel(); up.startPathDrawing(selectedUnit.id); },
         finishPathDrawing: () => up.finishPathDrawing(),
         cancelPathDrawing: () => up.cancelPathDrawing(),
         deletePath: () => up.deletePath(selectedUnit.id),

@@ -16,7 +16,7 @@ import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
 import { ToggleChip } from "@/components/ui/ToggleChip";
 import { natoMiniSVG } from "@/lib/natoSymbols";
 import type { NATOUnitType } from "@/types/units";
-import { useAnnotationContext } from "@/context/AnnotationContext";
+import { useDrawingContext } from "@/context/AnnotationContext";
 import { useUnitPlacementContext } from "@/context/UnitPlacementContext";
 import { SavedItemsContent } from "./SavedItemsPanel";
 import type { SelectionSync } from "./SavedItemsPanel";
@@ -60,7 +60,7 @@ const UNIT_FULL_LABELS: Record<NATOUnitType, string> = {
 /* ── Main component ────────────────────────────────────────── */
 
 export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarProps) {
-  const ann = useAnnotationContext();
+  const ann = useDrawingContext();
   const up = useUnitPlacementContext();
   const isMobile = useIsMobile();
   const drawTypes = (isMobile ? ["pin"] : ["pin", "line", "arrow", "area"]) as AnnotationType[];

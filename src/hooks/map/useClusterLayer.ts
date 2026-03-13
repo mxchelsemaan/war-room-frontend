@@ -39,20 +39,15 @@ export function useClusterLayer(
   const pinColors = useMemo(() => [...new Set(events.map(e => getEventTypeColor(e.event_type)))], [events]);
 
   const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
-    const now = Date.now();
+    const now = crossfadeEnabled ? Date.now() : 0;
     return {
       type: "FeatureCollection",
-      features: events.map((e) => ({
-        type: "Feature" as const,
-        properties: {
+      features: events.map((e) => {
+        const props: Record<string, unknown> = {
           id: e.id,
-          eventId: e.id,
           event_type: e.event_type,
           event_icon: e.event_icon,
           event_label: e.event_label,
-          event_location_name: e.event_location.name,
-          event_location_lat: e.event_location.lat,
-          event_location_lng: e.event_location.lng,
           locationName: e.event_location.name,
           locationLat: e.event_location.lat,
           locationLng: e.event_location.lng,
@@ -65,15 +60,21 @@ export function useClusterLayer(
           sourceId: e.sourceId ?? "",
           verificationStatus: e.verificationStatus ?? "",
           color: getEventTypeColor(e.event_type),
-          isRecent: now - Date.parse(e.date) < 259200000,
-        },
-        geometry: {
-          type: "Point" as const,
-          coordinates: [e.event_location.lng, e.event_location.lat],
-        },
-      })),
+        };
+        if (crossfadeEnabled) {
+          props.isRecent = now - Date.parse(e.date) < 259200000;
+        }
+        return {
+          type: "Feature" as const,
+          properties: props,
+          geometry: {
+            type: "Point" as const,
+            coordinates: [e.event_location.lng, e.event_location.lat],
+          },
+        };
+      }),
     };
-  }, [events]);
+  }, [events, crossfadeEnabled]);
 
   const eventsRef = useRef(events);
   eventsRef.current = events;
@@ -101,7 +102,7 @@ export function useClusterLayer(
       data: geoJson,
       cluster: true,
       clusterRadius: 40,
-      clusterMaxZoom: 13,
+      clusterMaxZoom: 14,
     });
 
     const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
@@ -246,7 +247,7 @@ export function useClusterLayer(
         const clusterEvents: MapEvent[] = leaves.map((leaf) => {
           const p = leaf.properties!;
           return {
-            id: p.eventId,
+            id: p.id,
             event_type: p.event_type,
             event_icon: p.event_icon,
             event_label: p.event_label,
@@ -275,7 +276,7 @@ export function useClusterLayer(
         event_type: p.event_type,
         event_icon: p.event_icon,
         event_label: p.event_label,
-        event_location: { name: p.event_location_name, lat: p.event_location_lat, lng: p.event_location_lng },
+        event_location: { name: p.locationName, lat: p.locationLat, lng: p.locationLng },
         event_count: p.event_count,
         date: p.date,
         summary: p.summary,
@@ -303,7 +304,7 @@ export function useClusterLayer(
         event_type: p.event_type,
         event_icon: p.event_icon,
         event_label: p.event_label,
-        event_location: { name: p.event_location_name, lat: p.event_location_lat, lng: p.event_location_lng },
+        event_location: { name: p.locationName, lat: p.locationLat, lng: p.locationLng },
         event_count: p.event_count,
         date: p.date,
         summary: p.summary,
