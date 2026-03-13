@@ -16,6 +16,7 @@ export interface FeedFilters {
   dateFrom?: string;
   dateTo?: string;
   weaponSystems?: string[];
+  query?: string;
 }
 
 export interface UseFeedEventsReturn {
@@ -55,6 +56,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
     if (filters.dateFrom) params.p_date_from = filters.dateFrom;
     if (filters.dateTo) params.p_date_to = filters.dateTo;
     if (filters.weaponSystems?.length) params.p_weapon_systems = filters.weaponSystems;
+    if (filters.query) params.p_query = filters.query;
     return params;
   }, [filters]);
 
@@ -77,7 +79,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       if (rpcErr) throw rpcErr;
 
       const rows = (data ?? []) as EventRow[];
-      const filtered = rows.filter(isLebanonRelated);
+      const filtered = filters.query ? rows : rows.filter(isLebanonRelated);
       const enriched = filtered.map(transformRow);
 
       if (isInitial) {
@@ -145,7 +147,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
         const { data } = await supabase!.rpc("get_feed_events", params);
         if (!data) return;
 
-        const rows = (data as EventRow[]).filter(isLebanonRelated);
+        const rows = filters.query ? (data as EventRow[]) : (data as EventRow[]).filter(isLebanonRelated);
         const enriched = rows.map(transformRow);
         mergeEvents(enriched);
       } catch {

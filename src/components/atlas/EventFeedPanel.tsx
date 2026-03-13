@@ -285,11 +285,6 @@ export function EventFeedPanel({
               {error}
             </div>
           )}
-          {!isLoading && groups.length === 0 && !error && (
-            <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
-              No events match the current filters
-            </div>
-          )}
           {!isLoading && groups.map(({ date, items }) => {
             const parsedDate = parseISO(date);
             const today = isToday(parsedDate);

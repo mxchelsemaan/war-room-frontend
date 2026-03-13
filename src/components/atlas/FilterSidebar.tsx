@@ -1,5 +1,5 @@
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { ArrowDownAZ, ArrowUpAZ, ArrowDown01, ArrowUp01, ChevronDown, ChevronLeft, Loader2, Search, X } from "lucide-react";
 import { STATIC_MARKER_META } from "@/data/staticMarkers";
@@ -22,6 +22,7 @@ export interface AtlasFilters {
   selectedHandles: Set<string>;
   dateFrom: string;
   dateTo: string;
+  searchQuery: string;
 }
 
 /** Options list for a dynamic filter derived from event data */
@@ -73,6 +74,29 @@ export function FilterSidebar({
 }: FilterSidebarProps) {
   const isMobile = useIsMobile();
 
+  // Debounced search input
+  const [localSearch, setLocalSearch] = useState(filters.searchQuery);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // Sync local search when external filters reset (e.g. "Clear all")
+  useEffect(() => {
+    setLocalSearch(filters.searchQuery);
+  }, [filters.searchQuery]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setLocalSearch(value);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      onFiltersChange({ ...filters, searchQuery: value });
+    }, 300);
+  }, [filters, onFiltersChange]);
+
+  const clearSearch = useCallback(() => {
+    setLocalSearch("");
+    clearTimeout(debounceRef.current);
+    onFiltersChange({ ...filters, searchQuery: "" });
+  }, [filters, onFiltersChange]);
+
   const fmtDate = (iso: string) => {
     const d = parseISO(iso);
     return iso.includes("T") ? format(d, "dd MMM, HH:mm") : format(d, "dd MMM yyyy");
@@ -123,7 +147,25 @@ export function FilterSidebar({
       }
     >
       <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
-      {/* Date filter — first */}
+      {/* Search input */}
+      <div className="p-2 border-b border-border">
+        <div className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5">
+          <Search className="size-3.5 text-muted-foreground shrink-0" />
+          <Input
+            value={localSearch}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder="Search events…"
+            className="h-auto border-0 bg-transparent shadow-none text-xs focus-visible:ring-0 placeholder:text-muted-foreground/60"
+          />
+          {localSearch && (
+            <button type="button" onClick={clearSearch} className="text-muted-foreground hover:text-foreground">
+              <X className="size-3" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Date filter */}
       <div className="p-2 border-b border-border">
         <DatePicker
           dateFrom={filters.dateFrom}

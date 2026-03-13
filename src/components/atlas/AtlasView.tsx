@@ -57,6 +57,7 @@ function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
     selectedHandles: new Set<string>(),
     dateFrom: subDays(new Date(), 2).toISOString(),
     dateTo: new Date().toISOString(),
+    searchQuery: "",
   };
 }
 
@@ -147,6 +148,12 @@ function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): Cro
   return { typeCounts, severityCounts, regionCounts, weaponSystemCounts, sourceTypeCounts, handleCounts };
 }
 
+/** Case-insensitive text match across multiple fields */
+function matchesSearch(query: string, ...fields: (string | null | undefined)[]): boolean {
+  const q = query.toLowerCase();
+  return fields.some((f) => f?.toLowerCase().includes(q));
+}
+
 /** Convert MapMarkerEvent[] to MapEvent[] for the map layers */
 function markersToMapEvents(markers: MapMarkerEvent[]): MapEvent[] {
   return markers.map((m) => ({
@@ -223,10 +230,16 @@ function AtlasViewInner() {
   const baseWeaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
   const baseHandleOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceChannel), [allEvents]);
 
+  // Pre-filter events by search query before cross-faceting
+  const searchFilteredEvents = useMemo(() => {
+    if (!filters.searchQuery) return allEvents;
+    return allEvents.filter((e) => matchesSearch(filters.searchQuery, e.summary, e.location.name, e.attacker, e.affectedParty, e.weaponSystem, e.sourceChannel, e.topics.join(' ')));
+  }, [allEvents, filters.searchQuery]);
+
   // ── Cross-filtered counts: for each dimension, apply all OTHER filters ──
   const crossFacets = useMemo(
-    () => computeCrossFacets(allEvents, filters),
-    [allEvents, filters],
+    () => computeCrossFacets(searchFilteredEvents, filters),
+    [searchFilteredEvents, filters],
   );
 
   // Merge base options with cross-filtered counts (single memo)
@@ -255,7 +268,8 @@ function AtlasViewInner() {
     dateFrom: timelineDay ?? filters.dateFrom?.slice(0, 10),
     dateTo: timelineDay ?? filters.dateTo?.slice(0, 10),
     weaponSystems: filters.selectedWeaponSystems.size > 0 ? [...filters.selectedWeaponSystems] : undefined,
-  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems, timelineDay]);
+    query: filters.searchQuery || undefined,
+  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems, filters.searchQuery, timelineDay]);
 
   const {
     events: feedEvents,
@@ -285,6 +299,7 @@ function AtlasViewInner() {
   // Client-side filter by all selected filters
   const filteredEvents = useMemo(() => {
     return allEvents.filter((event) => {
+      if (filters.searchQuery && !matchesSearch(filters.searchQuery, event.summary, event.location.name, event.attacker, event.affectedParty, event.weaponSystem, event.sourceChannel, event.topics.join(' '))) return false;
       if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(event.eventType)) return false;
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(event.severity)) return false;
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(event.location.region ?? "")) return false;
@@ -293,7 +308,7 @@ function AtlasViewInner() {
       if (filters.selectedHandles.size > 0 && !filters.selectedHandles.has(event.sourceChannel ?? "")) return false;
       return true;
     });
-  }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles]);
+  }, [allEvents, filters.searchQuery, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles]);
 
   const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(isMobile ? [] : ["filter", "feed"]);
 
@@ -411,13 +426,14 @@ function AtlasViewInner() {
   // Map uses slim markers (Priority 1), filtered by current type/severity selection
   const filteredMarkers = useMemo(() => {
     return mapMarkers.filter((m) => {
+      if (filters.searchQuery && !matchesSearch(filters.searchQuery, m.event_label, m.event_location.name, m.locationRegion)) return false;
       if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(m.event_type)) return false;
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(m.severity)) return false;
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(m.locationRegion ?? "")) return false;
       if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(m.sourceType)) return false;
       return true;
     });
-  }, [mapMarkers, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes]);
+  }, [mapMarkers, filters.searchQuery, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes]);
 
   const displayMarkers = useMemo(() => {
     if (!timelineDay) return filteredMarkers;
@@ -560,8 +576,8 @@ function AtlasViewInner() {
               onClose={() => setPanelOpen('youtube', false)}
               yt={yt}
             />
-            {/* Top-center: Shifra copilot — fixed to viewport center */}
-            <div className="fixed top-[68px] left-1/2 -translate-x-1/2 z-20">
+            {/* Top-center: Shifra copilot — centered within map area */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
               <FloatingTriggerBtn
                 onClick={() => togglePanel('briefing')}
                 aria-label={isPanelOpen('briefing') ? "Close briefing" : "Open briefing"}
@@ -607,18 +623,6 @@ function AtlasViewInner() {
             <div className="absolute bottom-4 right-3 z-30">
               <CameraControls mapRef={mapRef} terrainActive={layers.terrain} onResetView={resetView} showLabels={rightLabels} open={isPanelOpen('camera')} onToggle={() => togglePanel('camera')} />
             </div>
-            {!isLoading && mapEvents.length === 0 && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="glass-panel px-6 py-4 text-center">
-                  <p className="text-sm font-medium text-foreground">
-                    {error ? "Failed to load events" : "No events match the current filters."}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {error ?? "Adjust the event types or date range to see results."}
-                  </p>
-                </div>
-              </div>
-            )}
             {/* Bottom-center: Alpha disclaimer */}
             <div className="absolute bottom-16 md:bottom-2 left-1/2 -translate-x-1/2 z-20">
               <Badge
