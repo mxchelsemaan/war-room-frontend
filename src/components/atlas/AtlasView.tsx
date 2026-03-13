@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { FilterSidebar } from "./FilterSidebar";
 import type { AtlasFilters } from "./FilterSidebar";
-import { TimelineScrubber } from "./TimelineScrubber";
 import { EventFeedPanel } from "./EventFeedPanel";
 import { AISummaryCard } from "./AISummaryCard";
 import { AtlasMap } from "./AtlasMap";
@@ -34,7 +33,6 @@ import type { FeedFilters } from "@/hooks/useFeedEvents";
 import { useTimelineDates } from "@/hooks/useTimelineDates";
 import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
-import { getEventTypeMeta } from "@/config/eventTypes";
 import type { FilterOption } from "./FilterSidebar";
 import type { MapEvent } from "@/data/index";
 import type { EnrichedEvent, MapMarkerEvent } from "@/types/events";
@@ -167,7 +165,6 @@ function AtlasViewInner() {
     isLoading: eventsLoading,
     error: eventsError,
     fetchDateRange,
-    fetchDay,
   } = useRecentEvents();
 
   // Priority 1+2+3: Slim map markers with Realtime + stale eviction
@@ -181,7 +178,7 @@ function AtlasViewInner() {
   const error = eventsError || markersError;
 
   // Timeline dates from materialized view
-  const { dates: timelineDateEntries } = useTimelineDates(
+  const { dates: _timelineDateEntries } = useTimelineDates(
     filters.dateFrom || undefined,
     filters.dateTo || undefined,
   );
@@ -279,17 +276,6 @@ function AtlasViewInner() {
     });
   }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles]);
 
-  // Timeline dates from materialized view (or fallback to client-side)
-  const timelineDates = useMemo(() => {
-    if (timelineDateEntries.length > 0) return timelineDateEntries;
-    // Fallback: derive from loaded events
-    const counts = new Map<string, number>();
-    filteredEvents.forEach((e) => counts.set(e.date, (counts.get(e.date) ?? 0) + 1));
-    return Array.from(counts.entries())
-      .map(([day, count]) => ({ day, count }))
-      .sort((a, b) => a.day.localeCompare(b.day));
-  }, [timelineDateEntries, filteredEvents]);
-
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(isMobile ? [] : ["filter", "feed"]);
 
@@ -320,7 +306,6 @@ function AtlasViewInner() {
   const leftLabels = showLabels && !isPanelOpen('filter');
   const rightLabels = showLabels && !isPanelOpen('feed');
   const [monitorMode, setMonitorMode] = useState<MonitorMode>("auto");
-  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [layers, setLayers] = useState<LayerVisibility>({
     terrain: false,
     hillshade: true,
@@ -403,11 +388,6 @@ function AtlasViewInner() {
       setLayers(prev => prev.terrain ? { ...prev, terrain: false } : prev);
     }
   }, [isMobile]);
-
-  const displayEvents = useMemo(() => {
-    if (!timelineDay) return filteredEvents;
-    return filteredEvents.filter((e) => e.date === timelineDay);
-  }, [filteredEvents, timelineDay]);
 
   // Map uses slim markers (Priority 1), filtered by current type/severity selection
   const filteredMarkers = useMemo(() => {
@@ -617,16 +597,11 @@ function AtlasViewInner() {
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20">
               <Badge
                 variant="outline"
-                onClick={() => setDisclaimerOpen(p => !p)}
-                className={`cursor-pointer bg-background/80 backdrop-blur-sm border-red-400/30 text-red-400/70 hover:text-red-400 hover:border-red-400/50 transition-colors text-[10px] font-normal px-3 ${disclaimerOpen ? "whitespace-normal overflow-visible py-2" : ""}`}
+                className="bg-background/80 backdrop-blur-sm border-red-400/30 text-red-400/70 whitespace-normal overflow-visible py-2 text-xs font-normal px-4"
               >
-                {disclaimerOpen ? (
-                  <span className="block max-w-xs text-center">
-                    Shifra is in active development (alpha). Data accuracy is not guaranteed — always verify information through independent sources before relying on it.
-                  </span>
-                ) : (
-                  <span>Disclaimer</span>
-                )}
+                <span className="block max-w-sm text-center">
+                  Shifra is in active development (alpha). Data accuracy is not guaranteed — always verify information through independent sources before relying on it.
+                </span>
               </Badge>
             </div>
           </div>

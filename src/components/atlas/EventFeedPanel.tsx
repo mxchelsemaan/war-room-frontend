@@ -99,10 +99,10 @@ export function EventFeedPanel({
     onOpenChange(!open);
   }
 
-  const [ytCollapsed, setYtCollapsed] = useState(false);
+  const [ytCollapsed] = useState(false);
   const [ytDropdownOpen, setYtDropdownOpen] = useState(false);
   const ytDropdownRef = useRef<HTMLDivElement>(null);
-  const { channelGroups, selectedGroup, selectedStream, setSelectedStream, handleGroupChange, group, stream, embedSrc } = yt;
+  const { channelGroups, selectedGroup, handleGroupChange, group, stream, embedSrc } = yt;
   // Show inline YouTube player when a channel is selected and not popped out
   const showInlineYt = !youtubePopped && selectedGroup !== -1 && !isMobile;
 

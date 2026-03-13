@@ -4,7 +4,7 @@ import type { LayerVisibility } from "@/components/atlas/MapLayerControls";
 
 export function useKeyboardCamera(
   mapRef: React.RefObject<MapRef | null>,
-  layersRef: React.RefObject<LayerVisibility>,
+  _layersRef: React.RefObject<LayerVisibility>,
 ) {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {

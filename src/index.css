@@ -1,9 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@400;500;600;700&family=Inter+Tight:wght@500;700;900&display=swap");
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
-@import "tailwindcss";
-
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@400;500;600;700&family=Inter+Tight:wght@500;700;900&display=swap");
 @import "maplibre-gl/dist/maplibre-gl.css";
+@import "tailwindcss";
 
 .maplibregl-map { background: #0f0f1a; }
 

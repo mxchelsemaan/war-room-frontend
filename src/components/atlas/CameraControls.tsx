@@ -13,7 +13,7 @@ interface CameraControlsProps {
   onToggle: () => void;
 }
 
-export function CameraControls({ mapRef, terrainActive, onResetView, showLabels = false, open, onToggle }: CameraControlsProps) {
+export function CameraControls({ mapRef, terrainActive: _terrainActive, onResetView, showLabels = false, open, onToggle }: CameraControlsProps) {
   const isMobile = useIsMobile();
 
   function adjust(bearing?: number, pitch?: number) {

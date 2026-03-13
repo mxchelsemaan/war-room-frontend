@@ -145,11 +145,13 @@ export function DrawingToolbar({ open, onToggle, showLabels }: DrawingToolbarPro
 
   // ── Context section: name editor ──
   const [editName, setEditName] = useState("");
+  const selAnnId = selection?.kind === "ann" ? selection.ann.id : null;
+  const selUnitId = selection?.kind === "unit" ? selection.unit.id : null;
   useEffect(() => {
     if (selection?.kind === "ann") setEditName(selection.ann.label);
     else if (selection?.kind === "unit") setEditName(selection.unit.label);
     else setEditName("");
-  }, [selection?.kind === "ann" ? selection.ann.id : null, selection?.kind === "unit" ? selection.unit.id : null]);
+  }, [selAnnId, selUnitId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function commitName() {
     const trimmed = editName.trim();

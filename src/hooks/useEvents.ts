@@ -51,7 +51,7 @@ export function useEvents(dateFrom?: string, dateTo?: string): UseEventsReturn {
         if (dateFrom) params.p_date_from = dateFrom;
         if (dateTo) params.p_date_to = dateTo;
 
-        const [{ data, error: rpcErr }, { data: countData }] = await Promise.all([
+        const [{ data, error: rpcErr }, { data: _countData }] = await Promise.all([
           supabase.rpc("get_events_page", params),
           supabase.rpc("get_events_count", {
             p_date_from: dateFrom || null,

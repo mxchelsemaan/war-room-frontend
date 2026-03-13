@@ -560,9 +560,10 @@ export function DrawingLayers({
   }, [ready, mapRef, annotations]);
 
   useEffect(() => {
+    const markers = pinMarkersRef.current;
     return () => {
-      for (const entry of pinMarkersRef.current.values()) entry.marker.remove();
-      pinMarkersRef.current.clear();
+      for (const entry of markers.values()) entry.marker.remove();
+      markers.clear();
     };
   }, []);
 

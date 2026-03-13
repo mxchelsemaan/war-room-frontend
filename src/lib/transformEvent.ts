@@ -1,6 +1,12 @@
 import type { EventRow, EnrichedEvent, MapMarkerRow, MapMarkerEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
 
+interface CasualtiesObj {
+  killed?: number | null;
+  injured?: number | null;
+  displaced?: number | null;
+}
+
 /** Transform a raw DB row into a display-ready EnrichedEvent */
 export function transformRow(row: EventRow): EnrichedEvent {
   const d = row.data;
@@ -28,9 +34,9 @@ export function transformRow(row: EventRow): EnrichedEvent {
     sourceChannel: row.source_channel,
     sourceId: row.source_id,
     casualties: {
-      killed: d.casualties_killed ?? (d.casualties as any)?.killed ?? null,
-      injured: d.casualties_injured ?? (d.casualties as any)?.injured ?? null,
-      displaced: d.casualties_displaced ?? (d.casualties as any)?.displaced ?? null,
+      killed: d.casualties_killed ?? (d.casualties as CasualtiesObj | undefined)?.killed ?? null,
+      injured: d.casualties_injured ?? (d.casualties as CasualtiesObj | undefined)?.injured ?? null,
+      displaced: d.casualties_displaced ?? (d.casualties as CasualtiesObj | undefined)?.displaced ?? null,
     },
     attacker: d.attacker ?? null,
     affectedParty: d.affected_party ?? null,

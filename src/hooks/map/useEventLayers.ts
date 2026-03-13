@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
@@ -34,8 +34,9 @@ export function useEventLayers(
   const pinColors = useMemo(() => [...new Set(events.map(e => getEventTypeColor(e.event_type)))], [events]);
 
   // ── Memoize GeoJSON data ──────────────────────────────────────────────
+  const [mountTime] = useState(() => Date.now());
   const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
-    const now = Date.now();
+    const now = mountTime;
     return {
       type: "FeatureCollection",
       features: events.map((e) => ({
@@ -62,7 +63,7 @@ export function useEventLayers(
         geometry: { type: "Point" as const, coordinates: [e.event_location.lng, e.event_location.lat] },
       })),
     };
-  }, [events]);
+  }, [events, mountTime]);
 
   const geoJsonRef = useRef(geoJson);
   geoJsonRef.current = geoJson;

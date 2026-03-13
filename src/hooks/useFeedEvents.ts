@@ -149,7 +149,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
 
     const interval = setInterval(poll, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [filterKey, mergeEvents, buildParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filterKey, mergeEvents, buildParams]);
 
   const loadMore = useCallback(() => {
     if (!hasMore || isLoadingMore) return;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
@@ -38,8 +38,9 @@ export function useClusterLayer(
   const uniqueEmojis = useMemo(() => [...new Set(events.map(e => e.event_icon))], [events]);
   const pinColors = useMemo(() => [...new Set(events.map(e => getEventTypeColor(e.event_type)))], [events]);
 
+  const [mountTime] = useState(() => Date.now());
   const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
-    const now = Date.now();
+    const now = mountTime;
     return {
       type: "FeatureCollection",
       features: events.map((e) => ({
@@ -73,7 +74,7 @@ export function useClusterLayer(
         },
       })),
     };
-  }, [events]);
+  }, [events, mountTime]);
 
   const eventsRef = useRef(events);
   eventsRef.current = events;
