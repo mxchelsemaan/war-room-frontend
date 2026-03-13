@@ -45,9 +45,9 @@ export const NATO_SYMBOL_BG = "#1a1a2e";
 // ── Event monitor crossfade configuration ────────────────────────────────────
 
 export const CROSSFADE = {
-  HEATMAP_FULL: 9,    // heatmap 100% opacity below this zoom
-  FADE_START: 9,      // crossfade begins
-  FADE_END: 10.5,     // crossfade ends, markers 100% above this
+  HEATMAP_FULL: 8,    // heatmap 100% opacity below this zoom
+  FADE_START: 8,      // crossfade begins
+  FADE_END: 12,       // crossfade ends, markers 100% above this
 } as const;
 
 export const DEFAULT_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000; // 7 days

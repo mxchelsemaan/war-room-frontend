@@ -19,7 +19,7 @@ const FIRE_STOPS_LIGHT: [number, string][] = [
 
 const RADIUS = 40;
 const INTENSITY = 2.5;
-const OPACITY = 0.85;
+const OPACITY = 0.7;
 
 /** Map severity string to heatmap weight (0-1). */
 export function severityToWeight(severity?: string): number {
@@ -31,6 +31,7 @@ export function severityToWeight(severity?: string): number {
     default:         return 0.3;
   }
 }
+
 
 function computeWeight(severity?: string, eventCount?: number): number {
   const sev = severityToWeight(severity);
