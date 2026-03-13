@@ -66,7 +66,9 @@ interface EventFeedPanelProps {
   youtubePopped?: boolean;
   onPopOutYouTube?: () => void;
   onDockYouTube?: () => void;
-  onFlyToEvent?: (lat: number, lng: number) => void;
+  onFlyToEvent?: (lat: number, lng: number, eventId?: string) => void;
+  selectedEventId?: string | null;
+  onEventSelect?: (id: string | null) => void;
 }
 
 function groupByDate(events: EnrichedEvent[]): { date: string; items: EnrichedEvent[] }[] {
@@ -90,6 +92,7 @@ export function EventFeedPanel({
   hasMore, onLoadMore,
   yt, youtubePopped, onPopOutYouTube, onDockYouTube,
   onFlyToEvent,
+  selectedEventId, onEventSelect,
 }: EventFeedPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -124,6 +127,17 @@ export function EventFeedPanel({
     );
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [activeDay]);
+
+  // Scroll to and briefly highlight the selected event (from map pin click)
+  useEffect(() => {
+    if (!selectedEventId || !scrollRef.current) return;
+    const el = scrollRef.current.querySelector<HTMLElement>(
+      `[data-event-id="${selectedEventId}"]`
+    );
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [selectedEventId]);
 
   return (
     <SidePanel
@@ -293,7 +307,9 @@ export function EventFeedPanel({
                     key={event.id}
                     event={event}
                     isHighlighted={activeDay === date}
+                    isSelected={selectedEventId === event.id}
                     onFlyTo={onFlyToEvent}
+                    onEventSelect={onEventSelect}
                   />
                 ))}
               </div>
@@ -333,11 +349,15 @@ function StatusDot({ isLive }: { isLive: boolean }) {
 function EventRow({
   event,
   isHighlighted,
+  isSelected,
   onFlyTo,
+  onEventSelect,
 }: {
   event: EnrichedEvent;
   isHighlighted: boolean;
-  onFlyTo?: (lat: number, lng: number) => void;
+  isSelected?: boolean;
+  onFlyTo?: (lat: number, lng: number, eventId?: string) => void;
+  onEventSelect?: (id: string | null) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -387,9 +407,10 @@ function EventRow({
 
   return (
     <div
-      className={`relative border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer ${
+      data-event-id={event.id}
+      className={`relative border-b border-border/50 hover:bg-muted/30 transition-all cursor-pointer ${
         isHighlighted ? "bg-primary/5" : ""
-      } ${expanded ? "bg-muted/20" : ""}`}
+      } ${expanded ? "bg-muted/20" : ""} ${isSelected ? "ring-1 ring-inset ring-primary bg-primary/10" : ""}`}
       onClick={toggle}
     >
       {/* Threat glow overlay — animate-pulse with random phase offset */}
@@ -628,7 +649,7 @@ function EventRow({
               variant="outline"
               size="sm"
               className="w-full h-7 text-2xs gap-1.5"
-              onClick={(e) => { e.stopPropagation(); onFlyTo(event.location.lat!, event.location.lng!); }}
+              onClick={(e) => { e.stopPropagation(); onFlyTo(event.location.lat!, event.location.lng!, event.id); onEventSelect?.(event.id); }}
             >
               <LocateFixed className="size-3" />
               Go to event

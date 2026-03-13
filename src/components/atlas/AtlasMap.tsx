@@ -5,6 +5,7 @@ import { Map, Popup, AttributionControl } from "react-map-gl/maplibre";
 import { DrawingLayers } from "./DrawingLayers";
 import { FloatAnnotationOverlay } from "./FloatAnnotationOverlay";
 import type { MapEvent } from "@/data/index";
+import type { EnrichedEvent } from "@/types/events";
 import type { LayerVisibility } from "./MapLayerControls";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import type { PlacedUnit, UnitPath, NATOUnitType } from "@/types/units";
@@ -39,8 +40,11 @@ const MAX_BOUNDS = _MAX_BOUNDS;
 
 interface AtlasMapProps {
   events: MapEvent[];
+  enrichedEventsById?: Map<string, EnrichedEvent>;
   layers: LayerVisibility;
   selectedInfraTypes: Set<StaticMarkerType>;
+  selectedEventId?: string | null;
+  onEventSelect?: (id: string | null) => void;
   annotations: Annotation[];
   drawingMode: AnnotationType | null;
   drawingColor?: string;
@@ -68,7 +72,8 @@ interface AtlasMapProps {
 }
 
 export const AtlasMap = React.memo(function AtlasMap({
-  events, layers, selectedInfraTypes,
+  events, enrichedEventsById, layers, selectedInfraTypes,
+  selectedEventId, onEventSelect,
   annotations, drawingMode, drawingColor, tempDrawingCoords,
   onMapClick, onMapDblClick, onDeleteAnnotation, onSelectAnnotation,
   externalMapRef,
@@ -146,6 +151,10 @@ export const AtlasMap = React.memo(function AtlasMap({
     return () => { map.off("style.load", handleStyleLoad); };
   }, [mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Store callbacks as refs for use in effects
+  const onEventSelectRef = useRef(onEventSelect);
+  onEventSelectRef.current = onEventSelect;
+
   // ── Extracted hooks ──────────────────────────────────────────────────
   // Pass mapReadyKey (not mapLoaded boolean) so hooks re-run on style reload
   useMapAnimation(mapRef, layersRef, mapReadyKey);
@@ -164,8 +173,37 @@ export const AtlasMap = React.memo(function AtlasMap({
     setClusterPopup, setPopupEvent, setPopupInfra as (v: null) => void,
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     dark, layers.terrain, crossfadeEnabled, clickedEventRef,
+    onEventSelectRef,
   );
   useKeyboardCamera(mapRef, layersRef);
+
+  // ── React to external event selection (from feed click) ──────────────
+  const prevSelectedEventIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!mapLoaded || !selectedEventId || selectedEventId === prevSelectedEventIdRef.current) {
+      prevSelectedEventIdRef.current = selectedEventId ?? null;
+      return;
+    }
+    prevSelectedEventIdRef.current = selectedEventId;
+
+    // Find the event in the current events list
+    const evt = events.find((e) => e.id === selectedEventId);
+    if (!evt) return;
+
+    // Fly to it
+    const map = mapRef.current?.getMap();
+    if (map) {
+      map.flyTo({
+        center: [evt.event_location.lng, evt.event_location.lat],
+        zoom: Math.max(map.getZoom(), 11),
+        duration: 1200,
+      });
+    }
+
+    // Open popup
+    clickedEventRef.current = true;
+    setPopupEvent(evt);
+  }, [selectedEventId, events, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Mouse-direction rotation: mousemove updates bearing + aim line ───
   useEffect(() => {
@@ -314,6 +352,7 @@ export const AtlasMap = React.memo(function AtlasMap({
               setPopupInfra(null);
               setPopupAnnotation(null);
               setClusterPopup(null);
+              onEventSelectRef.current?.(null);
             }
           }
         }}
@@ -363,10 +402,13 @@ export const AtlasMap = React.memo(function AtlasMap({
         {/* ── Infrastructure markers (native symbol layer via useInfraLayers) ── */}
 
         {/* ── Event popup ── */}
-        {popupEvent && (
+        {popupEvent && (() => {
+          const enriched = enrichedEventsById?.get(popupEvent.id);
+          const hasCasualties = enriched && (enriched.casualties.killed != null || enriched.casualties.injured != null || enriched.casualties.displaced != null);
+          return (
           <Popup longitude={popupEvent.event_location.lng} latitude={popupEvent.event_location.lat}
-            anchor="bottom" offset={22} onClose={() => setPopupEvent(null)} closeOnClick={false}
-            maxWidth="280px">
+            anchor="bottom" offset={22} onClose={() => { setPopupEvent(null); onEventSelectRef.current?.(null); }} closeOnClick={false}
+            maxWidth={enriched ? "340px" : "280px"}>
             <div className="flex flex-col gap-1.5 pr-3">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{popupEvent.event_icon}</span>
@@ -382,11 +424,31 @@ export const AtlasMap = React.memo(function AtlasMap({
                   </span>
                 )}
               </div>
-              {popupEvent.summary && (
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{popupEvent.summary}</p>
+              {(enriched?.summary ?? popupEvent.summary) && (
+                <p className={`text-xs text-muted-foreground leading-relaxed${enriched ? "" : " line-clamp-3"}`}>{enriched?.summary ?? popupEvent.summary}</p>
+              )}
+              {hasCasualties && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {enriched!.casualties.killed != null && <span className="text-red-400 font-medium">{enriched!.casualties.killed} killed</span>}
+                  {enriched!.casualties.injured != null && <span className="text-amber-400 font-medium">{enriched!.casualties.injured} injured</span>}
+                  {enriched!.casualties.displaced != null && <span className="text-blue-400 font-medium">{enriched!.casualties.displaced} displaced</span>}
+                </div>
+              )}
+              {enriched?.weaponSystem && (
+                <div className="text-xs text-muted-foreground">Weapon: <span className="text-foreground/80">{enriched.weaponSystem}</span></div>
+              )}
+              {(enriched?.attacker || enriched?.affectedParty) && (
+                <div className="text-xs text-muted-foreground">
+                  {enriched.attacker && <span className="text-foreground/80">{enriched.attacker}</span>}
+                  {enriched.attacker && enriched.affectedParty && <span> → </span>}
+                  {enriched.affectedParty && <span className="text-foreground/80">{enriched.affectedParty}</span>}
+                </div>
+              )}
+              {enriched?.mediaUrl && enriched.mediaType?.startsWith("image") && (
+                <img src={enriched.mediaUrl} alt="" className="rounded w-full max-h-32 object-cover" loading="lazy" />
               )}
               <div className="text-muted-foreground text-xs flex items-center gap-1">
-                <span>📍</span> {popupEvent.event_location.name}
+                <span className="text-muted-foreground/60">Location:</span> {popupEvent.event_location.name}
               </div>
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                 <span>{popupEvent.date}</span>
@@ -411,9 +473,17 @@ export const AtlasMap = React.memo(function AtlasMap({
                   <span className="rounded bg-muted px-1 py-0.5 text-2xs">{popupEvent.verificationStatus}</span>
                 )}
               </div>
+              {enriched?.topics && enriched.topics.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {enriched.topics.map((t) => (
+                    <span key={t} className="rounded bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">{t}</span>
+                  ))}
+                </div>
+              )}
             </div>
           </Popup>
-        )}
+          );
+        })()}
 
         {/* ── Infrastructure popup ── */}
         {popupInfra && (

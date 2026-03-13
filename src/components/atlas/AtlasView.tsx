@@ -226,6 +226,9 @@ function AtlasViewInner() {
     [baseHandleOptions, crossFacets.handleCounts],
   );
 
+  const [timelineDay, setTimelineDay] = useState<string | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
   // Priority 4: Server-side feed pagination
   const feedFilters = useMemo<FeedFilters>(() => ({
     types: filters.selectedTypes.size > 0 ? Array.from(filters.selectedTypes) : undefined,
@@ -233,10 +236,10 @@ function AtlasViewInner() {
     regions: filters.selectedRegions.size > 0 ? Array.from(filters.selectedRegions) : undefined,
     sourceTypes: filters.selectedSourceTypes.size > 0 ? Array.from(filters.selectedSourceTypes) : undefined,
     handles: filters.selectedHandles.size > 0 ? Array.from(filters.selectedHandles) : undefined,
-    dateFrom: filters.dateFrom?.slice(0, 10),
-    dateTo: filters.dateTo?.slice(0, 10),
+    dateFrom: timelineDay ?? filters.dateFrom?.slice(0, 10),
+    dateTo: timelineDay ?? filters.dateTo?.slice(0, 10),
     weaponSystems: filters.selectedWeaponSystems.size > 0 ? [...filters.selectedWeaponSystems] : undefined,
-  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems]);
+  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems, timelineDay]);
 
   const {
     events: feedEvents,
@@ -276,7 +279,6 @@ function AtlasViewInner() {
     });
   }, [allEvents, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles]);
 
-  const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(isMobile ? [] : ["filter", "feed"]);
 
   // Bottom toolbar panels are mutually exclusive
@@ -365,13 +367,14 @@ function AtlasViewInner() {
     });
   }
 
-  const handleFlyToEvent = useCallback((lat: number, lng: number) => {
+  const handleFlyToEvent = useCallback((lat: number, lng: number, eventId?: string) => {
     mapRef.current?.getMap().flyTo({
       center: [lng, lat],
       zoom: 11,
       duration: 1800,
       easing: (t: number) => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
     });
+    if (eventId) setSelectedEventId(eventId);
   }, []);
 
   // When date range changes, fetch that range and reset timeline
@@ -508,6 +511,8 @@ function AtlasViewInner() {
               monitorMode={monitorMode}
               dark={dark}
               selectedInfraTypes={filters.selectedInfraTypes}
+              selectedEventId={selectedEventId}
+              onEventSelect={setSelectedEventId}
               annotations={ann.annotations}
               drawingMode={ann.mode}
               drawingColor={ann.color}
@@ -627,6 +632,8 @@ function AtlasViewInner() {
             onPopOutYouTube={handlePopOutYouTube}
             onDockYouTube={handleDockYouTube}
             onFlyToEvent={handleFlyToEvent}
+            selectedEventId={selectedEventId}
+            onEventSelect={setSelectedEventId}
           />
         </div>
       </div>

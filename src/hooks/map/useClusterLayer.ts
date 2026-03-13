@@ -29,6 +29,7 @@ export function useClusterLayer(
   terrain: boolean = false,
   crossfadeEnabled: boolean = false,
   clickedEventRef?: React.RefObject<boolean>,
+  onEventSelectRef?: React.RefObject<((id: string | null) => void) | undefined>,
 ) {
   const bgFill = dark ? PIN_BG_DARK : PIN_BG_LIGHT;
   const pinPrefix = terrain ? "stem-circle-" : "pin-circle-";
@@ -287,6 +288,7 @@ export function useClusterLayer(
       setPopupInfra(null);
       if (clickedEventRef) clickedEventRef.current = true;
       setPopupEvent(evt);
+      onEventSelectRef?.current?.(evt.id);
     }
 
     function onPinEnter(e: maplibregl.MapMouseEvent) {
