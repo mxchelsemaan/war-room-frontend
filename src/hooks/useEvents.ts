@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { getEventTypeMeta } from "@/config/eventTypes";
-import { isLebanonRelated } from "@/lib/filterUtils";
+import { isRelevantEvent } from "@/lib/filterUtils";
 import { THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent, EventTypeMeta } from "@/types/events";
 
@@ -62,7 +62,7 @@ export function useEvents(dateFrom?: string, dateTo?: string): UseEventsReturn {
 
         if (rpcErr) throw rpcErr;
 
-        const filtered = ((data ?? []) as EventRow[]).filter(isLebanonRelated);
+        const filtered = ((data ?? []) as EventRow[]).filter(isRelevantEvent);
         setRows(filtered);
         setTotalCount(filtered.length);
         setError(null);

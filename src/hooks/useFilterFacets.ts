@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { THEATER_COUNTRIES } from "@/config/map";
+import { FEED_COUNTRIES } from "@/config/map";
 import type { FilterFacets } from "@/types/events";
 
 const EMPTY_FACETS: FilterFacets = {
@@ -32,7 +32,7 @@ export function useFilterFacets(
     setIsLoading(true);
     try {
       const params: Record<string, unknown> = {
-        p_countries: THEATER_COUNTRIES,
+        p_countries: FEED_COUNTRIES,
       };
       if (dateFrom) params.p_from = dateFrom.slice(0, 10);
       if (dateTo) params.p_to = dateTo.slice(0, 10);

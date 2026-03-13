@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
-import { isLebanonRelated } from "@/lib/filterUtils";
-import { THEATER_COUNTRIES } from "@/config/map";
+import { isRelevantEvent } from "@/lib/filterUtils";
+import { FEED_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent } from "@/types/events";
 const PAGE_SIZE = 30;
 const POLL_INTERVAL_MS = 15_000;
@@ -45,7 +45,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
 
   const buildParams = useCallback(() => {
     const params: Record<string, unknown> = {
-      p_countries: THEATER_COUNTRIES,
+      p_countries: FEED_COUNTRIES,
       p_limit: PAGE_SIZE,
     };
     if (filters.types?.length) params.p_types = filters.types;
@@ -79,7 +79,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       if (rpcErr) throw rpcErr;
 
       const rows = (data ?? []) as EventRow[];
-      const filtered = filters.query ? rows : rows.filter(isLebanonRelated);
+      const filtered = filters.query ? rows : rows.filter(isRelevantEvent);
       const enriched = filtered.map(transformRow);
 
       if (isInitial) {
@@ -147,7 +147,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
         const { data } = await supabase!.rpc("get_feed_events", params);
         if (!data) return;
 
-        const rows = filters.query ? (data as EventRow[]) : (data as EventRow[]).filter(isLebanonRelated);
+        const rows = filters.query ? (data as EventRow[]) : (data as EventRow[]).filter(isRelevantEvent);
         const enriched = rows.map(transformRow);
         mergeEvents(enriched);
       } catch {

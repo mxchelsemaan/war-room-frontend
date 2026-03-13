@@ -1,7 +1,13 @@
 /** Shared map configuration constants */
 
-/** Countries to fetch events for — server-side filter passed to Supabase RPCs */
-export const THEATER_COUNTRIES = ["LB"] as const;
+/** Countries for map pins/markers — only Lebanon */
+export const MAP_COUNTRIES = ["LB"] as const;
+
+/** Wider set for feed/timeline — includes regional countries */
+export const FEED_COUNTRIES = ["LB", "IL", "SY", "PS", "IR"] as const;
+
+/** @deprecated Use MAP_COUNTRIES or FEED_COUNTRIES */
+export const THEATER_COUNTRIES = MAP_COUNTRIES;
 
 export const DEFAULT_VIEW = {
   longitude: 35.5018,
