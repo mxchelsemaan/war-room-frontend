@@ -10,7 +10,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import type { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
-import { buildSourceUrl, SourceIcon } from "@/lib/sourceUrl";
+import { buildSourceUrl } from "@/lib/sourceUrl";
+import { ChannelAvatar } from "@/components/ui/ChannelAvatar";
 import { isThreatAlert, isEvacuationOrder } from "@/lib/threatUtils";
 
 
@@ -129,9 +130,9 @@ export function EventFeedPanel({
       open={open}
       onOpenChange={onOpenChange}
       side="right"
-      width="w-80"
+      width="w-96"
       header={
-        <div className="flex h-14 shrink-0 items-center border-b border-border px-3 gap-2">
+        <div className="flex h-9 shrink-0 items-center border-b border-border px-3 gap-2">
           <Button
             variant="ghost"
             size="icon-sm"
@@ -402,22 +403,23 @@ function EventRow({
       )}
       {/* Collapsed row */}
       <div className="flex gap-2.5 px-3 py-2.5 relative z-[1]">
-        {/* Left: severity bar + icon */}
-        <div className="flex flex-col items-center gap-1 mt-0.5 shrink-0">
+        {/* Left: avatar + event icon + severity */}
+        <div className="flex flex-col items-center gap-1.5 mt-0.5 shrink-0">
+          <ChannelAvatar sourceType={event.sourceType} sourceChannel={event.sourceChannel} className="size-6 shrink-0" />
           <span className="text-base leading-none">{meta.icon}</span>
           <span className={`h-1.5 w-1.5 rounded-full ${severityDot}`} />
         </div>
 
         {/* Content */}
-        <div className="flex flex-1 flex-col gap-1 min-w-0">
-          {/* Line 1: source handle (left) + time ago (right) + chevron */}
+        <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+          {/* Line 1: source handle + link (left) + time ago (right) + chevron */}
           <div className="flex items-center justify-between gap-1">
             {(() => {
               const handle = event.sourceChannel ? `@${event.sourceChannel}` : null;
               const inner = (
                 <span className="inline-flex items-center gap-1 text-xs truncate min-w-0">
-                  <SourceIcon sourceType={event.sourceType} className="size-4 shrink-0" />
                   {handle && <span className="font-medium truncate">{handle}</span>}
+                  {sourceUrl && <span className="text-muted-foreground/60 text-2xs">(link)</span>}
                 </span>
               );
               return sourceUrl ? (
@@ -432,7 +434,7 @@ function EventRow({
                 </a>
               ) : inner;
             })()}
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
               <span className="text-xs text-muted-foreground">
                 {event.dateTime ? shortTimeAgo(event.dateTime) : event.date}
               </span>
