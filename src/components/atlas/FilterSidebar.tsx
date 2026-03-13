@@ -183,6 +183,26 @@ export function FilterSidebar({
       </div>
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
+          label="Platform"
+          options={sourceTypeOptions}
+          selected={filters.selectedSourceTypes}
+          onChange={(next) => updateSet("selectedSourceTypes", next)}
+          allLabel="All platforms"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Source"
+          options={handleOptions}
+          selected={filters.selectedHandles}
+          onChange={(next) => updateSet("selectedHandles", next)}
+          searchable
+          placeholder="Search sources…"
+          allLabel="All sources"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
           label="Weapon System"
           options={weaponSystemOptions}
           selected={filters.selectedWeaponSystems}
@@ -190,26 +210,6 @@ export function FilterSidebar({
           searchable
           placeholder="Search weapons…"
           allLabel="All weapons"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Source Type"
-          options={sourceTypeOptions}
-          selected={filters.selectedSourceTypes}
-          onChange={(next) => updateSet("selectedSourceTypes", next)}
-          allLabel="All sources"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Handle"
-          options={handleOptions}
-          selected={filters.selectedHandles}
-          onChange={(next) => updateSet("selectedHandles", next)}
-          searchable
-          placeholder="Search handles…"
-          allLabel="All handles"
         />
       </div>
       <div className="p-3 border-b border-border">
@@ -484,9 +484,6 @@ function MultiSelectDropdown({
                         {o.icon && <span>{o.icon}</span>}
                         <span>{o.label}</span>
                       </span>
-                      {o.count != null && (
-                        <span className="text-2xs text-muted-foreground tabular-nums">{o.count}</span>
-                      )}
                     </label>
                   );
                 })}

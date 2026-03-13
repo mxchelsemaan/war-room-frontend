@@ -25,9 +25,9 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
 
   return (
     <div className="relative flex flex-col items-center gap-1">
-      <div className={`absolute bottom-full left-0 mb-1 w-64${open ? "" : " pointer-events-none"}`}>
+      <div className={`absolute bottom-full left-0 mb-1 w-52${open ? "" : " pointer-events-none"}`}>
       <CollapsePanel open={open} direction="up">
-        <div className="glass-panel p-3 max-h-[calc(100vh-10rem)] overflow-y-auto space-y-3" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+        <div className="glass-panel p-2 max-h-[50vh] overflow-y-auto space-y-1.5" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
 
           {!hasContent && (
             <p className="text-xs text-muted-foreground italic">No active layers.</p>
@@ -141,13 +141,13 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, columns }: { title: string; children: React.ReactNode; columns?: boolean }) {
   return (
     <div>
-      <p className="mb-1.5 section-heading">
+      <p className="mb-1 section-heading">
         {title}
       </p>
-      <div className="space-y-1">{children}</div>
+      <div className={columns ? "grid grid-cols-2 gap-x-2 gap-y-0.5" : "space-y-0.5"}>{children}</div>
     </div>
   );
 }
@@ -162,8 +162,8 @@ function Row({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="shrink-0 flex items-center justify-center w-[24px] h-[14px]">{left}</span>
+    <div className="flex items-center gap-1.5">
+      <span className="shrink-0 flex items-center justify-center w-[20px] h-[14px]">{left}</span>
       <span className="text-xs text-foreground">{label}</span>
       {right && <span className="ml-auto">{right}</span>}
     </div>
