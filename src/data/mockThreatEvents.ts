@@ -11,6 +11,7 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     verificationStatus: "confirmed",
     date: new Date().toISOString().slice(0, 10),
     dateTime: new Date().toISOString(),
+    messageDate: new Date().toISOString(),
     location: {
       name: "Tyre",
       region: "South Governorate",
@@ -40,6 +41,7 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     verificationStatus: "confirmed",
     date: new Date().toISOString().slice(0, 10),
     dateTime: new Date(Date.now() - 30 * 60_000).toISOString(),
+    messageDate: new Date(Date.now() - 30 * 60_000).toISOString(),
     location: {
       name: "Nabatieh",
       region: "Nabatieh Governorate",
@@ -69,6 +71,7 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     verificationStatus: "reported",
     date: new Date().toISOString().slice(0, 10),
     dateTime: new Date(Date.now() - 90 * 60_000).toISOString(),
+    messageDate: new Date(Date.now() - 90 * 60_000).toISOString(),
     location: {
       name: "Bint Jbeil",
       region: "Nabatieh Governorate",
@@ -98,6 +101,7 @@ export const MOCK_THREAT_EVENTS: EnrichedEvent[] = [
     verificationStatus: "confirmed",
     date: new Date().toISOString().slice(0, 10),
     dateTime: new Date(Date.now() - 15 * 60_000).toISOString(),
+    messageDate: new Date(Date.now() - 15 * 60_000).toISOString(),
     location: {
       name: "Marjayoun",
       region: "Nabatieh Governorate",

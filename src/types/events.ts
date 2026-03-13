@@ -46,7 +46,8 @@ export interface EnrichedEvent {
   severity: "minor" | "moderate" | "major" | "critical";
   verificationStatus: "confirmed" | "reported" | "alleged" | "denied";
   date: string;              // yyyy-MM-dd
-  dateTime: string | null;   // full ISO
+  dateTime: string | null;   // full ISO (prefers date_occurred)
+  messageDate: string | null; // original post time (for cursor pagination)
   location: {
     name: string;
     region: string | null;

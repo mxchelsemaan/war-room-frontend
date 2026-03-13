@@ -91,7 +91,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       // Update cursor to the last event's message_date for next page
       if (enriched.length > 0) {
         const last = enriched[enriched.length - 1];
-        cursorRef.current = last.dateTime;
+        cursorRef.current = last.messageDate;
       }
 
       setError(null);

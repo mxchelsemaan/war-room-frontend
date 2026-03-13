@@ -17,6 +17,7 @@ export function transformRow(row: EventRow): EnrichedEvent {
     verificationStatus: d.verification_status ?? "reported",
     date,
     dateTime: row.date_occurred ?? row.message_date ?? null,
+    messageDate: row.message_date ?? null,
     location: {
       name: d.location_name ?? "Unknown location",
       region: d.location_region ?? null,
