@@ -600,7 +600,7 @@ function AtlasViewInner() {
                 className="bg-background/80 backdrop-blur-sm border-red-400/30 text-red-400/70 whitespace-normal overflow-visible py-2 text-xs font-normal px-4"
               >
                 <span className="block max-w-sm text-center">
-                  Shifra is in active development (alpha). Data accuracy is not guaranteed — always verify information through independent sources before relying on it.
+                  In active development. Bugs and inaccuracies can occur.
                 </span>
               </Badge>
             </div>
