@@ -53,7 +53,9 @@ export function useMapMarkers(): UseMapMarkersReturn {
   const mergeRows = useCallback((rows: MapMarkerRow[]) => {
     if (rows.length === 0) return;
 
-    const transformed = rows.map(transformMarkerRow);
+    const transformed = rows.map(transformMarkerRow).filter(
+      (m) => m.event_location.lat != null && m.event_location.lng != null
+    );
 
     setMarkerMap((prev) => {
       const next = new Map(prev);

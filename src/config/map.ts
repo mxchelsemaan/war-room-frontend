@@ -52,6 +52,14 @@ export const CROSSFADE = {
 
 export const DEFAULT_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
+/** Tight bounding box for Lebanon — coords outside are treated as geocoding errors */
+export const LEBANON_BOUNDS = {
+  latMin: 33.05,
+  latMax: 34.75,
+  lngMin: 35.05,
+  lngMax: 36.65,
+} as const;
+
 export type MonitorMode = "auto" | "heatmap" | "markers";
 
 

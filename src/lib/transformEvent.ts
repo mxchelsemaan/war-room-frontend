@@ -1,5 +1,15 @@
 import type { EventRow, EnrichedEvent, MapMarkerRow, MapMarkerEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
+import { LEBANON_BOUNDS } from "@/config/map";
+
+/** Returns true if the coordinate pair falls within Lebanon's bounding box */
+export function isInsideLebanon(lat: number | null | undefined, lng: number | null | undefined): boolean {
+  if (lat == null || lng == null) return false;
+  return (
+    lat >= LEBANON_BOUNDS.latMin && lat <= LEBANON_BOUNDS.latMax &&
+    lng >= LEBANON_BOUNDS.lngMin && lng <= LEBANON_BOUNDS.lngMax
+  );
+}
 
 interface CasualtiesObj {
   killed?: number | null;
@@ -27,8 +37,8 @@ export function transformRow(row: EventRow): EnrichedEvent {
       name: d.location_name ?? "Unknown location",
       region: d.location_region ?? null,
       country: d.location_country ?? null,
-      lat: row.latitude ?? null,
-      lng: row.longitude ?? null,
+      lat: isInsideLebanon(row.latitude, row.longitude) ? row.latitude! : null,
+      lng: isInsideLebanon(row.latitude, row.longitude) ? row.longitude! : null,
     },
     sourceType: row.source_type,
     sourceChannel: row.source_channel,
@@ -61,8 +71,8 @@ export function transformMarkerRow(row: MapMarkerRow): MapMarkerEvent {
     event_label: meta.label,
     event_location: {
       name: row.location_name ?? "Unknown location",
-      lat: row.lat,
-      lng: row.lng,
+      lat: isInsideLebanon(row.lat, row.lng) ? row.lat : null!,
+      lng: isInsideLebanon(row.lat, row.lng) ? row.lng : null!,
     },
     event_count: 1,
     date: rawDate,
