@@ -4,7 +4,6 @@ export interface EventRow {
   source_type: string;
   source_id: string;
   source_channel: string | null;
-  date_occurred: string | null;
   message_date: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -46,7 +45,7 @@ export interface EnrichedEvent {
   severity: "minor" | "moderate" | "major" | "critical";
   verificationStatus: "confirmed" | "reported" | "alleged" | "denied";
   date: string;              // yyyy-MM-dd
-  dateTime: string | null;   // full ISO (prefers date_occurred)
+  dateTime: string | null;   // full ISO (message_date)
   messageDate: string | null; // original post time (for cursor pagination)
   location: {
     name: string;

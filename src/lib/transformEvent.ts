@@ -5,8 +5,7 @@ import { getEventTypeMeta } from "@/config/eventTypes";
 export function transformRow(row: EventRow): EnrichedEvent {
   const d = row.data;
 
-  // Prefer date_occurred, fallback to message_date
-  const rawDate = row.date_occurred ?? row.message_date;
+  const rawDate = row.message_date;
   const date = rawDate ? rawDate.slice(0, 10) : "Unknown";
 
   return {
@@ -16,7 +15,7 @@ export function transformRow(row: EventRow): EnrichedEvent {
     severity: d.severity ?? "moderate",
     verificationStatus: d.verification_status ?? "reported",
     date,
-    dateTime: row.date_occurred ?? row.message_date ?? null,
+    dateTime: row.message_date ?? null,
     messageDate: row.message_date ?? null,
     location: {
       name: d.location_name ?? "Unknown location",
