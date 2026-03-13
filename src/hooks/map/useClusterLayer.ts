@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
 import type { ClusterPopupData } from "@/components/atlas/ClusterPopup";
-import { registerClusterBadgeImage, registerPulseRingImage, registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
+import { registerClusterBadgeImage, registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
 import { getEventTypeColor } from "@/config/eventTypes";
 import { CROSSFADE } from "@/config/map";
 
@@ -13,7 +13,6 @@ import { CROSSFADE } from "@/config/map";
 export const CLUSTER_SOURCE = "events-clusters";
 const CLUSTER_LAYER = "cluster-count";
 const PIN_LAYER = "event-pins";
-const PULSE_LAYER = "event-pulse";
 
 export function useClusterLayer(
   mapRef: React.RefObject<MapRef | null>,
@@ -38,9 +37,8 @@ export function useClusterLayer(
   const uniqueEmojis = useMemo(() => [...new Set(events.map(e => e.event_icon))], [events]);
   const pinColors = useMemo(() => [...new Set(events.map(e => getEventTypeColor(e.event_type)))], [events]);
 
-  const [mountTime] = useState(() => Date.now());
   const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
-    const now = mountTime;
+    const now = Date.now();
     return {
       type: "FeatureCollection",
       features: events.map((e) => ({
@@ -66,7 +64,7 @@ export function useClusterLayer(
           sourceId: e.sourceId ?? "",
           verificationStatus: e.verificationStatus ?? "",
           color: getEventTypeColor(e.event_type),
-          isRecent: now - Date.parse(e.date) < 86400000,
+          isRecent: now - Date.parse(e.date) < 259200000,
         },
         geometry: {
           type: "Point" as const,
@@ -74,7 +72,7 @@ export function useClusterLayer(
         },
       })),
     };
-  }, [events, mountTime]);
+  }, [events]);
 
   const eventsRef = useRef(events);
   eventsRef.current = events;
@@ -86,11 +84,10 @@ export function useClusterLayer(
     if (!map) return;
 
     registerClusterBadgeImage(map);
-    registerPulseRingImage(map);
     registerPinImages(map, uniqueEmojis, pinColors, bgFill, "circle");
 
     // Clean up stale layers + source for full re-create
-    for (const id of [PULSE_LAYER, PIN_LAYER, CLUSTER_LAYER]) {
+    for (const id of [PIN_LAYER, CLUSTER_LAYER]) {
       if (map.getLayer(id)) map.removeLayer(id);
     }
     // Also remove legacy layers
@@ -103,7 +100,7 @@ export function useClusterLayer(
       data: geoJson,
       cluster: true,
       clusterRadius: 40,
-      clusterMaxZoom: 12,
+      clusterMaxZoom: 13,
     });
 
     const iconOpacity: maplibregl.ExpressionSpecification | number = crossfadeEnabled
@@ -112,25 +109,6 @@ export function useClusterLayer(
           CROSSFADE.FADE_END, 1,
         ] as unknown as maplibregl.ExpressionSpecification
       : 1;
-
-    // ── Pulse ring (unclustered, recent only) ──
-    map.addLayer({
-      id: PULSE_LAYER,
-      type: "symbol",
-      source: CLUSTER_SOURCE,
-      minzoom: 7,
-      filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "isRecent"], true]],
-      layout: {
-        visibility: "visible",
-        "icon-image": "pulse-ring",
-        "icon-size": 0.1,
-        "icon-anchor": "center",
-        "icon-pitch-alignment": "viewport",
-        "icon-rotation-alignment": "viewport",
-        "icon-overlap": "always",
-      },
-      paint: { "icon-opacity": 0.8 },
-    });
 
     // ── Event pins (unclustered) ──
     map.addLayer({
@@ -241,7 +219,7 @@ export function useClusterLayer(
     const map = mapRef.current?.getMap();
     if (!map) return;
     const vis = markersEnabled ? "visible" : "none";
-    for (const id of [PULSE_LAYER, PIN_LAYER, CLUSTER_LAYER]) {
+    for (const id of [PIN_LAYER, CLUSTER_LAYER]) {
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
     }
   }, [markersEnabled, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps

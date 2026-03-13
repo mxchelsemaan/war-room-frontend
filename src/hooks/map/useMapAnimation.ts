@@ -4,7 +4,7 @@ import type { LayerVisibility } from "@/components/atlas/MapLayerControls";
 import { RIVER_DASH_SEQ } from "./useRiverLayers";
 
 /** Idle-poll interval (ms) when no animation layers are active */
-const IDLE_INTERVAL = 500; // ~2fps
+const IDLE_INTERVAL = 200; // ~5fps
 
 export function useMapAnimation(
   mapRef: React.RefObject<MapRef | null>,
@@ -17,7 +17,6 @@ export function useMapAnimation(
   const lastRiver = useRef(0);
   const lastGlow  = useRef(0);
   const lastSky   = useRef(0);
-  const lastPulse = useRef(0);
 
   useEffect(() => {
     if (!mapLoaded) return;
@@ -25,8 +24,7 @@ export function useMapAnimation(
     function hasActiveAnimations(): boolean {
       const l = layersRef.current;
       const m = mapRef.current?.getMap();
-      const hasEventPings = !!(m && (m.getLayer("event-ping-a") || m.getLayer("event-ping-b")));
-      return l.rivers || l.territory || l.frontLines || l.terrain || hasEventPings;
+      return l.rivers || l.territory || l.frontLines || l.terrain;
     }
 
     function frame(ts: number) {
@@ -54,24 +52,6 @@ export function useMapAnimation(
           if (m.getLayer("fl-glow-inner")) m.setPaintProperty("fl-glow-inner", "line-opacity", 0.149 + glowT * 0.204);
         }
         lastGlow.current = ts;
-      }
-
-      // Radar ping animation — two staggered expanding discs (~30fps)
-      if (ts - lastPulse.current > 33) {
-        const period = 2400;                       // full cycle ms
-        const t1 = (ts % period) / period;         // ping A: 0→1
-        const t2 = ((ts + period / 2) % period) / period; // ping B: offset half
-
-        for (const [id, t] of [["event-ping-a", t1], ["event-ping-b", t2]] as const) {
-          if (!m.getLayer(id)) continue;
-          const ease = 1 - (1 - t) * (1 - t);     // ease-out quadratic
-          // ping image is 128px; scale from ~8px to ~48px diameter
-          const iconSize = (8 + ease * 40) / 128;
-          const opacity = 0.7 * (1 - ease);        // fade as it expands
-          m.setLayoutProperty(id, "icon-size", iconSize);
-          m.setPaintProperty(id, "icon-opacity", opacity);
-        }
-        lastPulse.current = ts;
       }
 
       // Sky cloud shimmer

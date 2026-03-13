@@ -4,11 +4,11 @@ import type maplibregl from "maplibre-gl";
 import type { MapEvent } from "@/data/index";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
-import { registerPingImages, registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
+import { registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
 import { getEventTypeColor } from "@/config/eventTypes";
 import { CROSSFADE } from "@/config/map";
 
-const EVENT_LAYERS = ["event-ping-a", "event-ping-b", "event-pins"] as const;
+const EVENT_LAYERS = ["event-pins"] as const;
 
 export function useEventLayers(
   mapRef: React.RefObject<MapRef | null>,
@@ -74,7 +74,6 @@ export function useEventLayers(
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    registerPingImages(map, pinColors);
     registerPinImages(map, uniqueEmojis, pinColors, bgFill, "circle");
 
     const vis = markersEnabled ? "visible" : "none";
@@ -103,35 +102,6 @@ export function useEventLayers(
     map.addSource("events-points", {
       type: "geojson",
       data: geoJson,
-    });
-
-    // ── Radar ping symbol layers (below pins) — two staggered expanding discs ──
-    const pingLayout: maplibregl.SymbolLayerSpecification["layout"] = {
-      visibility: vis,
-      "icon-image": ["concat", "ping-", ["get", "color"]] as unknown as maplibregl.ExpressionSpecification,
-      "icon-size": 0.05,                           // animated in useMapAnimation
-      "icon-anchor": "center",
-      "icon-pitch-alignment": "viewport",
-      "icon-rotation-alignment": "viewport",
-      "icon-overlap": "always",
-    };
-    map.addLayer({
-      id: "event-ping-a",
-      type: "symbol",
-      source: "events-points",
-      minzoom: 7,
-      filter: ["==", ["get", "isRecent"], true],
-      layout: { ...pingLayout },
-      paint: { "icon-opacity": 0 },
-    });
-    map.addLayer({
-      id: "event-ping-b",
-      type: "symbol",
-      source: "events-points",
-      minzoom: 7,
-      filter: ["==", ["get", "isRecent"], true],
-      layout: { ...pingLayout },
-      paint: { "icon-opacity": 0 },
     });
 
     // ── Pin icon layer (matching infra pin style) ──

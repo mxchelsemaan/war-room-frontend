@@ -76,7 +76,7 @@ export function useHeatmapLayer(
 
     map.addSource(HEATMAP_SOURCE, { type: "geojson", data: geoJson });
 
-    const beforeLayer = map.getLayer("event-pulse") ? "event-pulse" : map.getLayer("event-pins") ? "event-pins" : undefined;
+    const beforeLayer = map.getLayer("event-pins") ? "event-pins" : undefined;
 
     map.addLayer({
       id: HEATMAP_LAYER,
