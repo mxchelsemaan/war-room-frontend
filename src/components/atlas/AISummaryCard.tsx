@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Bot, Globe, Send } from "lucide-react";
+import { Bot, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -9,32 +8,7 @@ interface AISummaryCardProps {
   date?: string;
 }
 
-const TABS = ["Copilot", "Overall"] as const;
-type Tab = (typeof TABS)[number];
-
-export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: AISummaryCardProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("Copilot");
-
-  // Sliding underline indicator
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
-
-  const updateIndicator = useCallback(() => {
-    const el = tabRefs.current[activeTab];
-    if (el) {
-      setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    updateIndicator();
-    // Recalculate after panel open animation completes
-    if (open) {
-      const timer = setTimeout(updateIndicator, 320);
-      return () => clearTimeout(timer);
-    }
-  }, [updateIndicator, open]);
-
+export function AISummaryCard({ open, onToggle }: AISummaryCardProps) {
   return (
     <>
       {/* Backdrop */}
@@ -51,87 +25,28 @@ export function AISummaryCard({ open, onToggle, date: _date = "6 March 2026" }: 
           open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
         }`}
       >
-        {/* Tab bar */}
-        <div className="flex items-end border-b border-border px-4 pt-1">
-          <div className="flex-1" />
-          <div className="relative flex gap-1">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                ref={(el) => { tabRefs.current[tab] = el; }}
-                onClick={() => setActiveTab(tab)}
-                className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium transition-colors duration-200 ${
-                  activeTab === tab
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab === "Copilot" ? <Bot className="size-3" /> : <Globe className="size-3" />}
-                {tab}
-              </button>
-            ))}
-            {/* Sliding underline — sits on top of the border */}
-            <div
-              className="absolute -bottom-px h-[2px] rounded-full bg-primary transition-all duration-300 ease-out"
-              style={{ left: indicator.left, width: indicator.width }}
-            />
-          </div>
-          <div className="flex-1 flex justify-end">
-            <Button variant="ghost" size="icon-sm" onClick={onToggle} className="mb-1" aria-label="Close daily briefing">
-              <X className="size-4" />
-            </Button>
-          </div>
+        {/* Close button */}
+        <div className="absolute top-2 right-2 z-10">
+          <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Close">
+            <X className="size-4" />
+          </Button>
         </div>
 
-        {/* Tab content with crossfade */}
-        <div className="relative flex-1 min-h-0">
-          {/* Overall */}
-          <div
-            className={`absolute inset-0 overflow-y-auto px-5 py-5 transition-opacity duration-200 ease-out ${
-              activeTab === "Overall" ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-            }`}
-          >
-            <div className="mx-auto max-w-2xl flex flex-col gap-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-              </p>
-              <ul className="flex flex-col gap-2.5">
-                {[
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                  "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-                  "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                  "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
-                  "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
-                ].map((b, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-foreground leading-relaxed">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {/* Chat area */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-8">
+            <Bot className="size-10 text-muted-foreground/30" />
+            <p className="text-sm font-medium text-muted-foreground/50">Ask Shifra anything about the latest intelligence.</p>
           </div>
-
-          {/* Copilot */}
-          <div
-            className={`absolute inset-0 flex flex-col transition-opacity duration-200 ease-out ${
-              activeTab === "Copilot" ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-            }`}
-          >
-            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-8">
-              <Bot className="size-10 text-muted-foreground/30" />
-              <p className="text-sm font-medium text-muted-foreground/50">Ask Shifra anything about the latest intelligence.</p>
-            </div>
-            <div className="shrink-0 border-t border-border px-4 py-3 flex items-center gap-2">
-              <Input
-                disabled
-                placeholder="Coming soon..."
-                className="flex-1 border-0 bg-transparent shadow-none text-sm text-muted-foreground/50 placeholder:text-muted-foreground/30 focus-visible:ring-0"
-              />
-              <Button variant="ghost" size="icon-sm" disabled aria-label="Send message" className="text-muted-foreground/30">
-                <Send className="size-4" />
-              </Button>
-            </div>
+          <div className="shrink-0 border-t border-border px-4 py-3 flex items-center gap-2">
+            <Input
+              disabled
+              placeholder="Coming soon..."
+              className="flex-1 border-0 bg-transparent shadow-none text-sm text-muted-foreground/50 placeholder:text-muted-foreground/30 focus-visible:ring-0"
+            />
+            <Button variant="ghost" size="icon-sm" disabled aria-label="Send message" className="text-muted-foreground/30">
+              <Send className="size-4" />
+            </Button>
           </div>
         </div>
 
