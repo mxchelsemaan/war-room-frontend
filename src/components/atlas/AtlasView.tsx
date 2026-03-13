@@ -407,6 +407,12 @@ function AtlasViewInner() {
 
   const mapEvents = useMemo(() => markersToMapEvents(displayMarkers), [displayMarkers]);
 
+  // Enriched events by ID for richer popups
+  const enrichedEventsById = useMemo(
+    () => new Map(allEvents.map((e) => [e.id, e])),
+    [allEvents],
+  );
+
   return (
     <div className="flex flex-col h-full w-full min-h-0 min-w-0">
       {/* Mobile header */}
@@ -497,6 +503,7 @@ function AtlasViewInner() {
             <ErrorBoundary>
             <AtlasMap
               events={mapEvents}
+              enrichedEventsById={enrichedEventsById}
               layers={effectiveLayers}
               monitorMode={monitorMode}
               dark={dark}
@@ -534,8 +541,8 @@ function AtlasViewInner() {
               onClose={() => setPanelOpen('youtube', false)}
               yt={yt}
             />
-            {/* Top-center: Shifra copilot (large) */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
+            {/* Top-center: Shifra copilot — fixed to viewport center */}
+            <div className="fixed top-[68px] left-1/2 -translate-x-1/2 z-20">
               <FloatingTriggerBtn
                 onClick={() => togglePanel('briefing')}
                 aria-label={isPanelOpen('briefing') ? "Close briefing" : "Open briefing"}
