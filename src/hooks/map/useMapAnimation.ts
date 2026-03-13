@@ -3,12 +3,16 @@ import type { MapRef } from "react-map-gl/maplibre";
 import type { LayerVisibility } from "@/components/atlas/MapLayerControls";
 import { RIVER_DASH_SEQ } from "./useRiverLayers";
 
+/** Idle-poll interval (ms) when no animation layers are active */
+const IDLE_INTERVAL = 500; // ~2fps
+
 export function useMapAnimation(
   mapRef: React.RefObject<MapRef | null>,
   layersRef: React.RefObject<LayerVisibility>,
   mapLoaded: number | boolean,
 ) {
   const animRef   = useRef<number | null>(null);
+  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const riverStep = useRef(0);
   const lastRiver = useRef(0);
   const lastGlow  = useRef(0);
@@ -18,9 +22,16 @@ export function useMapAnimation(
   useEffect(() => {
     if (!mapLoaded) return;
 
+    function hasActiveAnimations(): boolean {
+      const l = layersRef.current;
+      const m = mapRef.current?.getMap();
+      const hasEventPings = !!(m && (m.getLayer("event-ping-a") || m.getLayer("event-ping-b")));
+      return l.rivers || l.territory || l.frontLines || l.terrain || hasEventPings;
+    }
+
     function frame(ts: number) {
       const m = mapRef.current?.getMap();
-      if (!m) { animRef.current = requestAnimationFrame(frame); return; }
+      if (!m) { scheduleNext(); return; }
 
       // River dash animation
       if (layersRef.current.rivers && ts - lastRiver.current > 80) {
@@ -32,7 +43,7 @@ export function useMapAnimation(
       }
 
       // Glow pulse animation (~30fps)
-      if (ts - lastGlow.current > 33) {
+      if ((layersRef.current.territory || layersRef.current.frontLines) && ts - lastGlow.current > 33) {
         const glowT = Math.sin((ts / 1250) * Math.PI) * 0.5 + 0.5;
         if (layersRef.current.territory) {
           if (m.getLayer("tz-glow-outer")) m.setPaintProperty("tz-glow-outer", "line-opacity", 0.016 + glowT * 0.078);
@@ -83,10 +94,23 @@ export function useMapAnimation(
         lastSky.current = ts;
       }
 
-      animRef.current = requestAnimationFrame(frame);
+      scheduleNext();
+    }
+
+    function scheduleNext() {
+      if (hasActiveAnimations()) {
+        animRef.current = requestAnimationFrame(frame);
+      } else {
+        timerRef.current = setTimeout(() => {
+          animRef.current = requestAnimationFrame(frame);
+        }, IDLE_INTERVAL);
+      }
     }
 
     animRef.current = requestAnimationFrame(frame);
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 }

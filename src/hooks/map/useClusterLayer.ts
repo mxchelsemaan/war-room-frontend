@@ -79,7 +79,7 @@ export function useClusterLayer(
   const eventsRef = useRef(events);
   eventsRef.current = events;
 
-  // ── Create clustered source + all layers ─────────────────────────────
+  // ── Create clustered source + all layers (once, or on config change) ──
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
@@ -97,8 +97,6 @@ export function useClusterLayer(
     if (map.getLayer("event-dots")) map.removeLayer("event-dots");
     if (map.getSource("events-points")) map.removeSource("events-points");
     if (map.getSource(CLUSTER_SOURCE)) map.removeSource(CLUSTER_SOURCE);
-
-    if (geoJson.features.length === 0) return;
 
     map.addSource(CLUSTER_SOURCE, {
       type: "geojson",
@@ -225,7 +223,18 @@ export function useClusterLayer(
         "text-halo-width": 1,
       },
     } as maplibregl.LayerSpecification);
-  }, [geoJson, uniqueEmojis, pinColors, mapLoaded, bgFill, terrain, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [uniqueEmojis, pinColors, mapLoaded, bgFill, terrain, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Update data without recreating layers ──────────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const source = map.getSource(CLUSTER_SOURCE) as maplibregl.GeoJSONSource | undefined;
+    if (source) {
+      source.setData(geoJson);
+    }
+  }, [geoJson, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Toggle layer visibility without recreating layers ───────────────
   useEffect(() => {

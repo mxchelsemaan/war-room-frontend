@@ -594,7 +594,7 @@ function AtlasViewInner() {
               </div>
             )}
             {/* Bottom-center: Alpha disclaimer */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20">
+            <div className="absolute bottom-16 md:bottom-2 left-1/2 -translate-x-1/2 z-20">
               <Badge
                 variant="outline"
                 className="bg-background/80 backdrop-blur-sm border-red-400/30 text-red-400/70 whitespace-normal overflow-visible py-2 text-xs font-normal px-4"

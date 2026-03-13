@@ -58,7 +58,7 @@ export function useHeatmapLayer(
 
   const stops = dark ? FIRE_STOPS_DARK : FIRE_STOPS_LIGHT;
 
-  // ── Create / recreate source + layer ────────────────────────────────
+  // ── Create source + layer (once, or on config change) ───────────────
   useEffect(() => {
     if (!mapLoaded) return;
     const map = mapRef.current?.getMap();
@@ -73,8 +73,6 @@ export function useHeatmapLayer(
     // Clean up stale layer + source for full re-create
     if (map.getLayer(HEATMAP_LAYER)) map.removeLayer(HEATMAP_LAYER);
     if (map.getSource(HEATMAP_SOURCE)) map.removeSource(HEATMAP_SOURCE);
-
-    if (geoJson.features.length === 0) return;
 
     map.addSource(HEATMAP_SOURCE, { type: "geojson", data: geoJson });
 
@@ -104,5 +102,16 @@ export function useHeatmapLayer(
         "heatmap-opacity": opacityExpr,
       },
     } as maplibregl.LayerSpecification, beforeLayer);
-  }, [geoJson, dark, mapLoaded, heatmapEnabled, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dark, mapLoaded, heatmapEnabled, crossfadeEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Update data without recreating layer ───────────────────────────
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const source = map.getSource(HEATMAP_SOURCE) as maplibregl.GeoJSONSource | undefined;
+    if (source) {
+      source.setData(geoJson);
+    }
+  }, [geoJson, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 }
