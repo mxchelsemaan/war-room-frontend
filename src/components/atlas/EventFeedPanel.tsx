@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { format, isToday, parseISO } from "date-fns";
-import { ChevronRight, ChevronDown, ChevronUp, Loader2, PictureInPicture2, X, Play, Maximize2, LocateFixed, Camera } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Loader2, PictureInPicture2, X, Play, Maximize2, LocateFixed, Camera, Flag } from "lucide-react";
 import type { EnrichedEvent } from "@/types/events";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import type { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
 import { buildSourceUrl } from "@/lib/sourceUrl";
 import { ChannelAvatar } from "@/components/ui/ChannelAvatar";
 import { isThreatAlert, isEvacuationOrder } from "@/lib/threatUtils";
+import { ReportModal } from "./ReportModal";
 
 
 /** Detect media type from URL path extension */
@@ -40,16 +41,6 @@ function shortTimeAgo(dateStr: string): string {
   if (hrs < 24) return remMins > 0 ? `${hrs}h${remMins}m ago` : `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
   return `${days}d ago`;
-}
-
-/** Convert ISO alpha-2 country code to flag emoji via regional indicator symbols */
-function countryFlag(code: string): string {
-  const upper = code.toUpperCase();
-  if (upper.length !== 2) return "";
-  return String.fromCodePoint(
-    0x1f1e6 + upper.charCodeAt(0) - 65,
-    0x1f1e6 + upper.charCodeAt(1) - 65,
-  );
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -366,6 +357,8 @@ function EventRow({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reported, setReported] = useState(false);
   const detailsRef = useRef<HTMLDivElement>(null);
   const meta = getEventTypeMeta(event.eventType);
   const severityDot = SEVERITY_COLORS[event.severity] ?? "bg-slate-500";
@@ -525,31 +518,6 @@ function EventRow({
             )}
           </div>
 
-          {/* Metadata chips — country, attacker, target, affected party */}
-          {(event.location.country || event.attacker || event.target || event.affectedParty) && (
-            <div className="flex flex-wrap items-center gap-1 mt-0.5">
-              {event.location.country && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate">
-                  {countryFlag(event.location.country)} {event.location.country}
-                </span>
-              )}
-              {event.attacker && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate" title={event.attacker}>
-                  <span className="shrink-0">&#x2694;&#xFE0F;</span> {toTitleCase(event.attacker)}
-                </span>
-              )}
-              {event.target && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate" title={event.target}>
-                  <span className="shrink-0">&#x1F3AF;</span> {toTitleCase(event.target)}
-                </span>
-              )}
-              {event.affectedParty && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate" title={event.affectedParty}>
-                  <span className="shrink-0">&#x1F465;</span> {toTitleCase(event.affectedParty)}
-                </span>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
@@ -680,18 +648,36 @@ function EventRow({
             </p>
           )}
 
-          {/* Go to event */}
-          {onFlyTo && event.location.lat != null && event.location.lng != null && (
+          {/* Go to event + Report */}
+          <div className="flex gap-2">
+            {onFlyTo && event.location.lat != null && event.location.lng != null && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 h-7 text-2xs gap-1.5"
+                onClick={(e) => { e.stopPropagation(); onFlyTo(event.location.lat!, event.location.lng!, event.id); onEventSelect?.(event.id); }}
+              >
+                <LocateFixed className="size-3" />
+                Go to event
+              </Button>
+            )}
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="w-full h-7 text-2xs gap-1.5"
-              onClick={(e) => { e.stopPropagation(); onFlyTo(event.location.lat!, event.location.lng!, event.id); onEventSelect?.(event.id); }}
+              className="h-7 text-2xs gap-1.5 text-muted-foreground"
+              disabled={reported}
+              onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
             >
-              <LocateFixed className="size-3" />
-              Go to event
+              <Flag className="size-3" />
+              {reported ? "Reported" : "Report"}
             </Button>
-          )}
+          </div>
+          <ReportModal
+            open={reportOpen}
+            onOpenChange={setReportOpen}
+            eventId={event.id}
+            onSuccess={() => setReported(true)}
+          />
         </div>
         </div>
       )}
