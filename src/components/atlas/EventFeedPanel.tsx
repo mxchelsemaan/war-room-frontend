@@ -364,6 +364,11 @@ function EventRow({
   const severityDot = SEVERITY_COLORS[event.severity] ?? "bg-slate-500";
   const isThreat = isThreatAlert(event);
   const isEvac = isEvacuationOrder(event);
+  // Red glow expires 2 hours after the event date
+  const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+  const threatGlow = isThreat && event.dateTime
+    ? (Date.now() - new Date(event.dateTime).getTime()) < TWO_HOURS_MS
+    : isThreat;
 
   const hasMedia = !!event.mediaUrl;
   const hasPendingMedia = !event.mediaUrl && !!event.mediaType && event.mediaType !== "sticker";
@@ -411,8 +416,8 @@ function EventRow({
       } ${expanded ? "bg-muted/20" : ""} ${isSelected ? "ring-1 ring-inset ring-primary bg-primary/10" : ""}`}
       onClick={toggle}
     >
-      {/* Threat glow overlay — animate-pulse with random phase offset */}
-      {isThreat && (
+      {/* Threat glow overlay — animate-pulse with random phase offset, expires 2h after event */}
+      {threatGlow && (
         <div
           className={`absolute inset-0 pointer-events-none animate-pulse ${
             isEvac ? "bg-red-500/40" : "bg-red-500/25"

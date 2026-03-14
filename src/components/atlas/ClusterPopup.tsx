@@ -84,6 +84,25 @@ export function ClusterPopup({ data, enrichedEventsById, onClose, onSelectEvent 
                     {enriched?.summary ?? evt.summary}
                   </p>
                 )}
+                {/* Sources */}
+                {(() => {
+                  const url = buildSourceUrl(evt.sourceType, evt.sourceChannel, evt.sourceId);
+                  return evt.sourceChannel ? (
+                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      {evt.sourceType && <SourceIcon sourceType={evt.sourceType} className="size-3" />}
+                      {url ? (
+                        <span
+                          onClick={(e) => { e.stopPropagation(); window.open(url, "_blank", "noopener,noreferrer"); }}
+                          className="hover:text-foreground transition-colors cursor-pointer"
+                        >
+                          @{evt.sourceChannel}
+                        </span>
+                      ) : (
+                        <span>@{evt.sourceChannel}</span>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
                 {/* Casualties */}
                 {hasCasualties && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">

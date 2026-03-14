@@ -49,16 +49,16 @@ interface FilterSidebarProps {
   onOpenChange: (open: boolean) => void;
   isLoading?: boolean;
   /** Dynamic options with cross-filtered counts */
-  severityOptions: FilterOption[];
-  regionOptions: FilterOption[];
-  weaponSystemOptions: FilterOption[];
+  severityOptions?: FilterOption[];
+  regionOptions?: FilterOption[];
+  weaponSystemOptions?: FilterOption[];
   sourceTypeOptions: FilterOption[];
   handleOptions: FilterOption[];
-  theaterOptions: FilterOption[];
-  countryOptions: FilterOption[];
-  attackerOptions: FilterOption[];
-  targetOptions: FilterOption[];
-  affectedPartyOptions: FilterOption[];
+  theaterOptions?: FilterOption[];
+  countryOptions?: FilterOption[];
+  attackerOptions?: FilterOption[];
+  targetOptions?: FilterOption[];
+  affectedPartyOptions?: FilterOption[];
   topicOptions: FilterOption[];
   /** Event count per event type key */
   eventTypeCounts: Map<string, number>;
@@ -83,16 +83,8 @@ export function FilterSidebar({
   open,
   onOpenChange: setOpen,
   isLoading,
-  severityOptions,
-  regionOptions,
-  weaponSystemOptions,
   sourceTypeOptions,
   handleOptions,
-  theaterOptions,
-  countryOptions,
-  attackerOptions,
-  targetOptions,
-  affectedPartyOptions,
   topicOptions,
   eventTypeCounts,
   infraTypes,
@@ -207,7 +199,7 @@ export function FilterSidebar({
         />
       </div>
 
-      {/* Event type filter — full width, searchable */}
+      {/* 1. Event type filter */}
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
           label="Event Type"
@@ -223,47 +215,7 @@ export function FilterSidebar({
         />
       </div>
 
-      {/* Stacked full-width filters */}
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Severity"
-          options={severityOptions}
-          selected={filters.selectedSeverities}
-          onChange={(next) => updateSet("selectedSeverities", next)}
-          allLabel="All severities"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Region"
-          options={regionOptions}
-          selected={filters.selectedRegions}
-          onChange={(next) => updateSet("selectedRegions", next)}
-          searchable
-          placeholder="Search regions…"
-          allLabel="All regions"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Theater"
-          options={theaterOptions}
-          selected={filters.selectedTheaters}
-          onChange={(next) => updateSet("selectedTheaters", next)}
-          allLabel="All theaters"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Country"
-          options={countryOptions}
-          selected={filters.selectedCountries}
-          onChange={(next) => updateSet("selectedCountries", next)}
-          searchable
-          placeholder="Search countries…"
-          allLabel="All countries"
-        />
-      </div>
+      {/* 2. Platform */}
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
           label="Platform"
@@ -273,6 +225,8 @@ export function FilterSidebar({
           allLabel="All platforms"
         />
       </div>
+
+      {/* 3. Source */}
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
           label="Source"
@@ -284,50 +238,8 @@ export function FilterSidebar({
           allLabel="All sources"
         />
       </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Attacker"
-          options={attackerOptions}
-          selected={filters.selectedAttackers}
-          onChange={(next) => updateSet("selectedAttackers", next)}
-          searchable
-          placeholder="Search attackers…"
-          allLabel="All attackers"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Target"
-          options={targetOptions}
-          selected={filters.selectedTargets}
-          onChange={(next) => updateSet("selectedTargets", next)}
-          searchable
-          placeholder="Search targets…"
-          allLabel="All targets"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Affected Party"
-          options={affectedPartyOptions}
-          selected={filters.selectedAffectedParties}
-          onChange={(next) => updateSet("selectedAffectedParties", next)}
-          searchable
-          placeholder="Search affected parties…"
-          allLabel="All affected parties"
-        />
-      </div>
-      <div className="p-3 border-b border-border">
-        <MultiSelectDropdown
-          label="Weapon System"
-          options={weaponSystemOptions}
-          selected={filters.selectedWeaponSystems}
-          onChange={(next) => updateSet("selectedWeaponSystems", next)}
-          searchable
-          placeholder="Search weapons…"
-          allLabel="All weapons"
-        />
-      </div>
+
+      {/* 4. Topics */}
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
           label="Topics"
@@ -339,6 +251,8 @@ export function FilterSidebar({
           allLabel="All topics"
         />
       </div>
+
+      {/* 5. Infrastructure */}
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
           label="Infrastructure"
@@ -495,9 +409,10 @@ function MultiSelectDropdown({
           {/* Trigger button */}
           <button
             type="button"
+            onMouseDown={(e) => { e.preventDefault(); keepOpen(); }}
             onClick={() => {
               setIsOpen((v) => !v);
-              if (searchable) setTimeout(() => inputRef.current?.focus(), 50);
+              if (searchable && !isOpen) setTimeout(() => inputRef.current?.focus(), 50);
             }}
             className="flex items-center w-full gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs hover:bg-muted/50 transition-colors"
           >

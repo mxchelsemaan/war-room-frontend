@@ -554,9 +554,9 @@ function AtlasViewInner() {
           </Button>
           <div className="flex-1 flex flex-col items-center justify-center">
             <span
-              className="font-black text-title uppercase leading-none font-['Inter_Tight'] text-[0.85rem] tracking-[0.04em] scale-y-[1.12]"
+              className="font-black text-black uppercase leading-none font-['Inter_Tight'] text-[0.85rem] tracking-[0.04em] scale-y-[1.12]"
             >
-              The War Room
+              The Situation Room
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -583,9 +583,9 @@ function AtlasViewInner() {
         >
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pointer-events-none">
             <h1
-              className="text-title uppercase leading-none underline decoration-2 underline-offset-[3px] font-['Bebas_Neue'] text-[1.5rem] tracking-[-0.03em] scale-y-[1.15] origin-bottom"
+              className="text-black uppercase leading-none underline decoration-2 underline-offset-[3px] font-['Bebas_Neue'] text-[1.5rem] tracking-[-0.03em] scale-y-[1.15] origin-bottom"
             >
-              The War Room
+              The Situation Room
             </h1>
             <p
               className="uppercase text-muted-foreground leading-none font-sans font-bold text-[0.55rem] tracking-[0.02em] scale-y-[1.1]"
