@@ -36,6 +36,16 @@ const KNOWN_TYPES: Record<string, { label: string; icon: string; color: string }
   humanitarian:           { label: "Humanitarian",           icon: "🤝", color: "#22c55e" },
   evacuation_warning:     { label: "Evacuation Warning",     icon: "🚨", color: "#dc2626" },
   israeli_evacuation_order: { label: "Evacuation Order",     icon: "🚨", color: "#dc2626" },
+  casualty_report:        { label: "Casualty report",        icon: "🩸", color: "#b91c1c" },
+  civil_defense_alert:    { label: "Civil defense alert",    icon: "🚨", color: "#d97706" },
+  strike_warning:         { label: "Strike warning",         icon: "⚠️", color: "#f59e0b" },
+  target_declaration:     { label: "Target declaration",     icon: "🎯", color: "#dc2626" },
+  civilian_warning:       { label: "Civilian warning",       icon: "📢", color: "#eab308" },
+  ceasefire_violation:    { label: "Ceasefire violation",    icon: "🚫", color: "#ef4444" },
+  ceasefire_agreement:    { label: "Ceasefire agreement",    icon: "🕊️", color: "#22c55e" },
+  hostage_situation:      { label: "Hostage situation",      icon: "🔐", color: "#9f1239" },
+  cyber_attack:           { label: "Cyber attack",           icon: "💻", color: "#6366f1" },
+  espionage:              { label: "Espionage",              icon: "🕵️", color: "#4f46e5" },
 };
 
 /** Deterministic color from a string hash */
