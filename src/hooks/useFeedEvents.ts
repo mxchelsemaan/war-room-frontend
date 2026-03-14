@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { isRelevantEvent } from "@/lib/filterUtils";
-import { THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent } from "@/types/events";
 const PAGE_SIZE = 30;
 const POLL_INTERVAL_MS = 15_000;
@@ -48,11 +47,19 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
     [filters],
   );
 
+  // Whether the user has any geographic filter active (countries, regions, etc.)
+  const hasGeoFilter = !!(filters.countries?.length || filters.regions?.length);
+
   const buildParams = useCallback(() => {
     const params: Record<string, unknown> = {
-      p_countries: THEATER_COUNTRIES,
       p_limit: PAGE_SIZE,
     };
+    // Only apply the hardcoded LB base-scope when no geographic filters are active
+    // and no search query is set. Once the user picks a theater/country/region,
+    // we let p_filter_countries handle scoping instead.
+    if (!hasGeoFilter && !filters.query) {
+      params.p_countries = ["LB"];
+    }
     if (filters.types?.length) params.p_types = filters.types;
     if (filters.severities?.length) params.p_severities = filters.severities;
     if (filters.regions?.length) params.p_regions = filters.regions;
@@ -68,7 +75,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
     if (filters.topics?.length) params.p_topics = filters.topics;
     if (filters.query) params.p_query = filters.query;
     return params;
-  }, [filters]);
+  }, [filters, hasGeoFilter]);
 
   const fetchPage = useCallback(async (cursor: string | null, isInitial: boolean) => {
     if (!supabase) {
@@ -89,7 +96,8 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       if (rpcErr) throw rpcErr;
 
       const rows = (data ?? []) as EventRow[];
-      const filtered = filters.query ? rows : rows.filter(isRelevantEvent);
+      // Only apply Lebanon relevance filter when no geo filters are active
+      const filtered = (filters.query || hasGeoFilter) ? rows : rows.filter(isRelevantEvent);
       const enriched = filtered.map(transformRow);
 
       if (isInitial) {
@@ -113,7 +121,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
       if (isInitial) setIsLoading(false);
       else setIsLoadingMore(false);
     }
-  }, [buildParams]);
+  }, [buildParams, hasGeoFilter]);
 
   // Reset and fetch first page when filters change
   useEffect(() => {
@@ -157,7 +165,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
         const { data } = await supabase!.rpc("get_feed_events", params);
         if (!data) return;
 
-        const rows = filters.query ? (data as EventRow[]) : (data as EventRow[]).filter(isRelevantEvent);
+        const rows = (filters.query || hasGeoFilter) ? (data as EventRow[]) : (data as EventRow[]).filter(isRelevantEvent);
         const enriched = rows.map(transformRow);
         mergeEvents(enriched);
       } catch {
