@@ -2,8 +2,7 @@ import { Shield } from "lucide-react";
 import { CollapsePanel, FloatingTriggerBtn } from "./FloatingPanel";
 import type { LayerVisibility } from "./MapLayerControls";
 import type { EventType } from "@/data/index";
-import { STATIC_MARKER_META, STATIC_MARKER_COLORS } from "@/data/staticMarkers";
-import type { StaticMarkerType } from "@/data/staticMarkers";
+import type { InfraTypeMeta } from "@/hooks/useInfraMarkers";
 import type { PlacedUnit } from "@/types/units";
 
 interface MapLegendProps {
@@ -13,9 +12,11 @@ interface MapLegendProps {
   eventTypes: EventType[];
   showLabels?: boolean;
   placedUnits?: PlacedUnit[];
+  infraTypes?: Record<string, InfraTypeMeta>;
+  infraColors?: Record<string, string>;
 }
 
-export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, placedUnits = [] }: MapLegendProps) {
+export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, placedUnits = [], infraTypes = {}, infraColors = {} }: MapLegendProps) {
   const hasContent =
     layers.markers ||
     layers.infrastructure ||
@@ -43,9 +44,9 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
           )}
 
           {/* ── Infrastructure ─────────────────────────────────────────────── */}
-          {layers.infrastructure && (
+          {layers.infrastructure && Object.keys(infraTypes).length > 0 && (
             <Section title="Infrastructure">
-              {(Object.entries(STATIC_MARKER_META) as [StaticMarkerType, { label: string; icon: string }][]).map(([type, meta]) => (
+              {Object.entries(infraTypes).map(([type, meta]) => (
                 <Row
                   key={type}
                   left={<Emoji>{meta.icon}</Emoji>}
@@ -54,8 +55,8 @@ export function MapLegend({ open, onToggle, layers, eventTypes, showLabels, plac
                     <span
                       className="inline-block w-[7px] h-[7px] rounded-full"
                       style={{
-                        background: STATIC_MARKER_COLORS[type],
-                        boxShadow: `0 0 4px ${STATIC_MARKER_COLORS[type]}88`,
+                        background: infraColors[type] ?? "#888",
+                        boxShadow: `0 0 4px ${infraColors[type] ?? "#888"}88`,
                       }}
                     />
                   }

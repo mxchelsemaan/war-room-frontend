@@ -588,9 +588,15 @@ function EventRow({
                 <span className="text-foreground">{toTitleCase(event.attacker)}</span>
               </>
             )}
-            {event.affectedParty && (
+            {event.target && (
               <>
                 <span className="text-muted-foreground">Target</span>
+                <span className="text-foreground">{toTitleCase(event.target)}</span>
+              </>
+            )}
+            {event.affectedParty && (
+              <>
+                <span className="text-muted-foreground">Affected</span>
                 <span className="text-foreground">{toTitleCase(event.affectedParty)}</span>
               </>
             )}

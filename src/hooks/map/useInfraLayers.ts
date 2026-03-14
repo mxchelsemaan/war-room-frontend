@@ -3,32 +3,43 @@ import type { MapRef } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
 import type { AnnotationType } from "@/hooks/useDrawing";
 import type { NATOUnitType } from "@/types/units";
-import { staticMarkers, STATIC_MARKER_COLORS } from "@/data/staticMarkers";
-import type { StaticMarker, StaticMarkerType } from "@/data/staticMarkers";
+import type { InfraPin } from "@/hooks/useInfraMarkers";
 import { registerPinImages, PIN_BG_DARK, PIN_BG_LIGHT } from "@/lib/mapUtils";
 
 const INFRA_LAYERS = ["infra-pin"] as const;
 
+export interface InfraMarker {
+  id: string;
+  type: string;
+  label: string;
+  sublabel?: string;
+  icon: string;
+  lat: number;
+  lng: number;
+}
+
 export function useInfraLayers(
   mapRef: React.RefObject<MapRef | null>,
   visible: boolean,
-  selectedTypes: Set<StaticMarkerType>,
+  selectedTypes: Set<string>,
   mapLoaded: number | boolean,
   drawingModeRef: React.RefObject<AnnotationType | null>,
   placementModeRef: React.RefObject<NATOUnitType | null>,
   pathDrawingUnitIdRef: React.RefObject<string | null>,
-  setPopupInfra: (infra: StaticMarker | null) => void,
+  setPopupInfra: (infra: InfraMarker | null) => void,
   setPopupEvent: (evt: null) => void,
   dark: boolean = true,
   terrain: boolean = false,
+  infraMarkers: InfraPin[] = [],
+  infraColors: Record<string, string> = {},
 ) {
   const bgFill = dark ? PIN_BG_DARK : PIN_BG_LIGHT;
   const pinPrefix = terrain ? "stem-square-" : "pin-square-";
   const pinAnchor = terrain ? "bottom" : "center";
 
   const filtered = useMemo(
-    () => visible ? staticMarkers.filter(m => selectedTypes.has(m.type)) : [],
-    [visible, selectedTypes],
+    () => visible ? infraMarkers.filter(m => selectedTypes.has(m.type)) : [],
+    [visible, selectedTypes, infraMarkers],
   );
 
   const geoJson = useMemo<GeoJSON.FeatureCollection>(() => ({
@@ -40,18 +51,18 @@ export function useInfraLayers(
         type: m.type,
         label: m.label,
         sublabel: m.sublabel ?? "",
-        icon: m.icon,
+        icon: m.emoji,
         lat: m.lat,
         lng: m.lng,
-        color: STATIC_MARKER_COLORS[m.type],
+        color: infraColors[m.type] ?? m.color,
       },
       geometry: { type: "Point" as const, coordinates: [m.lng, m.lat] },
     })),
   }), [filtered]);
 
   // Unique emojis and colors for pin registration
-  const uniqueEmojis = useMemo(() => [...new Set(filtered.map(m => m.icon))], [filtered]);
-  const pinColors = useMemo(() => [...new Set(filtered.map(m => STATIC_MARKER_COLORS[m.type]))], [filtered]);
+  const uniqueEmojis = useMemo(() => [...new Set(filtered.map(m => m.emoji))], [filtered]);
+  const pinColors = useMemo(() => [...new Set(filtered.map(m => infraColors[m.type] ?? m.color))], [filtered, infraColors]);
 
   const geoJsonRef = useRef(geoJson);
   geoJsonRef.current = geoJson;
@@ -118,9 +129,9 @@ export function useInfraLayers(
       const features = map!.queryRenderedFeatures(e.point, { layers: ["infra-pin"] });
       if (!features.length) return;
       const p = features[0].properties!;
-      const infra: StaticMarker = {
+      const infra: InfraMarker = {
         id: p.id,
-        type: p.type as StaticMarkerType,
+        type: p.type,
         label: p.label,
         sublabel: p.sublabel || undefined,
         icon: p.icon,

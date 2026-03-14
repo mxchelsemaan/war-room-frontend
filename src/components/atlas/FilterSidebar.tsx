@@ -2,8 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { ArrowDownAZ, ArrowUpAZ, ArrowDown01, ArrowUp01, ChevronDown, ChevronLeft, Loader2, Search, X } from "lucide-react";
-import { STATIC_MARKER_META } from "@/data/staticMarkers";
-import type { StaticMarkerType } from "@/data/staticMarkers";
+import type { InfraTypeMeta } from "@/hooks/useInfraMarkers";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,7 +13,7 @@ import type { EventTypeMeta } from "@/types/events";
 
 export interface AtlasFilters {
   selectedTypes: Set<string>;
-  selectedInfraTypes: Set<StaticMarkerType>;
+  selectedInfraTypes: Set<string>;
   selectedSeverities: Set<string>;
   selectedRegions: Set<string>;
   selectedWeaponSystems: Set<string>;
@@ -51,11 +50,18 @@ interface FilterSidebarProps {
   handleOptions: FilterOption[];
   /** Event count per event type key */
   eventTypeCounts: Map<string, number>;
+  /** Dynamic infrastructure type metadata from Supabase */
+  infraTypes?: Record<string, InfraTypeMeta>;
 }
 
-const INFRA_OPTIONS: FilterOption[] = (
-  Object.entries(STATIC_MARKER_META) as [StaticMarkerType, { label: string; icon: string }][]
-).map(([key, meta]) => ({ key, label: meta.label, icon: meta.icon }));
+function buildInfraOptions(infraTypes?: Record<string, InfraTypeMeta>): FilterOption[] {
+  if (!infraTypes) return [];
+  return Object.entries(infraTypes).map(([key, meta]) => ({
+    key,
+    label: meta.label,
+    icon: meta.icon,
+  }));
+}
 
 export function FilterSidebar({
   eventTypes,
@@ -71,6 +77,7 @@ export function FilterSidebar({
   sourceTypeOptions,
   handleOptions,
   eventTypeCounts,
+  infraTypes,
 }: FilterSidebarProps) {
   const isMobile = useIsMobile();
 
@@ -253,9 +260,9 @@ export function FilterSidebar({
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
           label="Infrastructure"
-          options={INFRA_OPTIONS}
-          selected={filters.selectedInfraTypes as Set<string>}
-          onChange={(next) => updateSet("selectedInfraTypes", next as Set<string> as Set<StaticMarkerType>)}
+          options={buildInfraOptions(infraTypes)}
+          selected={filters.selectedInfraTypes}
+          onChange={(next) => updateSet("selectedInfraTypes", next)}
           allLabel="All infra"
         />
       </div>

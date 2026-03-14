@@ -10,8 +10,8 @@ import type { LayerVisibility } from "./MapLayerControls";
 import type { Annotation, AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
 import type { PlacedUnit, UnitPath, NATOUnitType } from "@/types/units";
 import { UnitLayer } from "./UnitLayer";
-import { STATIC_MARKER_COLORS } from "@/data/staticMarkers";
-import type { StaticMarker, StaticMarkerType } from "@/data/staticMarkers";
+import type { InfraMarker } from "@/hooks/map/useInfraLayers";
+import type { InfraPin } from "@/hooks/useInfraMarkers";
 import { DEFAULT_VIEW as _DEFAULT_VIEW, MAX_BOUNDS as _MAX_BOUNDS } from "@/config/map";
 import type { MonitorMode } from "@/config/map";
 
@@ -42,7 +42,9 @@ interface AtlasMapProps {
   events: MapEvent[];
   enrichedEventsById?: Map<string, EnrichedEvent>;
   layers: LayerVisibility;
-  selectedInfraTypes: Set<StaticMarkerType>;
+  selectedInfraTypes: Set<string>;
+  infraMarkers?: InfraPin[];
+  infraColors?: Record<string, string>;
   selectedEventId?: string | null;
   onEventSelect?: (id: string | null) => void;
   annotations: Annotation[];
@@ -72,7 +74,7 @@ interface AtlasMapProps {
 }
 
 export const AtlasMap = React.memo(function AtlasMap({
-  events, enrichedEventsById, layers, selectedInfraTypes,
+  events, enrichedEventsById, layers, selectedInfraTypes, infraMarkers = [], infraColors = {},
   selectedEventId, onEventSelect,
   annotations, drawingMode, drawingColor, tempDrawingCoords,
   onMapClick, onMapDblClick, onDeleteAnnotation, onSelectAnnotation,
@@ -100,7 +102,7 @@ export const AtlasMap = React.memo(function AtlasMap({
   const mapLoaded = mapReadyKey > 0;
 
   const [popupEvent, _setPopupEvent] = useState<MapEvent | null>(null);
-  const [popupInfra, _setPopupInfra] = useState<StaticMarker | null>(null);
+  const [popupInfra, _setPopupInfra] = useState<InfraMarker | null>(null);
   const [popupAnnotation, setPopupAnnotation] = useState<{ annotation: Annotation; lngLat: [number, number] } | null>(null);
   const [clusterPopup, _setClusterPopup] = useState<ClusterPopupData | null>(null);
 
@@ -109,7 +111,7 @@ export const AtlasMap = React.memo(function AtlasMap({
     _setPopupEvent(v);
     if (v) { _setPopupInfra(null); _setClusterPopup(null); }
   }, []);
-  const setPopupInfra = useCallback((v: StaticMarker | null) => {
+  const setPopupInfra = useCallback((v: InfraMarker | null) => {
     _setPopupInfra(v);
     if (v) { _setPopupEvent(null); _setClusterPopup(null); }
   }, []);
@@ -181,6 +183,7 @@ export const AtlasMap = React.memo(function AtlasMap({
     drawingModeRef, placementModeRef, pathDrawingUnitIdRef,
     setPopupInfra, setPopupEvent as (v: null) => void,
     dark, layers.terrain,
+    infraMarkers, infraColors,
   );
   useClusterLayer(
     mapRef, events, layers.markers, mapReadyKey,
@@ -508,7 +511,7 @@ export const AtlasMap = React.memo(function AtlasMap({
               <div className="font-semibold text-sm text-foreground">{popupInfra.label}</div>
               {popupInfra.sublabel && <div className="text-muted-foreground text-xs">{popupInfra.sublabel}</div>}
               <span className="mt-1 self-start rounded px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide"
-                style={{ background: STATIC_MARKER_COLORS[popupInfra.type] + "22", color: STATIC_MARKER_COLORS[popupInfra.type] }}>
+                style={{ background: (infraColors[popupInfra.type] ?? "#888") + "22", color: infraColors[popupInfra.type] ?? "#888" }}>
                 {popupInfra.type}
               </span>
             </div>

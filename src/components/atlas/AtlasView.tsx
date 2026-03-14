@@ -24,8 +24,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { usePanelState } from "@/hooks/usePanelState";
 import { AnnotationProvider, useAnnotationContext } from "@/context/AnnotationContext";
 import { UnitPlacementProvider, useUnitPlacementContext } from "@/context/UnitPlacementContext";
-import type { StaticMarkerType } from "@/data/staticMarkers";
-import { STATIC_MARKER_META } from "@/data/staticMarkers";
+import { useInfraMarkers } from "@/hooks/useInfraMarkers";
 import { useRecentEvents } from "@/hooks/useRecentEvents";
 import { useMapMarkers } from "@/hooks/useMapMarkers";
 import { useFeedEvents } from "@/hooks/useFeedEvents";
@@ -46,10 +45,10 @@ const SEVERITY_META = [
   { key: "minor", label: "Minor", icon: "🟢" },
 ];
 
-function buildDefaultFilters(typeKeys?: string[]): AtlasFilters {
+function buildDefaultFilters(typeKeys?: string[], infraTypeKeys?: string[]): AtlasFilters {
   return {
     selectedTypes: new Set(typeKeys ?? []),
-    selectedInfraTypes: new Set(Object.keys(STATIC_MARKER_META) as StaticMarkerType[]),
+    selectedInfraTypes: new Set(infraTypeKeys ?? []),
     selectedSeverities: new Set<string>(),
     selectedRegions: new Set<string>(),
     selectedWeaponSystems: new Set<string>(),
@@ -189,6 +188,13 @@ function AtlasViewInner() {
   const up = useUnitPlacementContext();
   const yt = useYoutubePlayer();
 
+  // Fetch infrastructure pins from Supabase
+  const {
+    markers: infraMarkers,
+    markerTypes: infraTypes,
+    markerColors: infraColors,
+  } = useInfraMarkers();
+
   // Fetch live events from Supabase — tiered loading
   const {
     events: allEvents,
@@ -233,7 +239,7 @@ function AtlasViewInner() {
   // Pre-filter events by search query before cross-faceting
   const searchFilteredEvents = useMemo(() => {
     if (!filters.searchQuery) return allEvents;
-    return allEvents.filter((e) => matchesSearch(filters.searchQuery, e.summary, e.location.name, e.attacker, e.affectedParty, e.weaponSystem, e.sourceChannel, e.topics.join(' ')));
+    return allEvents.filter((e) => matchesSearch(filters.searchQuery, e.summary, e.location.name, e.attacker, e.target, e.affectedParty, e.weaponSystem, e.sourceChannel, e.topics.join(' ')));
   }, [allEvents, filters.searchQuery]);
 
   // ── Cross-filtered counts: for each dimension, apply all OTHER filters ──
@@ -292,6 +298,18 @@ function AtlasViewInner() {
     }
   }, [liveEventTypes]);
 
+  // Initialize infra type selection when markers arrive
+  const infraInitialized = useRef(false);
+  useEffect(() => {
+    if (infraMarkers.length > 0 && !infraInitialized.current) {
+      infraInitialized.current = true;
+      setFilters((prev) => ({
+        ...prev,
+        selectedInfraTypes: new Set(Object.keys(infraTypes)),
+      }));
+    }
+  }, [infraMarkers, infraTypes]);
+
 
   // Event type cross-filtered counts (from cross facets)
   const eventTypeCounts = crossFacets.typeCounts;
@@ -299,7 +317,7 @@ function AtlasViewInner() {
   // Client-side filter by all selected filters
   const filteredEvents = useMemo(() => {
     return allEvents.filter((event) => {
-      if (filters.searchQuery && !matchesSearch(filters.searchQuery, event.summary, event.location.name, event.attacker, event.affectedParty, event.weaponSystem, event.sourceChannel, event.topics.join(' '))) return false;
+      if (filters.searchQuery && !matchesSearch(filters.searchQuery, event.summary, event.location.name, event.attacker, event.target, event.affectedParty, event.weaponSystem, event.sourceChannel, event.topics.join(' '))) return false;
       if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(event.eventType)) return false;
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(event.severity)) return false;
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(event.location.region ?? "")) return false;
@@ -370,8 +388,8 @@ function AtlasViewInner() {
   const mapRef = useRef<MapRef | null>(null);
 
   const handleClearFilters = useCallback(
-    () => setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key))),
-    [liveEventTypes],
+    () => setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key), Object.keys(infraTypes))),
+    [liveEventTypes, infraTypes],
   );
 
   const { setSelectedAnnotationId: _setSelAnnId } = ann;
@@ -530,6 +548,7 @@ function AtlasViewInner() {
           sourceTypeOptions={sourceTypeOptions}
           handleOptions={handleOptions}
           eventTypeCounts={eventTypeCounts}
+          infraTypes={infraTypes}
         />
         <div className="flex flex-1 min-h-0 min-w-0">
           <div className="relative flex-1 min-h-0 min-w-0" onMouseDown={closeFloatingPanels}>
@@ -541,6 +560,8 @@ function AtlasViewInner() {
               monitorMode={monitorMode}
               dark={dark}
               selectedInfraTypes={filters.selectedInfraTypes}
+              infraMarkers={infraMarkers}
+              infraColors={infraColors}
               selectedEventId={selectedEventId}
               onEventSelect={setSelectedEventId}
               annotations={ann.annotations}
@@ -617,6 +638,8 @@ function AtlasViewInner() {
                 eventTypes={liveEventTypes}
                 showLabels={leftLabels}
                 placedUnits={up.units}
+                infraTypes={infraTypes}
+                infraColors={infraColors}
               />
             </div>
             {/* Bottom-right: Camera */}

@@ -59,6 +59,7 @@ export interface EnrichedEvent {
   sourceId: string | null;
   casualties: { killed: number | null; injured: number | null; displaced: number | null };
   attacker: string | null;
+  target: string | null;
   affectedParty: string | null;
   weaponSystem: string | null;
   topics: string[];

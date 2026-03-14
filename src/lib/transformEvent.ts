@@ -49,6 +49,7 @@ export function transformRow(row: EventRow): EnrichedEvent {
       displaced: d.casualties_displaced ?? (d.casualties as CasualtiesObj | undefined)?.displaced ?? null,
     },
     attacker: d.attacker ?? null,
+    target: d.target ?? null,
     affectedParty: d.affected_party ?? null,
     weaponSystem: d.weapon_system ?? d.weapon_type ?? null,
     topics: Array.isArray(d.topics) ? d.topics : [],
