@@ -19,6 +19,11 @@ export interface AtlasFilters {
   selectedWeaponSystems: Set<string>;
   selectedSourceTypes: Set<string>;
   selectedHandles: Set<string>;
+  selectedCountries: Set<string>;
+  selectedAttackers: Set<string>;
+  selectedTargets: Set<string>;
+  selectedAffectedParties: Set<string>;
+  selectedTopics: Set<string>;
   dateFrom: string;
   dateTo: string;
   searchQuery: string;
@@ -48,6 +53,11 @@ interface FilterSidebarProps {
   weaponSystemOptions: FilterOption[];
   sourceTypeOptions: FilterOption[];
   handleOptions: FilterOption[];
+  countryOptions: FilterOption[];
+  attackerOptions: FilterOption[];
+  targetOptions: FilterOption[];
+  affectedPartyOptions: FilterOption[];
+  topicOptions: FilterOption[];
   /** Event count per event type key */
   eventTypeCounts: Map<string, number>;
   /** Dynamic infrastructure type metadata from Supabase */
@@ -76,6 +86,11 @@ export function FilterSidebar({
   weaponSystemOptions,
   sourceTypeOptions,
   handleOptions,
+  countryOptions,
+  attackerOptions,
+  targetOptions,
+  affectedPartyOptions,
+  topicOptions,
   eventTypeCounts,
   infraTypes,
 }: FilterSidebarProps) {
@@ -228,6 +243,17 @@ export function FilterSidebar({
       </div>
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
+          label="Country"
+          options={countryOptions}
+          selected={filters.selectedCountries}
+          onChange={(next) => updateSet("selectedCountries", next)}
+          searchable
+          placeholder="Search countries…"
+          allLabel="All countries"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
           label="Platform"
           options={sourceTypeOptions}
           selected={filters.selectedSourceTypes}
@@ -248,6 +274,39 @@ export function FilterSidebar({
       </div>
       <div className="p-3 border-b border-border">
         <MultiSelectDropdown
+          label="Attacker"
+          options={attackerOptions}
+          selected={filters.selectedAttackers}
+          onChange={(next) => updateSet("selectedAttackers", next)}
+          searchable
+          placeholder="Search attackers…"
+          allLabel="All attackers"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Target"
+          options={targetOptions}
+          selected={filters.selectedTargets}
+          onChange={(next) => updateSet("selectedTargets", next)}
+          searchable
+          placeholder="Search targets…"
+          allLabel="All targets"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Affected Party"
+          options={affectedPartyOptions}
+          selected={filters.selectedAffectedParties}
+          onChange={(next) => updateSet("selectedAffectedParties", next)}
+          searchable
+          placeholder="Search affected parties…"
+          allLabel="All affected parties"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
           label="Weapon System"
           options={weaponSystemOptions}
           selected={filters.selectedWeaponSystems}
@@ -255,6 +314,17 @@ export function FilterSidebar({
           searchable
           placeholder="Search weapons…"
           allLabel="All weapons"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Topics"
+          options={topicOptions}
+          selected={filters.selectedTopics}
+          onChange={(next) => updateSet("selectedTopics", next)}
+          searchable
+          placeholder="Search topics…"
+          allLabel="All topics"
         />
       </div>
       <div className="p-3 border-b border-border">

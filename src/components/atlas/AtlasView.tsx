@@ -54,6 +54,11 @@ function buildDefaultFilters(typeKeys?: string[], infraTypeKeys?: string[]): Atl
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
     selectedHandles: new Set<string>(),
+    selectedCountries: new Set<string>(),
+    selectedAttackers: new Set<string>(),
+    selectedTargets: new Set<string>(),
+    selectedAffectedParties: new Set<string>(),
+    selectedTopics: new Set<string>(),
     dateFrom: subDays(new Date(), 2).toISOString(),
     dateTo: new Date().toISOString(),
     searchQuery: "",
@@ -84,22 +89,33 @@ interface CrossFacets {
   weaponSystemCounts: Map<string, number>;
   sourceTypeCounts: Map<string, number>;
   handleCounts: Map<string, number>;
+  countryCounts: Map<string, number>;
+  attackerCounts: Map<string, number>;
+  targetCounts: Map<string, number>;
+  affectedPartyCounts: Map<string, number>;
+  topicCounts: Map<string, number>;
 }
 
 /**
- * Single-pass cross-faceting: for each event compute a 6-bit mask of which
+ * Single-pass cross-faceting: for each event compute an 11-bit mask of which
  * filters it passes, then for each dimension count events passing all OTHER
- * dimensions. Reduces 6×N filter passes to 1×N + 6×constant.
+ * dimensions.
  */
 function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): CrossFacets {
-  // Bit positions: 0=types, 1=severities, 2=regions, 3=weaponSystems, 4=sourceTypes, 5=handles
+  // Bit positions: 0=types, 1=severities, 2=regions, 3=weaponSystems, 4=sourceTypes, 5=handles,
+  //                6=countries, 7=attackers, 8=targets, 9=affectedParties, 10=topics
   const hasType = filters.selectedTypes.size > 0;
   const hasSev = filters.selectedSeverities.size > 0;
   const hasReg = filters.selectedRegions.size > 0;
   const hasWep = filters.selectedWeaponSystems.size > 0;
   const hasSrc = filters.selectedSourceTypes.size > 0;
   const hasHdl = filters.selectedHandles.size > 0;
-  const FULL = 0b111111;
+  const hasCty = filters.selectedCountries.size > 0;
+  const hasAtk = filters.selectedAttackers.size > 0;
+  const hasTgt = filters.selectedTargets.size > 0;
+  const hasAff = filters.selectedAffectedParties.size > 0;
+  const hasTop = filters.selectedTopics.size > 0;
+  const FULL = 0b11111111111;
 
   const typeCounts = new Map<string, number>();
   const severityCounts = new Map<string, number>();
@@ -107,6 +123,11 @@ function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): Cro
   const weaponSystemCounts = new Map<string, number>();
   const sourceTypeCounts = new Map<string, number>();
   const handleCounts = new Map<string, number>();
+  const countryCounts = new Map<string, number>();
+  const attackerCounts = new Map<string, number>();
+  const targetCounts = new Map<string, number>();
+  const affectedPartyCounts = new Map<string, number>();
+  const topicCounts = new Map<string, number>();
 
   for (const e of events) {
     let bits = FULL;
@@ -116,35 +137,35 @@ function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): Cro
     if (hasWep && !filters.selectedWeaponSystems.has(e.weaponSystem ?? "")) bits &= ~8;
     if (hasSrc && !filters.selectedSourceTypes.has(e.sourceType)) bits &= ~16;
     if (hasHdl && !filters.selectedHandles.has(e.sourceChannel ?? "")) bits &= ~32;
+    if (hasCty && !filters.selectedCountries.has(e.location.country ?? "")) bits &= ~64;
+    if (hasAtk && !filters.selectedAttackers.has(e.attacker ?? "")) bits &= ~128;
+    if (hasTgt && !filters.selectedTargets.has(e.target ?? "")) bits &= ~256;
+    if (hasAff && !filters.selectedAffectedParties.has(e.affectedParty ?? "")) bits &= ~512;
+    if (hasTop && !e.topics.some((t) => filters.selectedTopics.has(t))) bits &= ~1024;
 
     // For each dimension, count if all OTHER filters pass (mask without that bit)
-    if ((bits & (FULL ^ 1)) === (FULL ^ 1)) {
-      const k = e.eventType;
-      if (k) typeCounts.set(k, (typeCounts.get(k) ?? 0) + 1);
-    }
-    if ((bits & (FULL ^ 2)) === (FULL ^ 2)) {
-      const k = e.severity;
-      if (k) severityCounts.set(k, (severityCounts.get(k) ?? 0) + 1);
-    }
-    if ((bits & (FULL ^ 4)) === (FULL ^ 4)) {
-      const k = e.location.region;
-      if (k) regionCounts.set(k, (regionCounts.get(k) ?? 0) + 1);
-    }
-    if ((bits & (FULL ^ 8)) === (FULL ^ 8)) {
-      const k = e.weaponSystem;
-      if (k) weaponSystemCounts.set(k, (weaponSystemCounts.get(k) ?? 0) + 1);
-    }
-    if ((bits & (FULL ^ 16)) === (FULL ^ 16)) {
-      const k = e.sourceType;
-      if (k) sourceTypeCounts.set(k, (sourceTypeCounts.get(k) ?? 0) + 1);
-    }
-    if ((bits & (FULL ^ 32)) === (FULL ^ 32)) {
-      const k = e.sourceChannel;
-      if (k) handleCounts.set(k, (handleCounts.get(k) ?? 0) + 1);
+    const inc = (bit: number, key: string | null | undefined, map: Map<string, number>) => {
+      if (key && (bits & (FULL ^ bit)) === (FULL ^ bit)) map.set(key, (map.get(key) ?? 0) + 1);
+    };
+    inc(1, e.eventType, typeCounts);
+    inc(2, e.severity, severityCounts);
+    inc(4, e.location.region, regionCounts);
+    inc(8, e.weaponSystem, weaponSystemCounts);
+    inc(16, e.sourceType, sourceTypeCounts);
+    inc(32, e.sourceChannel, handleCounts);
+    inc(64, e.location.country, countryCounts);
+    inc(128, e.attacker, attackerCounts);
+    inc(256, e.target, targetCounts);
+    inc(512, e.affectedParty, affectedPartyCounts);
+    // Topics: each topic gets counted independently
+    if ((bits & (FULL ^ 1024)) === (FULL ^ 1024)) {
+      for (const t of e.topics) {
+        topicCounts.set(t, (topicCounts.get(t) ?? 0) + 1);
+      }
     }
   }
 
-  return { typeCounts, severityCounts, regionCounts, weaponSystemCounts, sourceTypeCounts, handleCounts };
+  return { typeCounts, severityCounts, regionCounts, weaponSystemCounts, sourceTypeCounts, handleCounts, countryCounts, attackerCounts, targetCounts, affectedPartyCounts, topicCounts };
 }
 
 /** Case-insensitive text match across multiple fields */
@@ -235,6 +256,17 @@ function AtlasViewInner() {
   const baseSourceTypeOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceType), [allEvents]);
   const baseWeaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
   const baseHandleOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceChannel), [allEvents]);
+  const baseCountryOptions = useMemo(() => extractOptions(allEvents, (e) => e.location.country), [allEvents]);
+  const baseAttackerOptions = useMemo(() => extractOptions(allEvents, (e) => e.attacker), [allEvents]);
+  const baseTargetOptions = useMemo(() => extractOptions(allEvents, (e) => e.target), [allEvents]);
+  const baseAffectedPartyOptions = useMemo(() => extractOptions(allEvents, (e) => e.affectedParty), [allEvents]);
+  const baseTopicOptions = useMemo(() => {
+    const seen = new Set<string>();
+    for (const e of allEvents) {
+      for (const t of e.topics) seen.add(t);
+    }
+    return Array.from(seen).sort().map((v) => ({ key: v, label: toLabel(v) }));
+  }, [allEvents]);
 
   // Pre-filter events by search query before cross-faceting
   const searchFilteredEvents = useMemo(() => {
@@ -249,7 +281,7 @@ function AtlasViewInner() {
   );
 
   // Merge base options with cross-filtered counts (single memo)
-  const { severityOptions, regionOptions, sourceTypeOptions, weaponSystemOptions, handleOptions } = useMemo(() => {
+  const { severityOptions, regionOptions, sourceTypeOptions, weaponSystemOptions, handleOptions, countryOptions, attackerOptions, targetOptions, affectedPartyOptions, topicOptions } = useMemo(() => {
     const merge = (opts: FilterOption[], counts: Map<string, number>): FilterOption[] =>
       opts.map((o) => ({ ...o, count: counts.get(o.key) ?? 0 }));
     return {
@@ -258,8 +290,13 @@ function AtlasViewInner() {
       sourceTypeOptions: merge(baseSourceTypeOptions, crossFacets.sourceTypeCounts),
       weaponSystemOptions: merge(baseWeaponSystemOptions, crossFacets.weaponSystemCounts),
       handleOptions: merge(baseHandleOptions, crossFacets.handleCounts),
+      countryOptions: merge(baseCountryOptions, crossFacets.countryCounts),
+      attackerOptions: merge(baseAttackerOptions, crossFacets.attackerCounts),
+      targetOptions: merge(baseTargetOptions, crossFacets.targetCounts),
+      affectedPartyOptions: merge(baseAffectedPartyOptions, crossFacets.affectedPartyCounts),
+      topicOptions: merge(baseTopicOptions, crossFacets.topicCounts),
     };
-  }, [baseSeverityOptions, baseRegionOptions, baseSourceTypeOptions, baseWeaponSystemOptions, baseHandleOptions, crossFacets]);
+  }, [baseSeverityOptions, baseRegionOptions, baseSourceTypeOptions, baseWeaponSystemOptions, baseHandleOptions, baseCountryOptions, baseAttackerOptions, baseTargetOptions, baseAffectedPartyOptions, baseTopicOptions, crossFacets]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -274,8 +311,13 @@ function AtlasViewInner() {
     dateFrom: timelineDay ?? filters.dateFrom?.slice(0, 10),
     dateTo: timelineDay ?? filters.dateTo?.slice(0, 10),
     weaponSystems: filters.selectedWeaponSystems.size > 0 ? [...filters.selectedWeaponSystems] : undefined,
+    countries: filters.selectedCountries.size > 0 ? [...filters.selectedCountries] : undefined,
+    attackers: filters.selectedAttackers.size > 0 ? [...filters.selectedAttackers] : undefined,
+    targets: filters.selectedTargets.size > 0 ? [...filters.selectedTargets] : undefined,
+    affectedParties: filters.selectedAffectedParties.size > 0 ? [...filters.selectedAffectedParties] : undefined,
+    topics: filters.selectedTopics.size > 0 ? [...filters.selectedTopics] : undefined,
     query: filters.searchQuery || undefined,
-  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems, filters.searchQuery, timelineDay]);
+  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems, filters.selectedCountries, filters.selectedAttackers, filters.selectedTargets, filters.selectedAffectedParties, filters.selectedTopics, filters.searchQuery, timelineDay]);
 
   const {
     events: feedEvents,
@@ -324,9 +366,14 @@ function AtlasViewInner() {
       if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(event.weaponSystem ?? "")) return false;
       if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(event.sourceType)) return false;
       if (filters.selectedHandles.size > 0 && !filters.selectedHandles.has(event.sourceChannel ?? "")) return false;
+      if (filters.selectedCountries.size > 0 && !filters.selectedCountries.has(event.location.country ?? "")) return false;
+      if (filters.selectedAttackers.size > 0 && !filters.selectedAttackers.has(event.attacker ?? "")) return false;
+      if (filters.selectedTargets.size > 0 && !filters.selectedTargets.has(event.target ?? "")) return false;
+      if (filters.selectedAffectedParties.size > 0 && !filters.selectedAffectedParties.has(event.affectedParty ?? "")) return false;
+      if (filters.selectedTopics.size > 0 && !event.topics.some((t) => filters.selectedTopics.has(t))) return false;
       return true;
     });
-  }, [allEvents, filters.searchQuery, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles]);
+  }, [allEvents, filters.searchQuery, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles, filters.selectedCountries, filters.selectedAttackers, filters.selectedTargets, filters.selectedAffectedParties, filters.selectedTopics]);
 
   const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(isMobile ? [] : ["filter", "feed"]);
 
@@ -547,6 +594,11 @@ function AtlasViewInner() {
           weaponSystemOptions={weaponSystemOptions}
           sourceTypeOptions={sourceTypeOptions}
           handleOptions={handleOptions}
+          countryOptions={countryOptions}
+          attackerOptions={attackerOptions}
+          targetOptions={targetOptions}
+          affectedPartyOptions={affectedPartyOptions}
+          topicOptions={topicOptions}
           eventTypeCounts={eventTypeCounts}
           infraTypes={infraTypes}
         />

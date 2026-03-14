@@ -16,6 +16,11 @@ export interface FeedFilters {
   dateFrom?: string;
   dateTo?: string;
   weaponSystems?: string[];
+  countries?: string[];
+  attackers?: string[];
+  targets?: string[];
+  affectedParties?: string[];
+  topics?: string[];
   query?: string;
 }
 
@@ -56,6 +61,11 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
     if (filters.dateFrom) params.p_date_from = filters.dateFrom;
     if (filters.dateTo) params.p_date_to = filters.dateTo;
     if (filters.weaponSystems?.length) params.p_weapon_systems = filters.weaponSystems;
+    if (filters.countries?.length) params.p_filter_countries = filters.countries;
+    if (filters.attackers?.length) params.p_attackers = filters.attackers;
+    if (filters.targets?.length) params.p_targets = filters.targets;
+    if (filters.affectedParties?.length) params.p_affected_parties = filters.affectedParties;
+    if (filters.topics?.length) params.p_topics = filters.topics;
     if (filters.query) params.p_query = filters.query;
     return params;
   }, [filters]);
