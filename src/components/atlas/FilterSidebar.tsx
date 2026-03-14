@@ -19,6 +19,7 @@ export interface AtlasFilters {
   selectedWeaponSystems: Set<string>;
   selectedSourceTypes: Set<string>;
   selectedHandles: Set<string>;
+  selectedTheaters: Set<string>;
   selectedCountries: Set<string>;
   selectedAttackers: Set<string>;
   selectedTargets: Set<string>;
@@ -53,6 +54,7 @@ interface FilterSidebarProps {
   weaponSystemOptions: FilterOption[];
   sourceTypeOptions: FilterOption[];
   handleOptions: FilterOption[];
+  theaterOptions: FilterOption[];
   countryOptions: FilterOption[];
   attackerOptions: FilterOption[];
   targetOptions: FilterOption[];
@@ -86,6 +88,7 @@ export function FilterSidebar({
   weaponSystemOptions,
   sourceTypeOptions,
   handleOptions,
+  theaterOptions,
   countryOptions,
   attackerOptions,
   targetOptions,
@@ -239,6 +242,15 @@ export function FilterSidebar({
           searchable
           placeholder="Search regions…"
           allLabel="All regions"
+        />
+      </div>
+      <div className="p-3 border-b border-border">
+        <MultiSelectDropdown
+          label="Theater"
+          options={theaterOptions}
+          selected={filters.selectedTheaters}
+          onChange={(next) => updateSet("selectedTheaters", next)}
+          allLabel="All theaters"
         />
       </div>
       <div className="p-3 border-b border-border">

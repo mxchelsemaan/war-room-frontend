@@ -42,6 +42,16 @@ function shortTimeAgo(dateStr: string): string {
   return `${days}d ago`;
 }
 
+/** Convert ISO alpha-2 country code to flag emoji via regional indicator symbols */
+function countryFlag(code: string): string {
+  const upper = code.toUpperCase();
+  if (upper.length !== 2) return "";
+  return String.fromCodePoint(
+    0x1f1e6 + upper.charCodeAt(0) - 65,
+    0x1f1e6 + upper.charCodeAt(1) - 65,
+  );
+}
+
 const SEVERITY_COLORS: Record<string, string> = {
   critical: "bg-red-600",
   major:    "bg-red-500",
@@ -514,6 +524,32 @@ function EventRow({
               </Badge>
             )}
           </div>
+
+          {/* Metadata chips — country, attacker, target, affected party */}
+          {(event.location.country || event.attacker || event.target || event.affectedParty) && (
+            <div className="flex flex-wrap items-center gap-1 mt-0.5">
+              {event.location.country && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate">
+                  {countryFlag(event.location.country)} {event.location.country}
+                </span>
+              )}
+              {event.attacker && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate" title={event.attacker}>
+                  <span className="shrink-0">&#x2694;&#xFE0F;</span> {toTitleCase(event.attacker)}
+                </span>
+              )}
+              {event.target && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate" title={event.target}>
+                  <span className="shrink-0">&#x1F3AF;</span> {toTitleCase(event.target)}
+                </span>
+              )}
+              {event.affectedParty && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-2xs text-muted-foreground leading-none max-w-[100px] truncate" title={event.affectedParty}>
+                  <span className="shrink-0">&#x1F465;</span> {toTitleCase(event.affectedParty)}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

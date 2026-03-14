@@ -37,6 +37,7 @@ import type { MapEvent } from "@/data/index";
 import type { EnrichedEvent, MapMarkerEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { subDays } from "date-fns";
+import { THEATERS, COUNTRY_TO_THEATER, theaterCountries } from "@/config/theaters";
 
 const SEVERITY_META = [
   { key: "critical", label: "Critical", icon: "🔴" },
@@ -54,6 +55,7 @@ function buildDefaultFilters(typeKeys?: string[], infraTypeKeys?: string[]): Atl
     selectedWeaponSystems: new Set<string>(),
     selectedSourceTypes: new Set<string>(),
     selectedHandles: new Set<string>(),
+    selectedTheaters: new Set<string>(),
     selectedCountries: new Set<string>(),
     selectedAttackers: new Set<string>(),
     selectedTargets: new Set<string>(),
@@ -89,6 +91,7 @@ interface CrossFacets {
   weaponSystemCounts: Map<string, number>;
   sourceTypeCounts: Map<string, number>;
   handleCounts: Map<string, number>;
+  theaterCounts: Map<string, number>;
   countryCounts: Map<string, number>;
   attackerCounts: Map<string, number>;
   targetCounts: Map<string, number>;
@@ -103,7 +106,7 @@ interface CrossFacets {
  */
 function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): CrossFacets {
   // Bit positions: 0=types, 1=severities, 2=regions, 3=weaponSystems, 4=sourceTypes, 5=handles,
-  //                6=countries, 7=attackers, 8=targets, 9=affectedParties, 10=topics
+  //                6=countries, 7=attackers, 8=targets, 9=affectedParties, 10=topics, 11=theaters
   const hasType = filters.selectedTypes.size > 0;
   const hasSev = filters.selectedSeverities.size > 0;
   const hasReg = filters.selectedRegions.size > 0;
@@ -115,7 +118,9 @@ function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): Cro
   const hasTgt = filters.selectedTargets.size > 0;
   const hasAff = filters.selectedAffectedParties.size > 0;
   const hasTop = filters.selectedTopics.size > 0;
-  const FULL = 0b11111111111;
+  const hasThtr = filters.selectedTheaters.size > 0;
+  const theaterCodes = hasThtr ? theaterCountries(filters.selectedTheaters) : null;
+  const FULL = 0b111111111111;
 
   const typeCounts = new Map<string, number>();
   const severityCounts = new Map<string, number>();
@@ -123,6 +128,7 @@ function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): Cro
   const weaponSystemCounts = new Map<string, number>();
   const sourceTypeCounts = new Map<string, number>();
   const handleCounts = new Map<string, number>();
+  const theaterCounts = new Map<string, number>();
   const countryCounts = new Map<string, number>();
   const attackerCounts = new Map<string, number>();
   const targetCounts = new Map<string, number>();
@@ -142,6 +148,7 @@ function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): Cro
     if (hasTgt && !filters.selectedTargets.has(e.target ?? "")) bits &= ~256;
     if (hasAff && !filters.selectedAffectedParties.has(e.affectedParty ?? "")) bits &= ~512;
     if (hasTop && !e.topics.some((t) => filters.selectedTopics.has(t))) bits &= ~1024;
+    if (hasThtr && !theaterCodes!.has(e.location.country ?? "")) bits &= ~2048;
 
     // For each dimension, count if all OTHER filters pass (mask without that bit)
     const inc = (bit: number, key: string | null | undefined, map: Map<string, number>) => {
@@ -163,9 +170,12 @@ function computeCrossFacets(events: EnrichedEvent[], filters: AtlasFilters): Cro
         topicCounts.set(t, (topicCounts.get(t) ?? 0) + 1);
       }
     }
+    // Theater: derive from country code
+    const theater = COUNTRY_TO_THEATER[e.location.country ?? ""];
+    inc(2048, theater, theaterCounts);
   }
 
-  return { typeCounts, severityCounts, regionCounts, weaponSystemCounts, sourceTypeCounts, handleCounts, countryCounts, attackerCounts, targetCounts, affectedPartyCounts, topicCounts };
+  return { typeCounts, severityCounts, regionCounts, weaponSystemCounts, sourceTypeCounts, handleCounts, theaterCounts, countryCounts, attackerCounts, targetCounts, affectedPartyCounts, topicCounts };
 }
 
 /** Case-insensitive text match across multiple fields */
@@ -256,6 +266,9 @@ function AtlasViewInner() {
   const baseSourceTypeOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceType), [allEvents]);
   const baseWeaponSystemOptions = useMemo(() => extractOptions(allEvents, (e) => e.weaponSystem), [allEvents]);
   const baseHandleOptions = useMemo(() => extractOptions(allEvents, (e) => e.sourceChannel), [allEvents]);
+  const baseTheaterOptions = useMemo<FilterOption[]>(() =>
+    Object.entries(THEATERS).map(([key, t]) => ({ key, label: t.label })),
+  []);
   const baseCountryOptions = useMemo(() => extractOptions(allEvents, (e) => e.location.country), [allEvents]);
   const baseAttackerOptions = useMemo(() => extractOptions(allEvents, (e) => e.attacker), [allEvents]);
   const baseTargetOptions = useMemo(() => extractOptions(allEvents, (e) => e.target), [allEvents]);
@@ -281,7 +294,7 @@ function AtlasViewInner() {
   );
 
   // Merge base options with cross-filtered counts (single memo)
-  const { severityOptions, regionOptions, sourceTypeOptions, weaponSystemOptions, handleOptions, countryOptions, attackerOptions, targetOptions, affectedPartyOptions, topicOptions } = useMemo(() => {
+  const { severityOptions, regionOptions, sourceTypeOptions, weaponSystemOptions, handleOptions, theaterOptions, countryOptions, attackerOptions, targetOptions, affectedPartyOptions, topicOptions } = useMemo(() => {
     const merge = (opts: FilterOption[], counts: Map<string, number>): FilterOption[] =>
       opts.map((o) => ({ ...o, count: counts.get(o.key) ?? 0 }));
     return {
@@ -290,13 +303,14 @@ function AtlasViewInner() {
       sourceTypeOptions: merge(baseSourceTypeOptions, crossFacets.sourceTypeCounts),
       weaponSystemOptions: merge(baseWeaponSystemOptions, crossFacets.weaponSystemCounts),
       handleOptions: merge(baseHandleOptions, crossFacets.handleCounts),
+      theaterOptions: merge(baseTheaterOptions, crossFacets.theaterCounts),
       countryOptions: merge(baseCountryOptions, crossFacets.countryCounts),
       attackerOptions: merge(baseAttackerOptions, crossFacets.attackerCounts),
       targetOptions: merge(baseTargetOptions, crossFacets.targetCounts),
       affectedPartyOptions: merge(baseAffectedPartyOptions, crossFacets.affectedPartyCounts),
       topicOptions: merge(baseTopicOptions, crossFacets.topicCounts),
     };
-  }, [baseSeverityOptions, baseRegionOptions, baseSourceTypeOptions, baseWeaponSystemOptions, baseHandleOptions, baseCountryOptions, baseAttackerOptions, baseTargetOptions, baseAffectedPartyOptions, baseTopicOptions, crossFacets]);
+  }, [baseSeverityOptions, baseRegionOptions, baseSourceTypeOptions, baseWeaponSystemOptions, baseHandleOptions, baseTheaterOptions, baseCountryOptions, baseAttackerOptions, baseTargetOptions, baseAffectedPartyOptions, baseTopicOptions, crossFacets]);
 
   const [timelineDay, setTimelineDay] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -311,13 +325,23 @@ function AtlasViewInner() {
     dateFrom: timelineDay ?? filters.dateFrom?.slice(0, 10),
     dateTo: timelineDay ?? filters.dateTo?.slice(0, 10),
     weaponSystems: filters.selectedWeaponSystems.size > 0 ? [...filters.selectedWeaponSystems] : undefined,
-    countries: filters.selectedCountries.size > 0 ? [...filters.selectedCountries] : undefined,
+    countries: (() => {
+      const tc = filters.selectedTheaters.size > 0 ? theaterCountries(filters.selectedTheaters) : null;
+      const cc = filters.selectedCountries.size > 0 ? filters.selectedCountries : null;
+      if (!tc && !cc) return undefined;
+      if (tc && cc) {
+        // Intersect: only countries in both theater expansion AND explicit selection
+        const result = [...cc].filter((c) => tc.has(c));
+        return result.length > 0 ? result : ["__none__"]; // no overlap → match nothing
+      }
+      return [...(tc ?? cc!)];
+    })(),
     attackers: filters.selectedAttackers.size > 0 ? [...filters.selectedAttackers] : undefined,
     targets: filters.selectedTargets.size > 0 ? [...filters.selectedTargets] : undefined,
     affectedParties: filters.selectedAffectedParties.size > 0 ? [...filters.selectedAffectedParties] : undefined,
     topics: filters.selectedTopics.size > 0 ? [...filters.selectedTopics] : undefined,
     query: filters.searchQuery || undefined,
-  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems, filters.selectedCountries, filters.selectedAttackers, filters.selectedTargets, filters.selectedAffectedParties, filters.selectedTopics, filters.searchQuery, timelineDay]);
+  }), [filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedSourceTypes, filters.selectedHandles, filters.dateFrom, filters.dateTo, filters.selectedWeaponSystems, filters.selectedTheaters, filters.selectedCountries, filters.selectedAttackers, filters.selectedTargets, filters.selectedAffectedParties, filters.selectedTopics, filters.searchQuery, timelineDay]);
 
   const {
     events: feedEvents,
@@ -366,6 +390,7 @@ function AtlasViewInner() {
       if (filters.selectedWeaponSystems.size > 0 && !filters.selectedWeaponSystems.has(event.weaponSystem ?? "")) return false;
       if (filters.selectedSourceTypes.size > 0 && !filters.selectedSourceTypes.has(event.sourceType)) return false;
       if (filters.selectedHandles.size > 0 && !filters.selectedHandles.has(event.sourceChannel ?? "")) return false;
+      if (filters.selectedTheaters.size > 0 && !theaterCountries(filters.selectedTheaters).has(event.location.country ?? "")) return false;
       if (filters.selectedCountries.size > 0 && !filters.selectedCountries.has(event.location.country ?? "")) return false;
       if (filters.selectedAttackers.size > 0 && !filters.selectedAttackers.has(event.attacker ?? "")) return false;
       if (filters.selectedTargets.size > 0 && !filters.selectedTargets.has(event.target ?? "")) return false;
@@ -373,7 +398,7 @@ function AtlasViewInner() {
       if (filters.selectedTopics.size > 0 && !event.topics.some((t) => filters.selectedTopics.has(t))) return false;
       return true;
     });
-  }, [allEvents, filters.searchQuery, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles, filters.selectedCountries, filters.selectedAttackers, filters.selectedTargets, filters.selectedAffectedParties, filters.selectedTopics]);
+  }, [allEvents, filters.searchQuery, filters.selectedTypes, filters.selectedSeverities, filters.selectedRegions, filters.selectedWeaponSystems, filters.selectedSourceTypes, filters.selectedHandles, filters.selectedTheaters, filters.selectedCountries, filters.selectedAttackers, filters.selectedTargets, filters.selectedAffectedParties, filters.selectedTopics]);
 
   const { isPanelOpen, togglePanel: _togglePanel, setPanelOpen, closeFloatingPanels } = usePanelState(isMobile ? [] : ["filter", "feed"]);
 
@@ -594,6 +619,7 @@ function AtlasViewInner() {
           weaponSystemOptions={weaponSystemOptions}
           sourceTypeOptions={sourceTypeOptions}
           handleOptions={handleOptions}
+          theaterOptions={theaterOptions}
           countryOptions={countryOptions}
           attackerOptions={attackerOptions}
           targetOptions={targetOptions}
