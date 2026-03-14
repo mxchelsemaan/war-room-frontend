@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformMarkerRow } from "@/lib/transformEvent";
-import { DEFAULT_LOOKBACK_MS, MAP_COUNTRIES } from "@/config/map";
+import { DEFAULT_LOOKBACK_MS, THEATER_COUNTRIES } from "@/config/map";
 import type { MapMarkerRow, MapMarkerEvent } from "@/types/events";
 /** Poll interval for incremental marker updates */
 const POLL_MS = 30_000;
@@ -84,7 +84,7 @@ export function useMapMarkers(): UseMapMarkersReturn {
       const since = new Date(Date.now() - DEFAULT_LOOKBACK_MS).toISOString();
       const { data, error: rpcErr } = await supabase.rpc("get_map_markers", {
         p_since: since,
-        p_countries: MAP_COUNTRIES,
+        p_countries: THEATER_COUNTRIES,
         p_limit: 5000,
       });
 
@@ -114,7 +114,7 @@ export function useMapMarkers(): UseMapMarkersReturn {
     try {
       const { data, error: rpcErr } = await supabase.rpc("get_new_markers_since", {
         p_since: lastEnrichedAt.current,
-        p_countries: MAP_COUNTRIES,
+        p_countries: THEATER_COUNTRIES,
       });
 
       if (rpcErr) throw rpcErr;

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { isRelevantEvent } from "@/lib/filterUtils";
-import { FEED_COUNTRIES } from "@/config/map";
+import { THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent } from "@/types/events";
 const PAGE_SIZE = 30;
 const POLL_INTERVAL_MS = 15_000;
@@ -45,7 +45,7 @@ export function useFeedEvents(filters: FeedFilters): UseFeedEventsReturn {
 
   const buildParams = useCallback(() => {
     const params: Record<string, unknown> = {
-      p_countries: FEED_COUNTRIES,
+      p_countries: THEATER_COUNTRIES,
       p_limit: PAGE_SIZE,
     };
     if (filters.types?.length) params.p_types = filters.types;

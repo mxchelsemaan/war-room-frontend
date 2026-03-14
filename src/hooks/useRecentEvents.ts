@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { transformRow } from "@/lib/transformEvent";
 import { getEventTypeMeta } from "@/config/eventTypes";
 import { isRelevantEvent } from "@/lib/filterUtils";
-import { DEFAULT_LOOKBACK_MS, FEED_COUNTRIES } from "@/config/map";
+import { DEFAULT_LOOKBACK_MS, THEATER_COUNTRIES } from "@/config/map";
 import type { EventRow, EnrichedEvent, EventTypeMeta } from "@/types/events";
 const POLL_INTERVAL_MS = 30_000;
 const PAGE_SIZE = 500;
@@ -60,7 +60,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
   // Fetch all distinct event types once on mount
   useEffect(() => {
     if (!supabase) return;
-    supabase.rpc("get_event_types", { p_countries: FEED_COUNTRIES }).then(({ data }) => {
+    supabase.rpc("get_event_types", { p_countries: THEATER_COUNTRIES }).then(({ data }) => {
       if (data) {
         const types = (data as { event_type: string; count: number }[])
           .map((r) => getEventTypeMeta(r.event_type));
@@ -81,7 +81,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
       const since = new Date(Date.now() - DEFAULT_LOOKBACK_MS).toISOString();
       const { data, error: rpcErr } = await supabase.rpc("get_recent_events", {
         p_since: since,
-        p_countries: FEED_COUNTRIES,
+        p_countries: THEATER_COUNTRIES,
         p_limit: 2000,
       });
 
@@ -110,7 +110,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
     try {
       const { data, error: rpcErr } = await supabase.rpc("get_new_events_since", {
         p_since: lastPolledAt.current,
-        p_countries: FEED_COUNTRIES,
+        p_countries: THEATER_COUNTRIES,
       });
 
       if (rpcErr) throw rpcErr;
@@ -148,7 +148,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
         const { data, error: rpcErr } = await supabase.rpc("get_events_for_date_range", {
           p_from: from,
           p_to: to,
-          p_countries: FEED_COUNTRIES,
+          p_countries: THEATER_COUNTRIES,
           p_limit: PAGE_SIZE,
           p_offset: offset,
         });
@@ -181,7 +181,7 @@ export function useRecentEvents(): UseRecentEventsReturn {
       const { data, error: rpcErr } = await supabase.rpc("get_events_for_date_range", {
         p_from: day,
         p_to: day,
-        p_countries: FEED_COUNTRIES,
+        p_countries: THEATER_COUNTRIES,
         p_limit: PAGE_SIZE,
         p_offset: 0,
       });

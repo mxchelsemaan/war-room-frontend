@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { FEED_COUNTRIES } from "@/config/map";
+import { THEATER_COUNTRIES } from "@/config/map";
 import type { TimelineDateEntry } from "@/types/events";
 
 export interface UseTimelineDatesReturn {
@@ -24,7 +24,7 @@ export function useTimelineDates(
     setIsLoading(true);
     try {
       const params: Record<string, unknown> = {
-        p_countries: FEED_COUNTRIES,
+        p_countries: THEATER_COUNTRIES,
       };
       if (dateFrom) params.p_from = dateFrom.slice(0, 10);
       if (dateTo) params.p_to = dateTo.slice(0, 10);
