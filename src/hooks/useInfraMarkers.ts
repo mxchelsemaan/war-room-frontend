@@ -48,6 +48,7 @@ export function useInfraMarkers(): UseInfraMarkersReturn {
 
     async function fetch() {
       const { data, error: err } = await supabase!
+        .schema("config")
         .from("infrastructure_pins")
         .select("*")
         .order("display_order", { ascending: true });
