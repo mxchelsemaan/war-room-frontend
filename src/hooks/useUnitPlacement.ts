@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlacedUnit, UnitPath, NATOUnitType } from "@/types/units";
-import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
+import { DRAW_COLOR_PRESETS } from "@/config/colors";
 
 const DEFAULT_LOOP_MS = 30_000;
 

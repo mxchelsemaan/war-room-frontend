@@ -10,7 +10,7 @@ import { ColorPickerButton } from "./ColorPickerPopover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { AnnotationType, ArrowStyle } from "@/hooks/useDrawing";
-import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
+import { DRAW_COLOR_PRESETS } from "@/config/colors";
 import { Slider } from "@/components/ui/slider";
 import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
 import { ToggleChip } from "@/components/ui/ToggleChip";

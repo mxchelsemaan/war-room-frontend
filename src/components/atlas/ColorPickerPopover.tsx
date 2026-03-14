@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { DRAW_COLOR_PRESETS } from "@/hooks/useDrawing";
+import { DRAW_COLOR_PRESETS } from "@/config/colors";
 
 /* ── Color conversion helpers ─────────────────────────────── */
 

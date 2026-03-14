@@ -11,8 +11,6 @@ const uuid = () =>
         return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
       });
 
-export { DRAW_COLOR_PRESETS };
-
 export type AnnotationType = "pin" | "line" | "arrow" | "area";
 export type ArrowStyle = "simple" | "jagged";
 
