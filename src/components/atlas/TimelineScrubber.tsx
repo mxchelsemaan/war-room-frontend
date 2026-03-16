@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import type { TimelineDateEntry } from "@/types/events";
+import { posthog } from "@/lib/posthog";
 
 const BASE_MS = 900;
 const SPEEDS = [1, 2, 4] as const;
@@ -71,6 +72,7 @@ export function TimelineScrubber({ dates, activeDay, onChange, onPrefetchDay, op
 
   function togglePlay() {
     if (!activeDay) onChange(days[0]);
+    posthog.capture("timeline_used", { action: playing ? "pause" : "play" });
     setPlaying((p) => {
       if (!p && !open) onToggle();
       return !p;

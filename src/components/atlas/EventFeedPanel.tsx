@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import type { useYoutubePlayer } from "@/hooks/useYoutubePlayer";
 import { EventRow } from "./EventRow";
+import { posthog } from "@/lib/posthog";
 
 
 function groupByDate(events: EnrichedEvent[]): { date: string; items: EnrichedEvent[] }[] {
@@ -57,6 +58,30 @@ export function EventFeedPanel({
   const isMobile = useIsMobile();
 
   const groups = useMemo(() => groupByDate(events), [events]);
+
+  // Track feed_panel_opened when panel opens
+  const prevOpen = useRef(open);
+  useEffect(() => {
+    if (open && !prevOpen.current) {
+      posthog.capture("feed_panel_opened");
+    }
+    prevOpen.current = open;
+  }, [open]);
+
+  // Track feed_scrolled (debounced)
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    function handleScroll() {
+      clearTimeout(scrollTimerRef.current);
+      scrollTimerRef.current = setTimeout(() => {
+        posthog.capture("feed_scrolled");
+      }, 500);
+    }
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
 
   function handleToggle() {
     onOpenChange(!open);
