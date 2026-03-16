@@ -16,8 +16,7 @@ export interface ChatMessage {
   sources?: ChatSource[];
 }
 
-const COPILOT_URL =
-  import.meta.env.VITE_COPILOT_URL ?? "http://localhost:8765/chat";
+const COPILOT_URL = import.meta.env.VITE_COPILOT_URL ?? "";
 
 export function useCopilot() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -28,6 +27,11 @@ export function useCopilot() {
   const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
+
+    if (!COPILOT_URL) {
+      setError("Coming soon!");
+      return;
+    }
 
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
