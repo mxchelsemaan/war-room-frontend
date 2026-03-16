@@ -98,19 +98,23 @@ export function FilterSidebar({
     setLocalSearch(filters.searchQuery);
   }, [filters.searchQuery]);
 
+  // Use ref to avoid stale closure in debounced callback
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
+
   const handleSearchChange = useCallback((value: string) => {
     setLocalSearch(value);
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      onFiltersChange({ ...filters, searchQuery: value });
+      onFiltersChange({ ...filtersRef.current, searchQuery: value });
     }, 300);
-  }, [filters, onFiltersChange]);
+  }, [onFiltersChange]);
 
   const clearSearch = useCallback(() => {
     setLocalSearch("");
     clearTimeout(debounceRef.current);
-    onFiltersChange({ ...filters, searchQuery: "" });
-  }, [filters, onFiltersChange]);
+    onFiltersChange({ ...filtersRef.current, searchQuery: "" });
+  }, [onFiltersChange]);
 
   const fmtDate = (iso: string) => {
     const d = parseISO(iso);

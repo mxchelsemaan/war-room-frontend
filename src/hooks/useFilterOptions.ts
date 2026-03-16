@@ -60,7 +60,7 @@ export function useFilterOptions(allEvents: EnrichedEvent[], filters: AtlasFilte
   // Pre-filter events by search query before cross-faceting
   const searchFilteredEvents = useMemo(() => {
     if (!filters.searchQuery) return allEvents;
-    return allEvents.filter((e) => matchesSearch(filters.searchQuery, e.summary, e.location.name, e.attacker, e.target, e.affectedParty, e.weaponSystem, e.sourceChannel, e.topics.join(' ')));
+    return allEvents.filter((e) => matchesSearch(filters.searchQuery, e.summary, e.location.name, e.attacker, e.target, e.affectedParty, e.weaponSystem, e.sourceChannel, e.topics.join(' '), e.sourceClaim));
   }, [allEvents, filters.searchQuery]);
 
   // ── Cross-filtered counts: for each dimension, apply all OTHER filters ──

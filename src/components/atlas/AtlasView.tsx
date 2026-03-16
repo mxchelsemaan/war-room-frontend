@@ -205,7 +205,7 @@ function AtlasViewInner() {
   // Client-side filter by all selected filters
   const filteredEvents = useMemo(() => {
     return allEvents.filter((event) => {
-      if (filters.searchQuery && !matchesSearch(filters.searchQuery, event.summary, event.location.name, event.attacker, event.target, event.affectedParty, event.weaponSystem, event.sourceChannel, event.topics.join(' '))) return false;
+      if (filters.searchQuery && !matchesSearch(filters.searchQuery, event.summary, event.location.name, event.attacker, event.target, event.affectedParty, event.weaponSystem, event.sourceChannel, event.topics.join(' '), event.sourceClaim)) return false;
       if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(event.eventType)) return false;
       if (filters.selectedSeverities.size > 0 && !filters.selectedSeverities.has(event.severity)) return false;
       if (filters.selectedRegions.size > 0 && !filters.selectedRegions.has(event.location.region ?? "")) return false;
