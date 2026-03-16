@@ -122,7 +122,7 @@ export function useClusterLayer(
       layout: {
         visibility: "visible",
         "icon-image": ["concat", pinPrefix, bgFill, "-", ["get", "color"], "-", ["get", "event_icon"]] as unknown as maplibregl.ExpressionSpecification,
-        "icon-size": 0.4,
+        "icon-size": ["interpolate", ["linear"], ["zoom"], 7, 0.4, 12, 0.32, 16, 0.24] as unknown as number,
         "icon-anchor": pinAnchor,
         "icon-pitch-alignment": "viewport",
         "icon-rotation-alignment": "viewport",
