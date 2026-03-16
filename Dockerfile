@@ -9,8 +9,10 @@ COPY . .
 
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_POSTHOG_KEY
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_POSTHOG_KEY=$VITE_POSTHOG_KEY
 
 RUN npm run build
 
@@ -18,5 +20,6 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+USER nginx
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
