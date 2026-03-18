@@ -20,8 +20,8 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
-RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx && \
-    chown -R nginx:nginx /var/cache/nginx /var/run /var/log/nginx
+RUN mkdir -p /var/cache/nginx /var/log/nginx /tmp/nginx && \
+    chown -R nginx:nginx /var/cache/nginx /var/log/nginx /tmp/nginx /run
 USER nginx
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
