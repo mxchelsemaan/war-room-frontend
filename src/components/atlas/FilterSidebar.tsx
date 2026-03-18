@@ -10,7 +10,6 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { SidePanel } from "./SidePanel";
 import { MultiSelectDropdown } from "@/components/ui/MultiSelectDropdown";
 import type { EventTypeMeta } from "@/types/events";
-import { posthog } from "@/lib/posthog";
 
 export interface AtlasFilters {
   selectedTypes: Set<string>;
@@ -131,7 +130,6 @@ export function FilterSidebar({
 
   // Helper to update a specific Set filter field
   function updateSet<K extends keyof AtlasFilters>(field: K, value: AtlasFilters[K]) {
-    posthog.capture("filter_changed", { filter: field });
     onFiltersChange({ ...filters, [field]: value });
   }
 

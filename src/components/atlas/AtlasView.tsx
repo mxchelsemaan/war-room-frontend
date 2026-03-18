@@ -38,7 +38,6 @@ import type { MapMarkerEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { subDays } from "date-fns";
 import { theaterCountries } from "@/config/theaters";
-import { posthog } from "@/lib/posthog";
 
 function buildDefaultFilters(typeKeys?: string[], infraTypeKeys?: string[]): AtlasFilters {
   return {
@@ -95,11 +94,6 @@ function AtlasViewInner() {
   const ann = useAnnotationContext();
   const up = useUnitPlacementContext();
   const yt = useYoutubePlayer();
-
-  // Track page view on mount
-  useEffect(() => {
-    posthog.capture("page_viewed");
-  }, []);
 
   // Fetch infrastructure pins from Supabase
   const {
