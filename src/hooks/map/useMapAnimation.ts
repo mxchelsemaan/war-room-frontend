@@ -23,7 +23,6 @@ export function useMapAnimation(
 
     function hasActiveAnimations(): boolean {
       const l = layersRef.current;
-      const m = mapRef.current?.getMap();
       return l.rivers || l.territory || l.frontLines || l.terrain;
     }
 

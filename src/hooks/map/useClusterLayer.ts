@@ -39,6 +39,7 @@ export function useClusterLayer(
   const pinColors = useMemo(() => [...new Set(events.map(e => getEventTypeColor(e.event_type)))], [events]);
 
   const geoJson = useMemo<GeoJSON.FeatureCollection>(() => {
+    // eslint-disable-next-line react-hooks/purity -- crossfade needs current time for opacity calc
     const now = crossfadeEnabled ? Date.now() : 0;
     return {
       type: "FeatureCollection",

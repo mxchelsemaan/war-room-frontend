@@ -112,7 +112,7 @@ function AtlasViewInner() {
   const {
     events: allEvents,
     eventTypes: liveEventTypes,
-    totalCount,
+    totalCount: _totalCount,
     isLoading: eventsLoading,
     error: eventsError,
     fetchDateRange,
@@ -126,7 +126,7 @@ function AtlasViewInner() {
   } = useMapMarkers();
 
   const isLoading = eventsLoading || markersLoading;
-  const error = eventsError || markersError;
+  const _error = eventsError || markersError;
 
   // Timeline dates from materialized view
   const { dates: _timelineDateEntries } = useTimelineDates(
@@ -135,7 +135,7 @@ function AtlasViewInner() {
   );
 
   // Filter facets from materialized view
-  const { facets } = useFilterFacets(
+  const { facets: _facets } = useFilterFacets(
     filters.dateFrom || undefined,
     filters.dateTo || undefined,
   );
@@ -209,7 +209,7 @@ function AtlasViewInner() {
 
 
   // Client-side filter by all selected filters
-  const filteredEvents = useMemo(() => {
+  const _filteredEvents = useMemo(() => {
     return allEvents.filter((event) => {
       if (filters.searchQuery && !matchesSearch(filters.searchQuery, event.summary, event.location.name, event.attacker, event.target, event.affectedParty, event.weaponSystem, event.sourceChannel, event.topics.join(' '), event.sourceClaim)) return false;
       if (filters.selectedTypes.size > 0 && !filters.selectedTypes.has(event.eventType)) return false;

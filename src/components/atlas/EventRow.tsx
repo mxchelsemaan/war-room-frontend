@@ -69,8 +69,9 @@ export function EventRow({
   const isEvac = isEvacuationOrder(event);
   // Red glow expires 2 hours after the event date
   const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+  const [now] = useState(() => Date.now());
   const threatGlow = isThreat && event.dateTime
-    ? (Date.now() - new Date(event.dateTime).getTime()) < TWO_HOURS_MS
+    ? (now - new Date(event.dateTime).getTime()) < TWO_HOURS_MS
     : isThreat;
 
   const hasMedia = !!event.mediaUrl;
