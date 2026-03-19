@@ -38,6 +38,7 @@ import type { MapMarkerEvent } from "@/types/events";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { subDays } from "date-fns";
 import { theaterCountries } from "@/config/theaters";
+import { track } from "@/lib/analytics";
 
 function buildDefaultFilters(typeKeys?: string[], infraTypeKeys?: string[]): AtlasFilters {
   return {
@@ -235,6 +236,7 @@ function AtlasViewInner() {
       BOTTOM_PANELS.forEach(p => setPanelOpen(p as typeof id, false));
     }
     _togglePanel(id);
+    track("panel_toggled", { panel: id, open: !isPanelOpen(id) });
   }, [_togglePanel, setPanelOpen, BOTTOM_PANELS, isPanelOpen]);
 
   // Opening left sidebar collapses left-side floating panels; opening right sidebar collapses right-side ones
@@ -251,7 +253,7 @@ function AtlasViewInner() {
   const leftLabels = showLabels && !isPanelOpen('filter');
   const rightLabels = showLabels && !isPanelOpen('feed');
   const [monitorMode, setMonitorMode] = useState<MonitorMode>("auto");
-  const [layers, setLayers] = useState<LayerVisibility>({
+  const [layers, _setLayers] = useState<LayerVisibility>({
     terrain: false,
     hillshade: true,
     markers: true,
@@ -267,6 +269,18 @@ function AtlasViewInner() {
     subgovernorates: false,
   });
 
+  const setLayers: typeof _setLayers = useCallback((update) => {
+    _setLayers((prev) => {
+      const next = typeof update === "function" ? update(prev) : update;
+      for (const key of Object.keys(next) as (keyof LayerVisibility)[]) {
+        if (next[key] !== prev[key]) {
+          track("layer_toggled", { layer: key, enabled: next[key] });
+        }
+      }
+      return next;
+    });
+  }, []);
+
   // Compute effective layer visibility based on monitor mode
   const effectiveLayers = useMemo(() => {
     switch (monitorMode) {
@@ -281,8 +295,13 @@ function AtlasViewInner() {
 
   const mapRef = useRef<MapRef | null>(null);
 
+  const handleFiltersChange = useCallback((next: AtlasFilters) => {
+    setFilters(next);
+    track("filter_changed");
+  }, []);
+
   const handleClearFilters = useCallback(
-    () => setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key), Object.keys(infraTypes))),
+    () => { setFilters(buildDefaultFilters(liveEventTypes.map((t) => t.key), Object.keys(infraTypes))); track("filter_changed", { action: "clear" }); },
     [liveEventTypes, infraTypes],
   );
 
@@ -320,6 +339,11 @@ function AtlasViewInner() {
     if (eventId) setSelectedEventId(eventId);
   }, []);
 
+  // Track timeline day changes
+  useEffect(() => {
+    if (timelineDay) track("timeline_used", { day: timelineDay });
+  }, [timelineDay]);
+
   // When date range changes, fetch that range and reset timeline
   useEffect(() => {
     setTimelineDay(null);
@@ -327,6 +351,9 @@ function AtlasViewInner() {
       fetchDateRange(filters.dateFrom.slice(0, 10), filters.dateTo.slice(0, 10));
     }
   }, [filters.dateFrom, filters.dateTo, fetchDateRange]);
+
+  // Analytics: page view on mount
+  useEffect(() => { track("page_view"); }, []);
 
   // Disable 3D terrain on mobile
   useEffect(() => {
@@ -431,7 +458,7 @@ function AtlasViewInner() {
         <FilterSidebar
           eventTypes={liveEventTypes}
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={handleFiltersChange}
           onClear={handleClearFilters}
           open={isPanelOpen('filter')}
           onOpenChange={handleFilterOpenChange}
