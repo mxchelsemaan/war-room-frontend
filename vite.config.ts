@@ -4,7 +4,6 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  base: "/the-situation-room/",
   plugins: [react(), tailwindcss(), tsconfigPaths()],
   envPrefix: ["VITE_"],
   // MapLibre GL v5 uses class static fields — ES2022 target prevents
